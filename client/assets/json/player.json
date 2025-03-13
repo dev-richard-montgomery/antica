@@ -1,0 +1,55 @@
+{
+  "playerlist": [],
+  "newplayer": {
+    "worldlocation": { "x": 155, "y": 189 },
+    "lvls": { 
+      "lvl": 0, 
+      "mglvl": 0 
+    },
+    "stats": {
+      "health": 20, 
+      "magic": 10, 
+      "capacity": 50, 
+      "speed": 0.5
+    },
+    "state": {
+      "health": 20,
+      "magic": 10,
+      "capacity": 50
+    },
+    "equipped": {
+      "neck": null, 
+      "head": null, 
+      "back": null,
+      "mainhand": null, 
+      "chest": null, 
+      "offhand": null,
+      "hands": null, 
+      "legs": null, 
+      "feet": null
+    },
+    "skills": {
+      "fist": 0, 
+      "sword": 0, 
+      "axe": 0, 
+      "blunt": 0,
+      "distance": 0, 
+      "shield": 0, 
+      "fishing": 0
+    },
+    "experience": {
+      "lvl": 0, 
+      "mglvl": 0, 
+      "fist": 0,
+      "sword": 0, 
+      "axe": 0, 
+      "blunt": 0,
+      "distance": 0, 
+      "shield": 0, 
+      "fishing": 0
+    },
+    "inventory": [],
+    "depot": [],
+    "stance": "defensive"
+  }
+}

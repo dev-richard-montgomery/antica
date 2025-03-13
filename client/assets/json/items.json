@@ -1,0 +1,710 @@
+{
+  "items": [
+    {
+      "name": "canvas bag",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 8,
+        "weight": 0.5
+      },
+      "rarity": "common",
+      "description": "At least it isn't plastic.",
+      "buy": 3,
+      "sell": 1,
+      "spritePosition": { "x": 0, "y": 0 }
+    },
+    {
+      "name": "backpack",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 20,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "Ok Dora. Time for some exploring.",
+      "buy": 50,
+      "sell": 10,
+      "spritePosition": { "x": 64, "y": 0 }
+    },
+    {
+      "name": "enchanted backpack",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 40,
+        "weight": 0
+      },
+      "rarity": "uncommon",
+      "description": "Somebody used magic... on a backpack... and it was worth it.",
+      "buy": 500,
+      "spritePosition": { "x": 128, "y": 0 }
+    },
+    {
+      "name": "wolf tooth necklace",
+      "type": "neck",
+      "stats": {
+        "hp": 5,
+        "weight": 0.4
+      },
+      "rarity": "common",
+      "description": "Where did you get that necklace, the gross store?",
+      "buy": 150,
+      "spritePosition": { "x": 0, "y": 64 }
+    },
+    {
+      "name": "bejeweled pendant",
+      "type": "neck",
+      "stats": {
+        "mp": 8,
+        "weight": 0.8
+      },
+      "rarity": "common",
+      "description": "Ooo, shiny! What's it do?",
+      "buy": 150,
+      "spritePosition": { "x": 64, "y": 64 }
+    },
+    {
+      "name": "shawl",
+      "type": "neck",
+      "stats": {
+        "hp": 5,
+        "mp": 5,
+        "defense": 2,
+        "weight": 0.8
+      },
+      "rarity": "common",
+      "description": "Stylish, mysterious, and possibly enchanted, or just really good at collecting crumbs.",
+      "buy": 250,
+      "sell": 50,
+      "spritePosition": { "x": 128, "y": 64 }
+    },
+    {
+      "name": "hand wraps",
+      "type": "mainhand",
+      "stats": {
+        "offense": 2,
+        "weight": 0.4
+      },
+      "rarity": "common",
+      "description": "Fabric... for your fists.",
+      "buy": 6,
+      "sell": 2,
+      "spritePosition": { "x": 0, "y": 128 }
+    },
+    {
+      "name": "knuckles",
+      "type": "mainhand",
+      "stats": {
+        "offense": 5,
+        "defense": 2,
+        "weight": 1.2
+      },
+      "rarity": "common",
+      "description": "When a handshake isn't enough.",
+      "buy": 70,
+      "sell": 20,
+      "spritePosition": { "x": 64, "y": 128 }
+    },
+    {
+      "name": "deer horns",
+      "type": "mainhand",
+      "stats": {
+        "offense": 10,
+        "defense": 4,
+        "weight": 1.8
+      },
+      "rarity": "common",
+      "description": "A fist with extra points--literally. Great for combat. Bad for pockets.",
+      "sell": 60,
+      "spritePosition": { "x": 128, "y": 128 }
+    },
+    {
+      "name": "wooden club",
+      "type": "mainhand",
+      "stats": {
+        "offense": 5,
+        "defense": 2,
+        "weight": 7
+      },
+      "rarity": "common",
+      "description": "Blunt force persuasion with environmental responsibility.",
+      "buy": 15,
+      "sell": 5,
+      "spritePosition": { "x": 0, "y": 192 }
+    },
+    {
+      "name": "iron hammer",
+      "type": "mainhand",
+      "stats": {
+        "offense": 10,
+        "defense": 2,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "Ideal for smashing foes, forging items, and your DIY projects.",
+      "buy": 80,
+      "sell": 30,
+      "spritePosition": { "x": 64, "y": 192 }
+    },
+    {
+      "name": "mace",
+      "type": "mainhand",
+      "stats": {
+        "offense": 18,
+        "defense": 4,
+        "weight": 14
+      },
+      "rarity": "common",
+      "description": "Blunt force persuasion with environmental responsibility.",
+      "sell": 45,
+      "spritePosition": { "x": 128, "y": 192 }
+    },
+    {
+      "name": "hand axe",
+      "type": "mainhand",
+      "stats": {
+        "offense": 4,
+        "defense": 2,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "Small, sharp, and just unbalanced enough to make every swing an adventure.",
+      "buy": 18,
+      "sell": 8,
+      "spritePosition": { "x": 0, "y": 256 }
+    },
+    {
+      "name": "hatchet",
+      "type": "mainhand",
+      "stats": {
+        "twohander": true,
+        "offense": 15,
+        "defense": 2,
+        "weight": 10
+      },
+      "rarity": "common",
+      "description": "Uhm, yeah... it's called Survivalist Energy.",
+      "buy": 80,
+      "sell":30,
+      "spritePosition": { "x": 64, "y": 256 }
+    },
+    {
+      "name": "viking axe",
+      "type": "mainhand",
+      "stats": {
+        "offense": 15,
+        "defense": 4,
+        "weight": 9
+      },
+      "rarity": "common",
+      "description": "Shields, doors, or enemies—this axe ensures they all open eventually.",
+      "sell": 40,
+      "spritePosition": { "x": 128, "y": 256 }
+    },
+    {
+      "name": "dagger",
+      "type": "mainhand",
+      "stats": {
+        "offense": 3,
+        "defense": 2,
+        "weight": 2
+      },
+      "rarity": "common",
+      "description": "Small, sharp, concealable.",
+      "buy": 18,
+      "sell": 6,
+      "spritePosition": { "x": 0, "y": 320 }
+    },
+    {
+      "name": "rapier",
+      "type": "mainhand",
+      "stats": {
+        "offense": 7,
+        "defense": 4,
+        "weight": 4
+      },
+      "rarity": "common",
+      "description": "Light, deadly, and guaranteed to make every duel 80% more dramatic.",
+      "buy": 100,
+      "sell": 25,
+      "spritePosition": { "x": 64, "y": 320 }
+    },
+    {
+      "name": "gladiator sword",
+      "type": "mainhand",
+      "stats": {
+        "offense": 14,
+        "defense": 5,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "There's a glory end, and an entertainment end. Try and stay on the glory end.",
+      "sell": 50,
+      "spritePosition": { "x": 128, "y": 320 }
+    },
+    {
+      "name": "spear",
+      "type": "mainhand",
+      "stats": {
+        "offense": 12,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "It's like a knife... from a distance.",
+      "buy": 25,
+      "sell": 12,
+      "spritePosition": { "x": 0, "y": 384 }
+    },
+    {
+      "name": "wooden buckler",
+      "type": "offhand",
+      "stats": {
+        "defense": 5,
+        "weight": 6
+      },
+      "rarity": "common",
+      "description": "Block against the grain.",
+      "buy": 25,
+      "sell": 5,
+      "spritePosition": { "x": 0, "y": 512 }
+    },
+    {
+      "name": "targe",
+      "type": "offhand",
+      "stats": {
+        "defense": 10,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "A shield that offers tactical punching.",
+      "buy": 150,
+      "sell": 50,
+      "spritePosition": { "x": 64, "y": 512 }
+    },
+    {
+      "name": "heater",
+      "type": "offhand",
+      "stats": {
+        "defense": 15,
+        "weight": 7
+      },
+      "rarity": "common",
+      "description": "Perfect for deflecting swords, arrows, and unsolicited life advice.",
+      "sell": 75,
+      "spritePosition": { "x": 128, "y": 512 }
+    },
+    {
+      "name": "cowboy hat",
+      "type": "head",
+      "stats": {
+        "defense": 2,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "That look of questionable justice.",
+      "buy": 35,
+      "sell": 12,
+      "spritePosition": { "x": 0, "y": 576 }
+    },
+    {
+      "name": "studded helm",
+      "type": "head",
+      "stats": {
+        "defense": 6,
+        "weight": 2
+      },
+      "rarity": "common",
+      "description": "Adds extra protection and just enough weight to make bad ideas seem like good ones.",
+      "sell": 25,
+      "spritePosition": { "x": 64, "y": 576 }
+    },
+    {
+      "name": "chain coif",
+      "type": "head",
+      "stats": {
+        "defense": 12,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "Offers solid defense, and mild neck pain.",
+      "sell": 35,
+      "spritePosition": { "x": 128, "y": 576 }
+    },
+    {
+      "name": "tunic",
+      "type": "chest",
+      "stats": {
+        "defense": 2,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "Protection against mild wind, and insecurity.",
+      "buy": 45,
+      "sell": 25,
+      "spritePosition": { "x": 0, "y": 640 }
+    },
+    {
+      "name": "leather cuirass",
+      "type": "chest",
+      "stats": {
+        "defense": 8,
+        "weight": 4
+      },
+      "rarity": "common",
+      "description": "Tough enough to stop a knife. Who wants to test it?",
+      "sell": 35,
+      "spritePosition": { "x": 64, "y": 640 }
+    },
+    {
+      "name": "chainmail",
+      "type": "chest",
+      "stats": {
+        "defense": 16,
+        "weight": 8
+      },
+      "rarity": "common",
+      "description": "Ok, this time it'll definitely stop a knife.",
+      "sell": 45,
+      "spritePosition": { "x": 128, "y": 640 }
+    },
+    {
+      "name": "linen legs",
+      "type": "legs",
+      "stats": {
+        "defense": 2,
+        "weight": 2
+      },
+      "rarity": "common",
+      "description": "Light, comfortable, and offering the same defense as strong opinions.",
+      "buy": 40,
+      "sell": 12,
+      "spritePosition": { "x": 0, "y": 704 }
+    },
+    {
+      "name": "leather kilt",
+      "type": "legs",
+      "stats": {
+        "defense": 6,
+        "weight": 3
+      },
+      "rarity": "common",
+      "description": "Protects your thighs and your dignity—most of the time.",
+      "sell": 24,
+      "spritePosition": { "x": 64, "y": 704 }
+    },
+    {
+      "name": "chain leggings",
+      "type": "legs",
+      "stats": {
+        "defense": 16,
+        "weight": 6
+      },
+      "rarity": "common",
+      "description": "Great for defense, terrible for sneaking, fantastic for sounding important.",
+      "sell": 40,
+      "spritePosition": { "x": 128, "y": 704 }
+    },
+    {
+      "name": "shoes",
+      "type": "feet",
+      "stats": {
+        "defense": 3,
+        "weight": 1.6
+      },
+      "rarity": "common",
+      "description": "Hide those things you call feet.",
+      "sell": 25,
+      "spritePosition": { "x": 0, "y": 768 }
+    }    
+  ],
+  "itemsInGame": [
+    {
+      "name": "canvas bag",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 8,
+        "weight": 0.5
+      },
+      "rarity": "common",
+      "description": "At least it isn't plastic.",
+      "buy": 3,
+      "sell": 1,
+      "spritePosition": { "x": 0, "y": 0 },
+      "id": 1,
+      "category": "world",
+      "worldPosition": { "x": 152, "y": 188 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "backpack",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 20,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "Ok Dora. Time for some exploring.",
+      "buy": 50,
+      "sell": 10,
+      "spritePosition": { "x": 64, "y": 0 },
+      "id": 2,
+      "category": "world",
+      "worldPosition": { "x": 153, "y": 188 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "mace",
+      "type": "mainhand",
+      "stats": {
+        "offense": 18,
+        "defense": 4,
+        "weight": 14
+      },
+      "rarity": "common",
+      "description": "Blunt force persuasion with environmental responsibility.",
+      "sell": 45,
+      "spritePosition": { "x": 128, "y": 192 },
+      "id": 3,
+      "category": "world",
+      "worldPosition": { "x": 154, "y": 188 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "hand axe",
+      "type": "mainhand",
+      "stats": {
+        "offense": 4,
+        "defense": 2,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "Small, sharp, and just unbalanced enough to make every swing an adventure.",
+      "buy": 18,
+      "sell": 8,
+      "spritePosition": { "x": 0, "y": 256 },
+      "id": 4,
+      "category": "world",
+      "worldPosition": { "x": 152, "y": 187 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "hatchet",
+      "type": "mainhand",
+      "stats": {
+        "twohander": true,
+        "offense": 15,
+        "defense": 2,
+        "weight": 10
+      },
+      "rarity": "common",
+      "description": "Uhm, yeah... it's called Survivalist Energy.",
+      "buy": 80,
+      "sell":30,
+      "spritePosition": { "x": 64, "y": 256 },
+      "id": 5,
+      "category": "world",
+      "worldPosition": { "x": 153, "y": 187 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "targe",
+      "type": "offhand",
+      "stats": {
+        "defense": 10,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "A shield that offers tactical punching.",
+      "buy": 150,
+      "sell": 50,
+      "spritePosition": { "x": 64, "y": 512 },
+      "id": 6,
+      "category": "world",
+      "worldPosition": { "x": 154, "y": 187 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "heater",
+      "type": "offhand",
+      "stats": {
+        "defense": 15,
+        "weight": 7
+      },
+      "rarity": "common",
+      "description": "Perfect for deflecting swords, arrows, and unsolicited life advice.",
+      "sell": 75,
+      "spritePosition": { "x": 128, "y": 512 },
+      "id": 7,
+      "category": "world",
+      "worldPosition": { "x": 152, "y": 189 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "cowboy hat",
+      "type": "head",
+      "stats": {
+        "defense": 2,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "That look of questionable justice.",
+      "buy": 35,
+      "sell": 12,
+      "spritePosition": { "x": 0, "y": 576 },
+      "id": 8,
+      "category": "world",
+      "worldPosition": { "x": 153, "y": 189 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "studded helm",
+      "type": "head",
+      "stats": {
+        "defense": 6,
+        "weight": 2
+      },
+      "rarity": "common",
+      "description": "Adds extra protection and just enough weight to make bad ideas seem like good ones.",
+      "sell": 25,
+      "spritePosition": { "x": 64, "y": 576 },
+      "id": 9,
+      "category": "world",
+      "worldPosition": { "x": 154, "y": 189 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "chain coif",
+      "type": "head",
+      "stats": {
+        "defense": 12,
+        "weight": 5
+      },
+      "rarity": "common",
+      "description": "Offers solid defense, and mild neck pain.",
+      "sell": 35,
+      "spritePosition": { "x": 128, "y": 576 },
+      "id": 10,
+      "category": "world",
+      "worldPosition": { "x": 152, "y": 190 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "tunic",
+      "type": "chest",
+      "stats": {
+        "defense": 2,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "Protection against mild wind, and insecurity.",
+      "buy": 45,
+      "sell": 25,
+      "spritePosition": { "x": 0, "y": 640 },
+      "id": 11,
+      "category": "world",
+      "worldPosition": { "x": 153, "y": 190 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "leather cuirass",
+      "type": "chest",
+      "stats": {
+        "defense": 8,
+        "weight": 4
+      },
+      "rarity": "common",
+      "description": "Tough enough to stop a knife. Who wants to test it?",
+      "sell": 35,
+      "spritePosition": { "x": 64, "y": 640 },
+      "id": 12,
+      "category": "world",
+      "worldPosition": { "x": 154, "y": 190 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "chainmail",
+      "type": "chest",
+      "stats": {
+        "defense": 16,
+        "weight": 8
+      },
+      "rarity": "common",
+      "description": "Ok, this time it'll definitely stop a knife.",
+      "sell": 45,
+      "spritePosition": { "x": 128, "y": 640 },
+      "id": 13,
+      "category": "world",
+      "worldPosition": { "x": 155, "y": 190 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "linen legs",
+      "type": "legs",
+      "stats": {
+        "defense": 2,
+        "weight": 2
+      },
+      "rarity": "common",
+      "description": "Light, comfortable, and offering the same defense as strong opinions.",
+      "buy": 40,
+      "sell": 12,
+      "spritePosition": { "x": 0, "y": 704 },
+      "id": 14,
+      "category": "world",
+      "worldPosition": { "x": 152, "y": 191 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "leather kilt",
+      "type": "legs",
+      "stats": {
+        "defense": 6,
+        "weight": 3
+      },
+      "rarity": "common",
+      "description": "Protects your thighs and your dignity—most of the time.",
+      "sell": 24,
+      "spritePosition": { "x": 64, "y": 704 },
+      "id": 15,
+      "category": "world",
+      "worldPosition": { "x": 153, "y": 191 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "chain leggings",
+      "type": "legs",
+      "stats": {
+        "defense": 16,
+        "weight": 6
+      },
+      "rarity": "common",
+      "description": "Great for defense, terrible for sneaking, fantastic for sounding important.",
+      "sell": 40,
+      "spritePosition": { "x": 128, "y": 704 },
+      "id": 16,
+      "category": "world",
+      "worldPosition": { "x": 154, "y": 191 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "shoes",
+      "type": "feet",
+      "stats": {
+        "defense": 3,
+        "weight": 1.6
+      },
+      "rarity": "common",
+      "description": "Hide those things you call feet.",
+      "sell": 25,
+      "spritePosition": { "x": 0, "y": 768 },
+      "id": 17,
+      "category": "world",
+      "worldPosition": { "x": 155, "y": 191 },
+      "drawPosition": { "x": null, "y": null }
+    }
+  ]
+}
