@@ -1,15 +1,17 @@
-import { visibleMap } from '../CONST';
+import { resources } from '../utils/resources.js';
+import { ctx, visibleArea } from '../CONST.js';
+import { generateHexId } from '../utils/utils.js';
 
-export class Player {
+class Player {
   constructor() {
     this.image = new Image();
-    this.image.src = '../assets/sprites/player-assets.png';
+    this.image.src = '../../client/assets/sprites/player-assets.png';
     this.pixels = 64;
     this.direction = { x: 0, y: 128 };
     this.cooldown = false;
     this.drawTo = { 
-      x: (visibleMap.width / 2) - (this.pixels / 2 + this.pixels),
-      y: (visibleMap.height / 2) - (this.pixels / 2 + this.pixels)
+      x: (visibleArea.width / 2) - (this.pixels / 2 + this.pixels),
+      y: (visibleArea.height / 2) - (this.pixels / 2 + this.pixels)
     };
   };
 
@@ -20,7 +22,45 @@ export class Player {
     });
   };
 
-  draw(ctx) {
+  getWorldPosition() {
+    return this.worldPosition;
+  };
+
+  playerExists(playername) {
+    return Array.isArray(resources.playerData.playerlist) &&
+           resources.playerData.playerlist.some(player => player.name === playername);
+  };
+
+  createPlayer(playername) {
+    if (!Array.isArray(resources.playerData.playerlist)) {
+      resources.playerData.playerlist = [];
+    };
+
+    let existingPlayer = resources.playerData.playerlist.find(player => player.name === playername);
+    if (existingPlayer) {
+      console.log(`Logged in as ${playername}.`);
+      Object.assign(this, existingPlayer); // Assign existing player properties to `this`
+      return;
+    };
+
+    let newId;
+    do {
+      newId = generateHexId();
+    } while (resources.playerData.playerlist.some(player => player.id === newId));
+
+    const newPlayer = {
+      id: newId,
+      name: playername,
+      ...resources.playerData.newplayer
+    };
+
+    resources.playerData.playerlist.push(newPlayer);
+    console.log(`New player ${playername} added.`);
+
+    Object.assign(this, newPlayer);
+  };
+
+  draw() {
     ctx.drawImage(
       this.image,
       this.direction.x,
@@ -34,3 +74,5 @@ export class Player {
     );
   };
 };
+
+export const player = new Player();

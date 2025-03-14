@@ -1,7 +1,7 @@
 {
   "playerlist": [],
   "newplayer": {
-    "worldlocation": { "x": 155, "y": 189 },
+    "worldPosition": { "x": 155, "y": 189 },
     "lvls": { 
       "lvl": 0, 
       "mglvl": 0 

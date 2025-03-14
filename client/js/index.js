@@ -1,23 +1,24 @@
-import { resources } from '../js/classes/Resources';
-import { Player } from '../js/classes/Player';
-import { MapArea } from '../js/classes/MapArea';
-import { Item } from '../js/classes/Item';
-import { Ui } from '../js/classes/UserInterface';
+import { login } from './utils/login.js';
+import { canvas, ctx, game } from './CONST.js';
+import { mapArea } from './classes/MapArea.js';
 
-// Initiations
-const player = new Player();
-const mapArea = new MapArea();
-const ui = new Ui();
-const item = new Item();
+addEventListener("DOMContentLoaded", e => {  
+  document.querySelector('#login-form').addEventListener('submit', login, { once: true });
+});
 
-// let lastMouseX = 0;
-// let lastMouseY = 0;
-// let boundaryTiles = [];
-// let waterTiles = [];
-// let uppermostTiles = [];
-// let uiState = 'player';
-// let uiStance = 'passive';
-// let inGameItems = [];
-// let heldItem = null;
-// let lastValidPosition = null;
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Update game logic
+  if (game.on) {
+    mapArea.drawArea();
+  };
+  // Draw functions
+
+  // drawAll();
+
+  // Call the next frame
+  requestAnimationFrame(gameLoop);
+};
+
+gameLoop();

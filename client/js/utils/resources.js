@@ -1,6 +1,4 @@
-import { generateHexId } from '../utils/utils';
-
-const BASE_URL = './client/assets/json/';
+const BASE_URL = '../client/assets/json/';
 
 class Resources {
   constructor() {
@@ -58,35 +56,6 @@ class Resources {
     const data = await this.fetchJson('items.json');
     this.itemData = data;
     this.itemData.isLoaded = true;
-  }
-
-  playerExists(playername) {
-    return Array.isArray(this.playerData.playerlist) && this.playerData.playerlist.some(player => player.name === playername);
-  }
-
-  createPlayer(playername) {
-    if (!Array.isArray(this.playerData.playerlist)) this.playerData.playerlist = [];
-
-    if (this.playerExists(playername)) {
-        console.log(`Logged in as ${playername}.`);
-        return this.playerData.playerlist.find(player => player.name === playername);
-    }
-
-    // Generate a unique ID
-    let newId;
-    do {
-        newId = generateHexId();
-    } while (this.playerData.playerlist.some(player => player.id === newId));
-
-    const newPlayer = {
-        id: newId,
-        name: playername,
-        details: { ...this.playerData.newplayer }
-    };
-
-    this.playerData.playerlist.push(newPlayer);
-    console.log(`New player ${playername} added.`);
-    return newPlayer;
   }
 }
 
