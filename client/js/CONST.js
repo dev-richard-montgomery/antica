@@ -29,7 +29,7 @@ const uppermostTileIDs = [30, 31, 300, 301, 320, 321, 322, 323, 324, 340, 343, 3
 const waterTileIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 // screen variables
-const visibleMap = {
+const visibleArea = {
   frames: { row: 11, col: 13 },
   width: canvas.width - canvas.uiWidth, 
   height: canvas.height
@@ -63,23 +63,23 @@ const arrows = {
     upInactive: { x: 192, y: 640 + 16 },
   },
   one: { 
-    down: { x: renderArea.width + 128, y: 192 + 64 },
-    up: { x: renderArea.width, y: 192 + 64 }
+    down: { x: visibleArea.width + 128, y: 192 + 64 },
+    up: { x: visibleArea.width, y: 192 + 64 }
   },
   two: { 
-    down: { x: renderArea.width + 128, y: 192 + 64 + 32 + 160 },
-    up: { x: renderArea.width, y: 192 + 64 + 32 + 160 }
+    down: { x: visibleArea.width + 128, y: 192 + 64 + 32 + 160 },
+    up: { x: visibleArea.width, y: 192 + 64 + 32 + 160 }
   }
 };
 
 const inventorySlots = {
   primary: {
-    header: { x: renderArea.width, y: 192 + 64, width: 192, height: 32 },
-    slots: { x: renderArea.width, y: 192 + 64 + 32, width: 192, height: 160, expandedHeight: 352 }
+    header: { x: visibleArea.width, y: 192 + 64, width: 192, height: 32 },
+    slots: { x: visibleArea.width, y: 192 + 64 + 32, width: 192, height: 160, expandedHeight: 352 }
   },
   secondary: {
-    header: { x: renderArea.width, y: 192 + 64 + 32 + 160, width: 192, height: 32 },
-    slots: { x: renderArea.width, y: 192 + 64 + 32 + 160 + 32, width: 192, height: 160 }
+    header: { x: visibleArea.width, y: 192 + 64 + 32 + 160, width: 192, height: 32 },
+    slots: { x: visibleArea.width, y: 192 + 64 + 32 + 160 + 32, width: 192, height: 160 }
   }
 };
 
@@ -97,6 +97,6 @@ export {
   inventorySlots,  
   tileSize, 
   uppermostTileIDs,
-  visibleMap, 
+  visibleArea, 
   waterTileIDs 
 };
