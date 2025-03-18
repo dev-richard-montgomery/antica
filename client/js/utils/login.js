@@ -25,6 +25,5 @@ export const login = async e => {
     
     game.on = true;
     canvas.style.cursor = 'crosshair';
-    console.log('logged in')
   }, 500);
 };
