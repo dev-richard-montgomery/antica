@@ -3,12 +3,14 @@ import { login } from './utils/login.js';
 import { status } from './Status.js';
 import { player } from './classes/Player.js';
 import { mapArea } from './classes/MapArea.js';
+import { ui } from './classes/UserInterface.js';
 
 const drawAll = () => {
   status();
   mapArea.drawArea();
   player.draw();
   mapArea.drawUpperMostTiles();
+  ui.draw();
 };
 
 // event handlers ------------------------------------------------------------------------
@@ -17,7 +19,29 @@ addEventListener("DOMContentLoaded", e => {
 
   addEventListener('keydown', player.playerMove);
 
+  canvas.addEventListener("mousedown", e => {
+    // handleMouseDown(e);
+    ui.handleUiStates(e);
+  });
 
+  canvas.addEventListener("mousemove", e => {
+    // handleMouseMove(e);
+    ui.handleUiStates(e);
+  }); 
+
+  // canvas.addEventListener("mouseup", e => {
+  //   handleMouseUp(e);
+  // });
+
+  // canvas.addEventListener("contextmenu", e => {
+  //   handleRightClick(e);
+  // });
+
+  // // window.addEventListener('resize', resizeCanvas);
+
+  // addEventListener('beforeunload', async (e) => {
+  //   await updateAndPostGameData();
+  // });
 });
 
 // game loop -----------------------------------------------------------------------------
@@ -29,7 +53,6 @@ function gameLoop() {
     drawAll();
   };
 
-  // Call the next frame
   requestAnimationFrame(gameLoop);
 };
 

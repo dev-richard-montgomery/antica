@@ -1,63 +1,120 @@
-export class Ui {
+import { canvas, ctx, uiSections, visibleArea } from '../CONST.js';
+
+class Ui {
   constructor() {
     this.image = new Image();
-    this.image.src = './backend/assets/ui_data/ui-elements-assets.png';
-    this.pixels = 64;
-    this.top = {
-      location: { x: screenWidth, y: 0 },
-      miniMap: { x: 0, y: 0, width: 192, height: 192 },
-      equipArea: { x: 0, y: 192, width: 192, height: 192 },
-      playerDetails: { x: 0, y: 384, width: 192, height: 192 },
-    };
-    this.equipped = {
-      neck: { x: 0, y: 192 },
-      head: { x: 64, y: 192 },
-      back: { x: 128, y: 192 },
-      mainhand: { x: 0, y: 256 },
-      chest: { x: 64, y: 256 },
-      offhand: { x: 128, y: 256 },
-      hands: { x: 0, y: 320 },
-      legs: { x: 64, y: 320 },
-      feet: { x: 128, y: 320 },
-    };
-    this.toggle = {
-      location: { x: screenWidth, y: 192 },
-      sprite: { x: 192, y: 384, width: 192, height: 64 },
-      mapButton: { x: 192, y: 448 },
-      mapButtonLocation: { x: screenWidth, y: 192 },
-      inventoryButton: { x: 256, y: 448 },
-      inventoryButtonLocation: { x: screenWidth + 64, y: 192 },
-      playerButton: { x: 320, y: 448 },
-      playerButtonLocation: { x: screenWidth + 128, y: 192 }
-    };
-    this.stance = {
-      location: { x: screenWidth, y: 640 },
-      sprite: { x: 192, y: 512, width: 192, height: 64 },
-      offense: { x: 192, y: 576 },
-      offenseLocation: { x: screenWidth, y: 640 },
-      defense: { x: 256, y: 576 },
-      defenseLocation: { x: screenWidth + 64, y: 640 },
-      passive: { x: 320, y: 576 },
-      passiveLocation: { x: screenWidth + 128, y: 640 }
-    },
-    this.misc = {
-      arrows: {},
-      selectors: {},
-      health: {},
-      mana: {},
-      strength: {},
-      xmark: {}
-    };
+    this.image.src = './assets/sprites/ui-assets.png';
+    this.btnSize = 64;
     this.state = {
       activeToggle: 'inventory',
-      activeStance: 'passive'
+      activeStance: 'passive', // Can be 'offense', 'defense', or 'passive'
     };
-  };
+  }
 
   loadImage() {
     return new Promise((resolve, reject) => {
       this.image.onload = () => resolve(this.image);
-      this.image.onerror = () => reject(new Error('Failed to load area image.'));
+      this.image.onerror = () => reject(new Error('Failed to load UI image.'));
     });
+  }
+
+  draw = () => {
+    const { top, uiBar, bottom } = uiSections;
+
+    const drawSection = (sprite, location, width = sprite.width, height = sprite.height) => {
+      if (sprite && location) {
+        ctx.drawImage(this.image, sprite.x, sprite.y, width, height, location.x, location.y, width, height);
+      }
+    };
+
+    // Clear UI section
+    ctx.clearRect(visibleArea.width, 0, canvas.uiWidth, canvas.height);
+
+    // Draw UI bar background
+    drawSection(uiBar.bar, uiBar.location);
+
+    // UI buttons mapping
+    const uiBarButtons = {
+      map: { section: top.miniMap, button: uiBar.mapButton, location: uiBar.mapButtonLocation },
+      inventory: { section: top.equipArea, button: uiBar.inventoryButton, location: uiBar.inventoryButtonLocation },
+      player: { section: top.playerDetails, button: uiBar.playerButton, location: uiBar.playerButtonLocation },
+    };
+
+    if (uiBarButtons[this.state.activeToggle]) {
+      const { section, button, location } = uiBarButtons[this.state.activeToggle];
+      drawSection(section, top.location, top.miniMap.width, top.miniMap.height); // Top section
+      drawSection(button, location, this.btnSize, this.btnSize); // Active button
+    }
+
+    // Content area background based on active toggle
+    if (["map", "inventory", "player"].includes(this.state.activeToggle)) {
+      ctx.drawImage(this.image, 192, 0, 192, 64, visibleArea.width, 256, 192, 64);
+      for (let y = 320; y <= (this.state.activeToggle === "player" ? 512 : 576); y += 64) {
+        ctx.drawImage(this.image, 192, 64, 192, 64, visibleArea.width, y, 192, 64);
+      }
+      ctx.drawImage(this.image, 192, 128, 192, 64, visibleArea.width, this.state.activeToggle === "player" ? 576 : 640, 192, 64);
+    }
+
+    // Draw stance buttons if player UI is active
+    if (this.state.activeToggle === 'player') {
+      const stanceSprites = {
+        offense: bottom.offense,
+        defense: bottom.defense,
+        passive: bottom.passive,
+      };
+
+      const stanceLocations = {
+        offense: bottom.offenseLocation,
+        defense: bottom.defenseLocation,
+        passive: bottom.passiveLocation,
+      };
+
+      drawSection(bottom.sprite, bottom.location);
+      drawSection(stanceSprites[this.state.activeStance], stanceLocations[this.state.activeStance], this.btnSize, this.btnSize);
+    }
   };
-};
+
+  handleUiStates = (e) => {
+    const { uiBar, bottom } = uiSections;
+    const { offsetX, offsetY, type } = e;
+
+    const isMouseOverButton = (button) =>
+      button && offsetX >= button.x && offsetX <= button.x + this.btnSize && offsetY >= button.y && offsetY <= button.y + this.btnSize;
+
+    const handleInteraction = (buttons, stateUpdater) => {
+      for (const [key, button] of Object.entries(buttons)) {
+        if (isMouseOverButton(button)) {
+          if (type === "mousedown") {
+            stateUpdater(key);
+            this.draw();
+          }
+          return "pointer"; // Indicate cursor should be a pointer
+        }
+      }
+      return null; // No interaction
+    };
+
+    const uiBarButtons = {
+      map: uiBar.mapButtonLocation,
+      inventory: uiBar.inventoryButtonLocation,
+      player: uiBar.playerButtonLocation,
+    };
+
+    if (this.state.activeToggle === "player") {
+      const stanceButtons = {
+        offense: bottom.offenseLocation,
+        defense: bottom.defenseLocation,
+        passive: bottom.passiveLocation,
+      };
+
+      return (
+        handleInteraction(uiBarButtons, (key) => (this.state.activeToggle = key)) ||
+        handleInteraction(stanceButtons, (key) => (this.state.activeStance = key))
+      );
+    }
+
+    return handleInteraction(uiBarButtons, (key) => (this.state.activeToggle = key));
+  };
+}
+
+export const ui = new Ui();
