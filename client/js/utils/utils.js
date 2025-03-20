@@ -1,3 +1,6 @@
+import { visibleArea } from "../CONST.js";
+import { player } from '../classes/Player.js';
+
 // general functions
 export const generateHexId = () => {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
@@ -10,6 +13,34 @@ export const updateCursorAfterMove = () => {
   });
   canvas.dispatchEvent(event);
 };
+
+export const isInRenderArea = (item) => {
+  // Ensure worldPosition exists and has valid numbers for x and y
+  if (
+    !item.worldPosition || 
+    typeof item.worldPosition.x !== 'number' || 
+    typeof item.worldPosition.y !== 'number'
+  ) {
+    return false;
+  };
+
+  const { x, y } = item.worldPosition;
+  const playerX = player.worldPosition.x;
+  const playerY = player.worldPosition.y;
+
+  // Calculate the render area's boundaries
+  const startX = playerX - Math.floor(visibleArea.frames.col / 2);
+  const endX = playerX + Math.floor(visibleArea.frames.col / 2); 
+  const startY = playerY - Math.floor(visibleArea.frames.row / 2);
+  const endY = playerY + Math.floor(visibleArea.frames.row / 2);
+
+  // Check if the item is within the render area
+  return x >= startX && x <= endX && y >= startY && y <= endY;
+};
+
+
+
+
 
 // space validation
 const isMouseOnCanvas = (x, y) => (
@@ -35,30 +66,6 @@ const isInRangeOfPlayer = (item) => {
   const dy = item.worldPosition && Math.abs(item.worldPosition.y - playerFrameY);
   
   return dx <= 1 && dy <= 1; // Ensures the item is in the player's frame or an adjacent frame
-};
-
-const isInRenderArea = (item) => {
-  // Ensure worldPosition exists and has valid numbers for x and y
-  if (
-    !item.worldPosition || 
-    typeof item.worldPosition.x !== 'number' || 
-    typeof item.worldPosition.y !== 'number'
-  ) {
-    return false;
-  };
-
-  const { x, y } = item.worldPosition;
-  const playerX = player.data.details.location.x;
-  const playerY = player.data.details.location.y;
-
-  // Calculate the render area's boundaries
-  const startX = playerX - Math.floor(renderArea.size.col / 2);
-  const endX = playerX + Math.floor(renderArea.size.col / 2); 
-  const startY = playerY - Math.floor(renderArea.size.row / 2);
-  const endY = playerY + Math.floor(renderArea.size.row / 2);
-
-  // Check if the item is within the render area
-  return x >= startX && x <= endX && y >= startY && y <= endY;
 };
 
 const isInEquipArea = (item) => {

@@ -3,7 +3,9 @@ import { login } from './utils/login.js';
 import { status } from './Status.js';
 import { player } from './classes/Player.js';
 import { mapArea } from './classes/MapArea.js';
+import { items } from './classes/Items.js';
 import { ui } from './classes/UserInterface.js';
+import { isInRenderArea } from './utils/utils.js';
 
 const drawAll = () => {
   status();
@@ -11,6 +13,16 @@ const drawAll = () => {
   player.draw();
   mapArea.drawUpperMostTiles();
   ui.draw();
+
+  items.allItems.forEach(item => {
+    if (isInRenderArea(item) && item.category === 'world') {
+      items.draw(item);
+    };
+    
+    // if (isInEquipArea(item) && item.category === 'equipped' && uiState === 'inventory') {
+    //   items.draw(item);
+    // };
+  });
 };
 
 // event handlers ------------------------------------------------------------------------

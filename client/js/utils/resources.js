@@ -1,3 +1,4 @@
+import { items } from '../classes/Items.js';
 const BASE_URL = '../client/assets/json/';
 
 class Resources {
@@ -56,6 +57,9 @@ class Resources {
     const data = await this.fetchJson('items.json');
     this.itemData = data;
     this.itemData.isLoaded = true;
+
+    console.log('Initializing items...');
+    items.initAllItems();
   }
 }
 
