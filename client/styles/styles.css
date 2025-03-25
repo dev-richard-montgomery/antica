@@ -100,7 +100,129 @@ p, h1, h2, h3, h4, h5, h6 {
   color: #fff;
 }
 
-/* Game Container */
+/* Player Creator Styles */
+.new-player {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas:
+    "tabs tabs tabs"
+    "left canvas right"
+    "bottom bottom bottom";
+  gap: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.tab-container {
+  grid-area: tabs;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background: none;
+}
+
+.character-btn {
+  background: transparent;
+  color: #fff; /* White text */
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  padding: 1rem 1.5rem;
+  margin: 5px;
+}
+
+.character-btn:hover {
+  background: rgba(255, 255, 255, 0.2); /* Light overlay on hover */
+  border-radius: 2rem;
+}
+
+.character-btn:active {
+  background: rgba(255, 255, 255, 0.4); /* Darker overlay when clicked */
+}
+
+.left {
+  grid-area: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 10px;
+}
+
+.canvas-container {
+  background: transparent;
+  grid-area: canvas;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.right {
+  grid-area: right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 10px;
+}
+
+.bottom {
+  grid-area: bottom;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: #eee;
+  margin: 5px;
+}
+
+/* Active Left Arrow */
+.left-arrow-active {
+  width: 40px;
+  height: 40px;
+  color: white;
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 1;
+}
+
+/* Inactive Left Arrow */
+.left-arrow-inactive {
+  width: 40px;
+  height: 40px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Active Right Arrow */
+.right-arrow-active {
+  width: 40px;
+  height: 40px;
+  color: white;
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 1;
+}
+
+/* Inactive Right Arrow */
+.right-arrow-inactive {
+  width: 40px;
+  height: 40px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Game Container Styles */
 .game-container {
   display: flex;
   flex-direction: row;

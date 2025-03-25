@@ -83,6 +83,7 @@
     {
       "name": "hand wraps",
       "type": "mainhand",
+      "skill": "fist",
       "stats": {
         "offense": 2,
         "weight": 0.4
@@ -96,6 +97,7 @@
     {
       "name": "knuckles",
       "type": "mainhand",
+      "skill": "fist",
       "stats": {
         "offense": 5,
         "defense": 2,
@@ -110,6 +112,7 @@
     {
       "name": "deer horns",
       "type": "mainhand",
+      "skill": "fist",
       "stats": {
         "offense": 10,
         "defense": 4,
@@ -123,6 +126,7 @@
     {
       "name": "wooden club",
       "type": "mainhand",
+      "skill": "blunt",
       "stats": {
         "offense": 5,
         "defense": 2,
@@ -137,6 +141,7 @@
     {
       "name": "iron hammer",
       "type": "mainhand",
+      "skill": "blunt",
       "stats": {
         "offense": 10,
         "defense": 2,
@@ -151,6 +156,7 @@
     {
       "name": "mace",
       "type": "mainhand",
+      "skill": "blunt",
       "stats": {
         "offense": 18,
         "defense": 4,
@@ -164,6 +170,7 @@
     {
       "name": "hand axe",
       "type": "mainhand",
+      "skill": "axe",
       "stats": {
         "offense": 4,
         "defense": 2,
@@ -178,6 +185,7 @@
     {
       "name": "hatchet",
       "type": "mainhand",
+      "skill": "axe",
       "stats": {
         "twohander": true,
         "offense": 15,
@@ -193,6 +201,7 @@
     {
       "name": "viking axe",
       "type": "mainhand",
+      "skill": "axe",
       "stats": {
         "offense": 15,
         "defense": 4,
@@ -206,6 +215,7 @@
     {
       "name": "dagger",
       "type": "mainhand",
+      "skill": "sword",
       "stats": {
         "offense": 3,
         "defense": 2,
@@ -220,6 +230,7 @@
     {
       "name": "rapier",
       "type": "mainhand",
+      "skill": "sword",
       "stats": {
         "offense": 7,
         "defense": 4,
@@ -234,6 +245,7 @@
     {
       "name": "gladiator sword",
       "type": "mainhand",
+      "skill": "sword",
       "stats": {
         "offense": 14,
         "defense": 5,
@@ -247,6 +259,7 @@
     {
       "name": "spear",
       "type": "mainhand",
+      "skill": "distance",
       "stats": {
         "offense": 12,
         "weight": 5
@@ -260,6 +273,7 @@
     {
       "name": "wooden buckler",
       "type": "offhand",
+      "skill": "defense",
       "stats": {
         "defense": 5,
         "weight": 6
@@ -273,6 +287,7 @@
     {
       "name": "targe",
       "type": "offhand",
+      "skill": "defense",
       "stats": {
         "defense": 10,
         "weight": 5
@@ -286,6 +301,7 @@
     {
       "name": "heater",
       "type": "offhand",
+      "skill": "defense",
       "stats": {
         "defense": 15,
         "weight": 7
@@ -417,7 +433,20 @@
       "description": "Hide those things you call feet.",
       "sell": 25,
       "spritePosition": { "x": 0, "y": 768 }
-    }    
+    },
+    {
+      "name": "fishing pole",
+      "tool": "fishing",
+      "type": "mainhand",
+      "stats": {
+        "twohander": true,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "Hide those things you call feet.",
+      "sell": 25,
+      "spritePosition": { "x": 256, "y": 1088 }
+    }
   ],
   "itemsInGame": [
     {

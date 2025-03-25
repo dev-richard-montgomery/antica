@@ -1,14 +1,13 @@
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
-import { ctx, visibleArea, uppermostTileIDs, waterTileIDs } from '../CONST.js';
-
-const pixels = 64;
+import { ctx, visibleArea, uppermostTileIDs, waterTileIDs } from '../CONST.js'; 
 
 class MapArea {
   constructor() {
     this.image = new Image();
     this.image.src = '../../client/assets/sprites/map-assets.png';
     this.mapSize = { row: 200, col: 200 };
+    this.tileSize = 64;
     this.boundaryTiles = [];
     this.waterTiles = [];
     this.uppermostTiles = [];
@@ -26,7 +25,7 @@ class MapArea {
       console.error('Canvas context (ctx) is not defined.');
       return;
     }
-    ctx.drawImage(image, sx, sy, pixels, pixels, dx, dy, pixels, pixels);
+    ctx.drawImage(image, sx, sy, this.tileSize, this.tileSize, dx, dy, this.tileSize, this.tileSize);
   };
   
   drawArea = (currentMap = resources.mapData?.isLoaded ? resources.mapData.genus01?.layers : []) => {
@@ -42,8 +41,6 @@ class MapArea {
       x: pos.x - Math.floor(visibleArea.frames.col / 2),
       y: pos.y - Math.floor(visibleArea.frames.row / 2),
     };
-  
-    console.log(startingTile)
     
     // Generate the visible map
     const visibleMap = currentMap.map(layer => {
@@ -60,10 +57,10 @@ class MapArea {
     visibleMap.forEach(layer => {
       layer.forEach((tileID, i) => {
         if (tileID > 0) {
-          const sx = Math.floor((tileID - 1) % 20) * pixels; // Source x on spritesheet
-          const sy = Math.floor((tileID - 1) / 20) * pixels; // Source y on spritesheet
-          const dx = Math.floor(i % visibleArea.frames.col) * pixels; // Destination x on canvas
-          const dy = Math.floor(i / visibleArea.frames.col) * pixels; // Destination y on canvas
+          const sx = Math.floor((tileID - 1) % 20) * this.tileSize; // Source x on spritesheet
+          const sy = Math.floor((tileID - 1) / 20) * this.tileSize; // Source y on spritesheet
+          const dx = Math.floor(i % visibleArea.frames.col) * this.tileSize; // Destination x on canvas
+          const dy = Math.floor(i / visibleArea.frames.col) * this.tileSize; // Destination y on canvas
           const tileData = { sx, sy, dx, dy };
 
           if (tileID === 10 || tileID === 11) {
