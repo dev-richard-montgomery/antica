@@ -100,18 +100,30 @@ p, h1, h2, h3, h4, h5, h6 {
   color: #fff;
 }
 
-/* Player Creator Styles */
+/* Player Creator Styles */  
 .new-player {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr auto; /* Add space for h2 at the top */
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-areas:
-    "tabs tabs tabs"
-    "left canvas right"
-    "bottom bottom bottom";
+  "header header header"   /* Create space for the h2 */
+  "tabs tabs tabs"
+  "left canvas right"
+  "bottom bottom bottom";
   gap: 10px;
   padding: 20px;
   box-sizing: border-box;
+  top: -15%;
+  position: relative;
+}
+
+h2 {
+  grid-area: header; /* Position the h2 in the header section */
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
 .tab-container {
@@ -132,15 +144,44 @@ p, h1, h2, h3, h4, h5, h6 {
   transition: all 0.3s ease;
   padding: 1rem 1.5rem;
   margin: 5px;
+  position: relative;
+  outline: none;
 }
 
 .character-btn:hover {
   background: rgba(255, 255, 255, 0.2); /* Light overlay on hover */
-  border-radius: 2rem;
 }
 
 .character-btn:active {
   background: rgba(255, 255, 255, 0.4); /* Darker overlay when clicked */
+}
+
+/* Active tab styling */
+.character-btn.active-tab {
+  position: relative;
+}
+
+/* Underline */
+.character-btn.active-tab::after,
+.character-btn.active-tab::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 80%;
+  height: 3px;
+  background: #fff; /* White line */
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+/* Underline */
+.character-btn.active-tab::after {
+  bottom: 0;
+}
+
+/* Overline */
+.character-btn.active-tab::before {
+  top: 0;
 }
 
 .left {
@@ -175,11 +216,25 @@ p, h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 10px 20px; /* Add horizontal padding */
   background: transparent;
-  border: none;
+  border: 1px solid white;
   color: #eee;
-  margin: 5px;
+  margin-top: 30px;
+  width: auto; /* Allow width to adjust based on content */
+  max-width: 250px; /* Optional: Set a max width if you want to limit the button size */
+  text-align: center;
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  transition: all 0.3s ease;
+}
+
+.bottom:hover {
+  background: rgba(255, 255, 255, 0.2); /* Light background on hover */
+  border-color: #ddd; /* Lighter border on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 /* Active Left Arrow */

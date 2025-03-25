@@ -43,40 +43,42 @@ class SpriteSheet {
     this.image.onload = () => {
         this.loaded = true;
     };
-  }
+  };
 
   getImage() {
     return this.loaded ? this.image : null;
-  }
+  };
 };
 
 class SpriteManager {
   constructor(spriteSources) {
-    this.sprites = {}; // Stores all spritesheets
+    this.sprites = {};
     this.loadSprites(spriteSources);
-  }
+  };
 
   loadSprites(sources) {
     sources.forEach((src, index) => {
       this.sprites[spriteTabs[index]] = new SpriteSheet(src);
     });
-  }
+  };
   
   getSprite(key) {
     return this.sprites[key]?.getImage();
-  }
+  };
 };
 
 const spriteManager = new SpriteManager(spritePaths);
 
 export const appendPlayerCreator = () => {
   const playerCreator = document.querySelector('.new-player');
-
+  
+  const playerName = document.createElement('h2');
+  playerName.textContent = player.name;
   // Create tab container
   const tabContainer = document.createElement('div');
   tabContainer.classList.add("tab-container");
 
-  // Create left and right arrows
+  // Create arrow containers
   const leftDiv = document.createElement('div');
   leftDiv.classList.add('left');
 
@@ -101,7 +103,7 @@ export const appendPlayerCreator = () => {
       updateSelection();
       updateArrows();
       drawFrame(characterctx, currentSprite);
-    }
+    };
   };
 
   const rightArrow = document.createElement('button');
@@ -113,14 +115,15 @@ export const appendPlayerCreator = () => {
       updateSelection();
       updateArrows();
       drawFrame(characterctx, currentSprite);
-    }
+    };
   };
 
   // Save function
   const saveButton = document.createElement('button');
   saveButton.classList.add('bottom');
-  saveButton.textContent = 'Save Selection';
+  saveButton.textContent = 'BEGIN JOURNEY';
   saveButton.onclick = () => {
+    
     console.log('Selected:', selected);
     drawCharacter(); // Draw final character with selections
   };
@@ -130,7 +133,14 @@ export const appendPlayerCreator = () => {
     const button = document.createElement('button');
     button.classList.add("character-btn");
     button.textContent = tab;
+    
+    if (tab === currentTab) {
+      button.classList.add("active-tab");
+    };
+    
     button.onclick = () => {
+      document.querySelectorAll(".character-btn").forEach(btn => btn.classList.remove("active-tab"));
+      button.classList.add("active-tab");
       selected[currentTab] = currentFrame; // Save previous selection
       currentTab = tab;
       currentFrame = selected[currentTab] || 0; // Restore saved selection
@@ -140,11 +150,12 @@ export const appendPlayerCreator = () => {
     };
     tabContainer.appendChild(button);
   });
-
+  
   leftDiv.appendChild(leftArrow);
   rightDiv.appendChild(rightArrow);
   canvasContainer.appendChild(characterCanvas);
 
+  playerCreator.appendChild(playerName);
   playerCreator.appendChild(tabContainer);
   playerCreator.appendChild(leftDiv);
   playerCreator.appendChild(canvasContainer);
@@ -152,17 +163,23 @@ export const appendPlayerCreator = () => {
   playerCreator.appendChild(saveButton);
 
   currentSprite = spriteManager.getSprite(currentTab);
-  drawFrame(characterctx, currentSprite);
+  spriteTabs.forEach(tab => {
+    const sprite = spriteManager.getSprite(tab);
+    if (sprite) {
+      drawFrame(characterctx, sprite);
+    };
+  });
+
   updateArrows();
 };
 
 // Updates the current selection when changing frames
-function updateSelection() {
+const updateSelection = () => {
   selected[currentTab] = currentFrame;
-}
+};
 
 // Draws the current frame
-function drawFrame(ctx, sprite) {
+const drawFrame = (ctx, sprite) => {
   // ctx.clearRect(0, 0, sprites.frames.size, sprites.frames.size); // Clear previous frame
   ctx.drawImage(
     sprite,
@@ -170,28 +187,29 @@ function drawFrame(ctx, sprite) {
     currentFrame * sprites.frames.size, // Move down
     sprites.frames.size,
     sprites.frames.size,
-    0,
-    0,
+    -16,
+    -16,
     sprites.frames.size,
     sprites.frames.size
   );
-}
+};
 
 // Updates the arrow states
-function updateArrows() {
+const updateArrows = () => {
   document.querySelector('.left-arrow-inactive')?.classList.replace('left-arrow-inactive', 'left-arrow-active');
   document.querySelector('.right-arrow-inactive')?.classList.replace('right-arrow-inactive', 'right-arrow-active');
 
   if (currentFrame === 0) {
     document.querySelector('.left-arrow-active')?.classList.replace('left-arrow-active', 'left-arrow-inactive');
-  }
+  };
+
   if (currentFrame === sprites.frames.row - 1) {
     document.querySelector('.right-arrow-active')?.classList.replace('right-arrow-active', 'right-arrow-inactive');
-  }
-}
+  };
+};
 
 // Draws the final character using selected options
-function drawCharacter() {
+const drawCharacter = () => {
   const finalCanvas = document.createElement('canvas');
   finalCanvas.width = sprites.frames.size;
   finalCanvas.height = sprites.frames.size;
@@ -211,8 +229,8 @@ function drawCharacter() {
         sprites.frames.size,
         sprites.frames.size
       );
-    }
+    };
   });
 
   document.body.appendChild(finalCanvas); // Append final character display
-}
+};
