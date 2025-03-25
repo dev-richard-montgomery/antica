@@ -5,24 +5,15 @@ import { player } from './classes/Player.js';
 import { mapArea } from './classes/MapArea.js';
 import { items } from './classes/Items.js';
 import { ui } from './classes/UserInterface.js';
-import { isInRenderArea } from './utils/utils.js';
+import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
 
 const drawAll = () => {
   status();
+  ui.draw();
   mapArea.drawArea();
+  items.drawAllVisibleItems();
   player.draw();
   mapArea.drawUpperMostTiles();
-  ui.draw();
-
-  items.allItems.forEach(item => {
-    if (isInRenderArea(item) && item.category === 'world') {
-      items.draw(item);
-    };
-    
-    // if (isInEquipArea(item) && item.category === 'equipped' && uiState === 'inventory') {
-    //   items.draw(item);
-    // };
-  });
 };
 
 // event handlers ------------------------------------------------------------------------
@@ -32,18 +23,18 @@ addEventListener("DOMContentLoaded", e => {
   addEventListener('keydown', player.playerMove);
 
   canvas.addEventListener("mousedown", e => {
-    // handleMouseDown(e);
+    handleMouseDown(e);
     ui.handleUiStates(e);
   });
 
   canvas.addEventListener("mousemove", e => {
-    // handleMouseMove(e);
+    handleMouseMove(e);
     ui.handleUiStates(e);
   }); 
 
-  // canvas.addEventListener("mouseup", e => {
-  //   handleMouseUp(e);
-  // });
+  canvas.addEventListener("mouseup", e => {
+    handleMouseUp(e);
+  });
 
   // canvas.addEventListener("contextmenu", e => {
   //   handleRightClick(e);

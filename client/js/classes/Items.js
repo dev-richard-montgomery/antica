@@ -1,7 +1,9 @@
-import { generateHexId } from '../utils/utils.js';
+import { generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
-import { ctx } from '../CONST.js';
+import { ui } from './UserInterface.js';
+import { ctx, state } from '../CONST.js';
+
 
 class Items {
   constructor() {
@@ -24,7 +26,7 @@ class Items {
     };
   
     this.allItems = [...resources.itemData.itemsInGame];
-  };  
+  };
 
   createItem(name, category = 'world', worldPosition = null) {
     const baseItem = resources.itemData.items.find(it => it.name === name);
@@ -47,13 +49,29 @@ class Items {
   };
 
   updateItemDrawPosition(item) {
-    if (!item || item.worldPosition === null) return;
+    if (!item || item.worldPosition === null ) return;
   
     const playerLocation = player.worldPosition;
     const pixels = 64;
   
     item.drawPosition.x = (item.worldPosition.x - playerLocation.x) * pixels + 384;
     item.drawPosition.y = (item.worldPosition.y - playerLocation.y) * pixels + 320;
+  };
+
+  resetItemPosition(item, lastValidPosition = state.lastValidPosition) {
+    if (!item || !lastValidPosition) return;
+  
+    const { x, y } = lastValidPosition;
+  
+    item.drawPosition.x = x;
+    item.drawPosition.y = y;
+    item.held = false;
+    item.hover = false;
+  
+    const index = this.allItems.findIndex(curr => curr.id === item.id);
+  
+    this.allItems.splice(index, 1);
+    this.allItems.push(item);
   };
 
   draw(item) {
@@ -74,6 +92,18 @@ class Items {
       size,
       size
     );
+  };
+
+  drawAllVisibleItems() {
+    this.allItems.forEach(item => {
+      if (isInRenderArea(item) && item.category === 'world') {
+        this.draw(item);
+      };
+
+      if (isInEquipArea(item) && item.category === 'equipped' && ui.state.activeToggle === 'inventory') {
+        this.draw(item);
+      };
+    });    
   };
 };
 

@@ -1,5 +1,5 @@
 // canvas variables
-const canvas = document.querySelector('canvas');
+const canvas = document.querySelector('.game-canvas');
 const ctx = canvas.getContext('2d');
 
 canvas.width = 1024;
@@ -112,6 +112,11 @@ const uiSections = {
   }
 };
 
+const state = {
+  lastValidPosition: null,
+  heldItem: null
+};
+
 export { 
   API_URL_ITEMS, 
   API_URL_PLAYER, 
@@ -124,6 +129,7 @@ export {
   game, 
   inventory, 
   inventorySlots,
+  state,
   uiSections,
   uppermostTileIDs,
   visibleArea, 

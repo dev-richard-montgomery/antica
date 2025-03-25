@@ -1,8 +1,14 @@
+import { canvas, equipSlots, state } from './CONST.js';
+import { clearHoverStates, moveToEquip, moveToVisibleArea, updateItemHoverState } from './utils/utils.js';
+import { player } from './classes/Player.js';
+import { items } from './classes/Items.js';
+import { ui } from './classes/UserInterface.js';
+
 export const handleMouseMove = (e) => {
   const { offsetX, offsetY } = e;
 
   // Check for UI interactions first
-  const uiCursor = handleUiStates(e);
+  const uiCursor = ui.handleUiStates(e);
   if (uiCursor) {
     canvas.style.cursor = uiCursor;
     return;
@@ -12,7 +18,7 @@ export const handleMouseMove = (e) => {
   canvas.style.cursor = "crosshair";
 
   // If an item is held, update its position and cursor state
-  if (heldItem) {
+  if (state.heldItem) {
     canvas.style.cursor = "grabbing";
     return;
   }
@@ -21,7 +27,7 @@ export const handleMouseMove = (e) => {
   if (updateItemHoverState(offsetX, offsetY)) return;
 };
 
-const handleMouseDown = (e) => {
+export const handleMouseDown = (e) => {
   if (e.button !== 0) return; // Left click only
 
   // Ensure only one hovered item
@@ -30,24 +36,24 @@ const handleMouseDown = (e) => {
   updateItemHoverState(offsetX, offsetY);
 
   // Find hovered item to hold
-  const hoveredItem = inGameItems.find(item => item.hover);
+  const hoveredItem = items.allItems.find(item => item.hover);
 
   // Ensure a valid item is found and prevent holding multiple items
-  if (hoveredItem && !heldItem) {
+  if (hoveredItem && !state.heldItem) {
     hoveredItem.held = true;
     hoveredItem.hover = false;
-    hoveredItem.lastValidPosition = { ...hoveredItem.drawPosition };
-    heldItem = hoveredItem;
+    state.lastValidPosition = { ...hoveredItem.drawPosition };
+    state.heldItem = hoveredItem;
     canvas.style.cursor = "grabbing";
   }
 };
 
-const handleMouseUp = (e) => {
-  if (!heldItem) return;
+export const handleMouseUp = (e) => {
+  if (!state.heldItem) return;
 
   const { offsetX, offsetY } = e;
-  const newFrameX = player.data.details.location.x + Math.floor((offsetX - 384) / 64);
-  const newFrameY = player.data.details.location.y + Math.floor((offsetY - 320) / 64);
+  const newFrameX = player.worldPosition.x + Math.floor((offsetX - 384) / 64);
+  const newFrameY = player.worldPosition.y + Math.floor((offsetY - 320) / 64);
 
   // Check valid drop locations
   const inRenderArea = offsetX >= 0 && offsetX < 832 && offsetY >= 0 && offsetY < 704;
@@ -57,56 +63,51 @@ const handleMouseUp = (e) => {
     return offsetX >= x && offsetX < x + 64 && offsetY >= y && offsetY < y + 64 ? slot : null;
   });
 
-  const inFirstInventory = 
-    offsetX >= inventorySlots.primary.slots.x && 
-    offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
-    offsetY >= inventorySlots.primary.slots.y && 
-    offsetY < inventorySlots.primary.slots.y + inventorySlots.primary.slots.height;
+  // const inFirstInventory = 
+  //   offsetX >= inventorySlots.primary.slots.x && 
+  //   offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
+  //   offsetY >= inventorySlots.primary.slots.y && 
+  //   offsetY < inventorySlots.primary.slots.y + inventorySlots.primary.slots.height;
 
-  const inFirstInventoryExpanded = 
-    offsetX >= inventorySlots.primary.slots.x && 
-    offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
-    offsetY >= inventorySlots.primary.slots.y && 
-    offsetY < inventorySlots.primary.slots.expandedHeight;
+  // const inFirstInventoryExpanded = 
+  //   offsetX >= inventorySlots.primary.slots.x && 
+  //   offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
+  //   offsetY >= inventorySlots.primary.slots.y && 
+  //   offsetY < inventorySlots.primary.slots.expandedHeight;
 
-  const inSecondInventory = 
-    offsetX >= inventorySlots.secondary.slots.x && 
-    offsetX < inventorySlots.secondary.slots.x + inventorySlots.secondary.slots.width && 
-    offsetY >= inventorySlots.secondary.slots.y && 
-    offsetY < inventorySlots.secondary.slots.y + inventorySlots.secondary.slots.height;
-
-  // Handle inventory interactions
-  if (uiState === 'inventory') {
-    if (inEquipSlot) {
-      moveToEquip(heldItem, inEquipSlot);
-      console.log(heldItem, ' moved to Equip Area');
-    } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
-      moveToInventory(heldItem, inventory.one.item);
-      console.log(heldItem, ' in First Inventory');
-    } else if (inSecondInventory && inventory.two.open) {
-      moveToInventory(heldItem, inventory.two.item);
-      console.log(heldItem, ' in Second Inventory');
-    };
-  };
-
-  // Handle moving between inventory and equip slots
-  if (heldItem.category === 'inventory' && inEquipSlot) {
-    moveToEquip(heldItem, inEquipSlot);
-    console.log(heldItem, ' equipped');
-  };
-
-  // Handle rendering area drop
-  if (inRenderArea) {
-    moveToRenderArea(heldItem, newFrameX, newFrameY);
-    handleOutOfRange();
+  // const inSecondInventory = 
+  //   offsetX >= inventorySlots.secondary.slots.x && 
+  //   offsetX < inventorySlots.secondary.slots.x + inventorySlots.secondary.slots.width && 
+  //   offsetY >= inventorySlots.secondary.slots.y && 
+  //   offsetY < inventorySlots.secondary.slots.y + inventorySlots.secondary.slots.height;
+  
+  if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
+    moveToEquip(state.heldItem, inEquipSlot);
+    console.log(offsetX, offsetY)
+    // } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
+    //   moveToInventory(heldItem, inventory.one.item);
+    //   console.log(heldItem, ' in First Inventory');
+    // } else if (inSecondInventory && inventory.two.open) {
+    //   moveToInventory(heldItem, inventory.two.item);
+    //   console.log(heldItem, ' in Second Inventory');
+  } else if (inRenderArea) {
+    moveToVisibleArea(state.heldItem, newFrameX, newFrameY);
   } else {
-    resetItemPosition(heldItem, lastValidPosition);
-  };
+    items.resetItemPosition(state.heldItem, state.lastValidPosition);
+  }
+  // Handle moving between inventory and equip slots
+  // if (heldItem.category === 'inventory' && inEquipSlot) {
+  //   moveToEquip(heldItem, inEquipSlot);
+  //   console.log(heldItem, ' equipped');
+  // };
+//   console.log("Mouse Up at:", offsetX, offsetY);
+// console.log("Equip Slot Bounds:", equipSlots);
+// console.log("inRenderArea:", inRenderArea);
+// console.log("inEquipSlot:", inEquipSlot);
 
   // Clear held state
-  heldItem = null;
+  state.heldItem = null;
   canvas.style.cursor = "crosshair";
-  drawAll();
 };
 
 const handleRightClick = (e) => {
