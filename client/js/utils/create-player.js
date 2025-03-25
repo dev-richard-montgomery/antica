@@ -12,16 +12,24 @@ const spritePaths = [
 const spriteTabs = ['hair', 'skin', 'cape', 'tunic', 'legs', 'boots'];
 
 const sprites = {
-  frames: { row: 8, col: 4, size: 128 },
-  hair: { x: 0, y: 0 },
-  skin: { x: 0, y: 128 },
-  cape: { x: 0, y: 256 },
-  tunic: { x: 0, y: 384 },
-  legs: { x: 0, y: 512 },
-  boots: { x: 0, y: 640 }
+  frames: { row: 8, col: 1, size: 128 }, // 8 vertical frames
+  hair: { y: 0 },
+  skin: { y: 128 },
+  cape: { y: 256 },
+  tunic: { y: 384 },
+  legs: { y: 512 },
+  boots: { y: 640 }
 };
 
-let selected = {};
+let selected = {
+  hair: 0,
+  skin: 0,
+  cape: 0,
+  tunic: 0,
+  legs: 0,
+  boots: 0
+};
+
 let currentTab = 'hair';
 let currentFrame = 0;
 let currentSprite = {};
@@ -62,79 +70,81 @@ class SpriteManager {
 const spriteManager = new SpriteManager(spritePaths);
 
 export const appendPlayerCreator = () => {
-  // display player creator div
   const playerCreator = document.querySelector('.new-player');
 
-  // create spriteTabs container for attributes
+  // Create tab container
   const tabContainer = document.createElement('div');
-  tabContainer.classList.add("tab-container")
-  
-  // create arrow containers
+  tabContainer.classList.add("tab-container");
+
+  // Create left and right arrows
   const leftDiv = document.createElement('div');
   leftDiv.classList.add('left');
-  
+
   const rightDiv = document.createElement('div');
   rightDiv.classList.add('right');
 
-  // create canvas
+  // Create canvas
   const canvasContainer = document.createElement('div');
-  canvasContainer.classList.add('.canvas-container');
+  canvasContainer.classList.add('canvas-container');
   const characterCanvas = document.createElement('canvas');
   const characterctx = characterCanvas.getContext('2d');
   characterCanvas.width = sprites.frames.size;
   characterCanvas.height = sprites.frames.size;
-  
-  // create arrows
+
+  // Create arrows
   const leftArrow = document.createElement('button');
   leftArrow.textContent = '<';
   leftArrow.classList.add('left-arrow-inactive');
   leftArrow.onclick = () => {
     if (currentFrame > 0) {
       currentFrame--;
+      updateSelection();
       updateArrows();
       drawFrame(characterctx, currentSprite);
     }
   };
-  
+
   const rightArrow = document.createElement('button');
   rightArrow.textContent = '>';
   rightArrow.classList.add('right-arrow-active');
   rightArrow.onclick = () => {
-    if (currentFrame < sprites.frames.col - 1) {
+    if (currentFrame < sprites.frames.row - 1) {
       currentFrame++;
+      updateSelection();
       updateArrows();
       drawFrame(characterctx, currentSprite);
     }
   };
-  
-  // save function
+
+  // Save function
   const saveButton = document.createElement('button');
   saveButton.classList.add('bottom');
   saveButton.textContent = 'Save Selection';
   saveButton.onclick = () => {
-    selected[currentTab] = { x: currentFrame * sprites.frames.size, y: sprites[currentTab].y };
     console.log('Selected:', selected);
+    drawCharacter(); // Draw final character with selections
   };
-  
-  // append spriteTabs to spriteTabs container
-  ['hair', 'skin', 'cape', 'tunic', 'legs', 'boots'].forEach(tab => {
+
+  // Append spriteTabs
+  spriteTabs.forEach(tab => {
     const button = document.createElement('button');
-    button.classList.add("character-btn")
+    button.classList.add("character-btn");
     button.textContent = tab;
     button.onclick = () => {
+      selected[currentTab] = currentFrame; // Save previous selection
       currentTab = tab;
-      currentFrame = 0;
+      currentFrame = selected[currentTab] || 0; // Restore saved selection
       currentSprite = spriteManager.getSprite(currentTab);
       updateArrows();
       drawFrame(characterctx, currentSprite);
     };
     tabContainer.appendChild(button);
   });
-  
+
   leftDiv.appendChild(leftArrow);
   rightDiv.appendChild(rightArrow);
   canvasContainer.appendChild(characterCanvas);
-  
+
   playerCreator.appendChild(tabContainer);
   playerCreator.appendChild(leftDiv);
   playerCreator.appendChild(canvasContainer);
@@ -146,20 +156,28 @@ export const appendPlayerCreator = () => {
   updateArrows();
 };
 
+// Updates the current selection when changing frames
+function updateSelection() {
+  selected[currentTab] = currentFrame;
+}
+
+// Draws the current frame
 function drawFrame(ctx, sprite) {
+  // ctx.clearRect(0, 0, sprites.frames.size, sprites.frames.size); // Clear previous frame
   ctx.drawImage(
     sprite,
-    sprites[currentTab].x,
-    currentFrame * sprites.frames.size, 
-    sprites.frames.size, 
+    0, // X is always 0, since we move vertically
+    currentFrame * sprites.frames.size, // Move down
     sprites.frames.size,
-    0, 
+    sprites.frames.size,
     0,
-    sprites.frames.size, 
+    0,
+    sprites.frames.size,
     sprites.frames.size
   );
 }
 
+// Updates the arrow states
 function updateArrows() {
   document.querySelector('.left-arrow-inactive')?.classList.replace('left-arrow-inactive', 'left-arrow-active');
   document.querySelector('.right-arrow-inactive')?.classList.replace('right-arrow-inactive', 'right-arrow-active');
@@ -167,24 +185,34 @@ function updateArrows() {
   if (currentFrame === 0) {
     document.querySelector('.left-arrow-active')?.classList.replace('left-arrow-active', 'left-arrow-inactive');
   }
-  if (currentFrame === sprites.frames.col - 1) {
+  if (currentFrame === sprites.frames.row - 1) {
     document.querySelector('.right-arrow-active')?.classList.replace('right-arrow-active', 'right-arrow-inactive');
   }
 }
 
-function drawSelectedCharacter(ctx) {
-  const img = new Image();
-  img.src = 'spritesheet.png';
-  img.onload = () => {
-    ctx.clearRect(0, 0, sprites.frames.size, sprites.frames.size);
-    Object.keys(selected).forEach(layer => {
-      ctx.drawImage(
-        img,
-        selected[layer].x, selected[layer].y,
-        sprites.frames.size, sprites.frames.size,
-        0, 0,
-        sprites.frames.size, sprites.frames.size
+// Draws the final character using selected options
+function drawCharacter() {
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = sprites.frames.size;
+  finalCanvas.height = sprites.frames.size;
+  const finalCtx = finalCanvas.getContext('2d');
+
+  spriteTabs.forEach(tab => {
+    const sprite = spriteManager.getSprite(tab);
+    if (sprite) {
+      finalCtx.drawImage(
+        sprite,
+        0,
+        selected[tab] * sprites.frames.size, // Use saved frame position
+        sprites.frames.size,
+        sprites.frames.size,
+        0,
+        0,
+        sprites.frames.size,
+        sprites.frames.size
       );
-    });
-  };
+    }
+  });
+
+  document.body.appendChild(finalCanvas); // Append final character display
 }
