@@ -1,6 +1,7 @@
 {
   "playerlist": [],
   "newplayer": {
+    "skin": {},
     "worldPosition": { "x": 155, "y": 189 },
     "lvls": { 
       "lvl": 0, 

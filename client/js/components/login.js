@@ -1,5 +1,4 @@
 import { player } from '../classes/Player.js';
-import { canvas, game } from '../CONST.js';
 import { appendPlayerCreator } from './create-player.js';
 
 export const login = async e => {
@@ -12,21 +11,14 @@ export const login = async e => {
   const nameInput = document.querySelector('#playername').value.trim();
   const playerName = capitalizeWords(nameInput);
   player.createPlayer(playerName);
-  // resources.itemData.itemsInGame.length > 0 && inGameItems.push(resources.itemData.itemsInGame);
-  // populateInGameItems();
   
   setTimeout(() => {
     const form = document.querySelector('.form-container');
     form.style.display = 'none';
     form.blur();
 
-    
     document.querySelector('.background').remove();
 
     appendPlayerCreator();
-    // document.querySelector('.game-container')?.classList.remove('hidden');
-    
-    game.on = true;
-    canvas.style.cursor = 'crosshair';
   }, 500);
 };

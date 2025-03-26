@@ -1,5 +1,6 @@
 import { resources } from '../utils/resources.js';
-import { centerX, centerY, chat, ctx, game, visibleArea } from '../CONST.js';
+import { centerX, centerY, chat, ctx, game, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
+import { spriteManager } from '../components/create-player.js';
 import { mapArea } from './MapArea.js'; 
 import { generateHexId } from '../utils/utils.js';
 
@@ -8,7 +9,7 @@ class Player {
     this.image = new Image();
     this.image.src = './assets/sprites/player-assets.png';
     this.pixels = 64;
-    this.spritePosition = { x: 0, y: 0 };
+    this.currentDirection = 0;
     this.worldPosition = { x: 155, y: 189 };
     this.cooldown = false;
     this.speed = 0.5;
@@ -42,7 +43,7 @@ class Player {
     let existingPlayer = resources.playerData.playerlist.find(player => player.name === playername);
     if (existingPlayer) {
       console.log(`Logged in as ${playername}.`);
-      Object.assign(this, existingPlayer); // Assign existing player properties to `this`
+      Object.assign(this, existingPlayer);
       return;
     };
 
@@ -65,17 +66,22 @@ class Player {
   };
 
   draw() {
-    ctx.drawImage(
-      this.image,
-      this.spritePosition.x,
-      this.spritePosition.y,
-      this.pixels + this.pixels,
-      this.pixels + this.pixels,
-      this.drawTo.x,
-      this.drawTo.y,
-      this.pixels + this.pixels,
-      this.pixels + this.pixels
-    );
+    spriteTabs.forEach(tab => {
+      const sprite = spriteManager.getSprite(tab);
+      if (sprite) {
+        ctx.drawImage(
+          sprite,
+          this.currentDirection * sprites.frames.size,
+          selected[tab] * sprites.frames.size,
+          sprites.frames.size,
+          sprites.frames.size,
+          this.drawTo.x,
+          this.drawTo.y,
+          sprites.frames.size,
+          sprites.frames.size
+        );
+      };
+    });
   };
 
   canMove = (boundaryTiles, newX, newY) => {
@@ -94,17 +100,17 @@ class Player {
       'd': { x: this.pixels, y: 0 }
     };
   
-    const directionSprites = {
-      'w': { x: 128, y: 0 },
-      's': { x: 0, y: 0 },
-      'a': { x: 256, y: 0 },
-      'd': { x: 384, y: 0 }
+    const direction = {
+      'w': 1,
+      's': 0,
+      'a': 2,
+      'd': 3
     };
   
     const key = e.key.toLowerCase();
     if (!movementOffsets[key]) return;
   
-    this.spritePosition = directionSprites[key];
+    this.currentDirection = direction[key];
   
     if (e.shiftKey) {
       return;

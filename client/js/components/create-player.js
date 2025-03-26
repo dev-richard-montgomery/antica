@@ -1,34 +1,5 @@
 import { player } from '../classes/Player.js';
-
-const spritePaths = [
-  "./assets/sprites/player/player-skins-hair.png",
-  "./assets/sprites/player/player-skins-skin.png",
-  "./assets/sprites/player/player-skins-cape.png",
-  "./assets/sprites/player/player-skins-tunic.png",
-  "./assets/sprites/player/player-skins-legs.png",
-  "./assets/sprites/player/player-skins-boots.png",
-];
-
-const spriteTabs = ['hair', 'skin', 'cape', 'tunic', 'legs', 'boots'];
-
-const sprites = {
-  frames: { row: 8, col: 1, size: 128 }, // 8 vertical frames
-  hair: { y: 0 },
-  skin: { y: 128 },
-  cape: { y: 256 },
-  tunic: { y: 384 },
-  legs: { y: 512 },
-  boots: { y: 640 }
-};
-
-let selected = {
-  hair: 0,
-  skin: 0,
-  cape: 0,
-  tunic: 0,
-  legs: 0,
-  boots: 0
-};
+import { canvas, game, spritePaths, spriteTabs, sprites, selected } from '../CONST.js';
 
 let currentTab = 'hair';
 let currentFrame = 0;
@@ -67,7 +38,7 @@ class SpriteManager {
   };
 };
 
-const spriteManager = new SpriteManager(spritePaths);
+export const spriteManager = new SpriteManager(spritePaths);
 
 export const appendPlayerCreator = () => {
   const playerCreator = document.querySelector('.new-player');
@@ -123,9 +94,11 @@ export const appendPlayerCreator = () => {
   saveButton.classList.add('bottom');
   saveButton.textContent = 'BEGIN JOURNEY';
   saveButton.onclick = () => {
-    
-    console.log('Selected:', selected);
-    drawCharacter(); // Draw final character with selections
+    player.skin = selected;
+    document.querySelector('.game-container')?.classList.remove('hidden');
+    playerCreator.classList.add('hidden');
+    game.on = true;
+    canvas.style.cursor = 'crosshair';
   };
 
   // Append spriteTabs
@@ -141,9 +114,9 @@ export const appendPlayerCreator = () => {
     button.onclick = () => {
       document.querySelectorAll(".character-btn").forEach(btn => btn.classList.remove("active-tab"));
       button.classList.add("active-tab");
-      selected[currentTab] = currentFrame; // Save previous selection
+      selected[currentTab] = currentFrame;
       currentTab = tab;
-      currentFrame = selected[currentTab] || 0; // Restore saved selection
+      currentFrame = selected[currentTab] || 0;
       currentSprite = spriteManager.getSprite(currentTab);
       updateArrows();
       drawFrame(characterctx, currentSprite);
@@ -180,11 +153,10 @@ const updateSelection = () => {
 
 // Draws the current frame
 const drawFrame = (ctx, sprite) => {
-  // ctx.clearRect(0, 0, sprites.frames.size, sprites.frames.size); // Clear previous frame
   ctx.drawImage(
     sprite,
-    0, // X is always 0, since we move vertically
-    currentFrame * sprites.frames.size, // Move down
+    0,
+    currentFrame * sprites.frames.size,
     sprites.frames.size,
     sprites.frames.size,
     -16,
@@ -206,31 +178,4 @@ const updateArrows = () => {
   if (currentFrame === sprites.frames.row - 1) {
     document.querySelector('.right-arrow-active')?.classList.replace('right-arrow-active', 'right-arrow-inactive');
   };
-};
-
-// Draws the final character using selected options
-const drawCharacter = () => {
-  const finalCanvas = document.createElement('canvas');
-  finalCanvas.width = sprites.frames.size;
-  finalCanvas.height = sprites.frames.size;
-  const finalCtx = finalCanvas.getContext('2d');
-
-  spriteTabs.forEach(tab => {
-    const sprite = spriteManager.getSprite(tab);
-    if (sprite) {
-      finalCtx.drawImage(
-        sprite,
-        0,
-        selected[tab] * sprites.frames.size, // Use saved frame position
-        sprites.frames.size,
-        sprites.frames.size,
-        0,
-        0,
-        sprites.frames.size,
-        sprites.frames.size
-      );
-    };
-  });
-
-  document.body.appendChild(finalCanvas); // Append final character display
 };

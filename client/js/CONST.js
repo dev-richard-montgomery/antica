@@ -19,6 +19,37 @@ const game = {
 const API_URL_ITEMS = '/saveItemData';
 const API_URL_PLAYER = '/savePlayerData';
 
+// player creation variables
+const spritePaths = [
+  "./assets/sprites/player/player-skins-hair.png",
+  "./assets/sprites/player/player-skins-skin.png",
+  "./assets/sprites/player/player-skins-cape.png",
+  "./assets/sprites/player/player-skins-tunic.png",
+  "./assets/sprites/player/player-skins-legs.png",
+  "./assets/sprites/player/player-skins-boots.png",
+];
+
+const spriteTabs = ['hair', 'skin', 'cape', 'tunic', 'legs', 'boots'];
+
+const sprites = {
+  frames: { row: 8, col: 1, size: 128 }, // 8 vertical frames
+  hair: { y: 0 },
+  skin: { y: 128 },
+  cape: { y: 256 },
+  tunic: { y: 384 },
+  legs: { y: 512 },
+  boots: { y: 640 }
+};
+
+const selected = {
+  hair: 0,
+  skin: 0,
+  cape: 0,
+  tunic: 0,
+  legs: 0,
+  boots: 0
+};
+
 // movement variables
 const centerX = 384;
 const centerY = 320;
@@ -129,6 +160,10 @@ export {
   game, 
   inventory, 
   inventorySlots,
+  selected,
+  spritePaths, 
+  sprites, 
+  spriteTabs, 
   state,
   uiSections,
   uppermostTileIDs,

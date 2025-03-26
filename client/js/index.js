@@ -1,5 +1,5 @@
 import { canvas, ctx, game } from './CONST.js';
-import { login } from './utils/login.js';
+import { login } from './components/login.js';
 import { status } from './Status.js';
 import { player } from './classes/Player.js';
 import { mapArea } from './classes/MapArea.js';
