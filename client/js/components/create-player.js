@@ -1,5 +1,6 @@
 import { player } from '../classes/Player.js';
-import { canvas, game, spritePaths, spriteTabs, sprites, selected } from '../CONST.js';
+import { spritePaths, spriteTabs, sprites, selected } from '../CONST.js';
+import { startIntro } from './intro.js';
 
 let currentTab = 'hair';
 let currentFrame = 0;
@@ -44,6 +45,7 @@ export const appendPlayerCreator = () => {
   const playerCreator = document.querySelector('.new-player');
   
   const playerName = document.createElement('h2');
+  playerName.classList.add('player-name');
   playerName.textContent = player.name;
   // Create tab container
   const tabContainer = document.createElement('div');
@@ -92,13 +94,11 @@ export const appendPlayerCreator = () => {
   // Save function
   const saveButton = document.createElement('button');
   saveButton.classList.add('bottom');
-  saveButton.textContent = 'BEGIN JOURNEY';
+  saveButton.textContent = 'Save Selection';
   saveButton.onclick = () => {
     player.skin = selected;
-    document.querySelector('.game-container')?.classList.remove('hidden');
     playerCreator.classList.add('hidden');
-    game.on = true;
-    canvas.style.cursor = 'crosshair';
+    startIntro();
   };
 
   // Append spriteTabs

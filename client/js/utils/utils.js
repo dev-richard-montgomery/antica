@@ -1,9 +1,21 @@
-import { canvas, equipSlots, visibleArea } from "../CONST.js";
-import { player } from '../classes/Player.js';
-import { items } from '../classes/Items.js';
+import { canvas, ctx, equipSlots, visibleArea } from "../CONST.js";
+import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
+import { mapArea } from '../classes/MapArea.js';
+import { items } from '../classes/Items.js';
+import { player } from '../classes/Player.js';
+
 
 // general functions
+export const drawAll = () => {
+  status();
+  ui.draw();
+  mapArea.drawArea();
+  items.drawAllVisibleItems();
+  player.draw();
+  mapArea.drawUpperMostTiles();
+};
+
 export const generateHexId = () => {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
 };

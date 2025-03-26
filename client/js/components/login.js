@@ -1,5 +1,6 @@
 import { player } from '../classes/Player.js';
 import { appendPlayerCreator } from './create-player.js';
+import { canvas, game } from '../CONST.js';
 
 export const login = async e => {
   e.preventDefault();
@@ -18,7 +19,12 @@ export const login = async e => {
     form.blur();
 
     document.querySelector('.background').remove();
-
-    appendPlayerCreator();
+    if (Object.keys(player.skin).length === 0) {
+      appendPlayerCreator();
+    } else {
+      document.querySelector('.game-container')?.classList.remove('hidden');
+      game.on = true;
+      canvas.style.cursor = 'crosshair';
+    }
   }, 500);
 };

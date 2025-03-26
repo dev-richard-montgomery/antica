@@ -1,20 +1,9 @@
 import { canvas, ctx, game } from './CONST.js';
 import { login } from './components/login.js';
-import { status } from './Status.js';
 import { player } from './classes/Player.js';
-import { mapArea } from './classes/MapArea.js';
-import { items } from './classes/Items.js';
 import { ui } from './classes/UserInterface.js';
 import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
-
-const drawAll = () => {
-  status();
-  ui.draw();
-  mapArea.drawArea();
-  items.drawAllVisibleItems();
-  player.draw();
-  mapArea.drawUpperMostTiles();
-};
+import { drawAll } from './utils/utils.js';
 
 // event handlers ------------------------------------------------------------------------
 addEventListener("DOMContentLoaded", e => {  
