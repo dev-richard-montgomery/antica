@@ -78,6 +78,30 @@ const equipSlots = {
   feet: { x: 960, y: 128 },
 };
 
+const equipSlotsNoHighlightSpriteLocations = {
+  neck: { x: 0, y: 192 },
+  head: { x: 64, y: 192 },
+  back: { x: 128, y: 192 },
+  mainhand: { x: 0, y: 256 },
+  chest: { x: 64, y: 256 },
+  offhand: { x: 128, y: 256 },
+  hands: { x: 0, y: 320 },
+  legs: { x: 64, y: 320 },
+  feet: { x: 128, y: 320 },
+};
+
+const equipSlotsHighlightSpriteLocations = {
+  neck: { x: 192, y: 192 },
+  head: { x: 256, y: 192 },
+  back: { x: 320, y: 192 },
+  mainhand: { x: 192, y: 256 },
+  chest: { x: 256, y: 256 },
+  offhand: { x: 320, y: 256 },
+  hands: { x: 192, y: 320 },
+  legs: { x: 256, y: 320 },
+  feet: { x: 320, y: 320 },
+};
+
 // inventory variables
 const inventory = {
   expanded: false,

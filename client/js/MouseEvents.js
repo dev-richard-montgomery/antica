@@ -83,7 +83,7 @@ export const handleMouseUp = (e) => {
   
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
-    console.log(offsetX, offsetY)
+    // state.lastValidPosition = null;
     // } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
     //   moveToInventory(heldItem, inventory.one.item);
     //   console.log(heldItem, ' in First Inventory');

@@ -23,10 +23,11 @@ export const status = () => {
       <p><strong>Capacity:</strong> ${state.capacity}/${stats.capacity}</p>
       
       <br>
-      
-      ${offense?.tool === "fishing" ? `<p><strong>${capitalize(offense.tool)}:</strong> ${skills[offense.tool]}</p>` : ""}
-      ${offense ? `<p><strong>${capitalize(offense.name)}:</strong> ${skills[offense.name]}</p>` : ""}
-      ${defense ? `<p><strong>Defense:</strong> ${skills.shield}</p>` : ""}
+
+      ${offense?.tool === "fishing" ? `<p><strong>Fishing:</strong> ${skills.fishing}</p>` :
+        offense ? `<p><strong>${capitalize(offense.skill)}:</strong> ${skills[offense.skill]}</p>` : ""}
+
+      ${defense ? `<p><strong>Shield:</strong> ${skills.shield}</p>` : ""}
     </div>
   `;
 };

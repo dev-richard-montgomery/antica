@@ -1,7 +1,14 @@
 {
   "playerlist": [],
   "newplayer": {
-    "skin": {},
+    "skin": {
+      "boots": 0,
+      "cape": 6,
+      "hair": 6,
+      "legs": 1,
+      "skin": 1,
+      "tunic": 3
+    },
     "worldPosition": { "x": 155, "y": 189 },
     "lvls": { 
       "lvl": 0, 

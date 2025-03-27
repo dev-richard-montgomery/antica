@@ -14,7 +14,7 @@ const fadeInElement = (element, delay) => {
 const appendButton = () => {
   setTimeout(() => {
     const button = document.createElement('button');
-    button.textContent = 'Start The Game';
+    button.textContent = 'Enter Genus Island';
     button.addEventListener('click', () => {
       // You can define what happens when the button is clicked
       console.log('Entering World');
