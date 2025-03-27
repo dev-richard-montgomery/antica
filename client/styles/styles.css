@@ -335,6 +335,19 @@ p, h1, h2, h3, h4, h5, h6 {
   background-color: #45a049;
 }
 
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 2s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 /* Game Container Styles */
 .game-container {

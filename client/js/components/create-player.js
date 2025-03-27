@@ -98,7 +98,6 @@ export const appendPlayerCreator = () => {
   saveButton.onclick = () => {
     player.skin = selected;
     playerCreator.classList.add('hidden');
-    console.log(player.skin)
     startIntro();
   };
 
