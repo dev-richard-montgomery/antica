@@ -1,9 +1,21 @@
-import { canvas, equipSlots, visibleArea } from "../CONST.js";
-import { player } from '../classes/Player.js';
-import { items } from '../classes/Items.js';
+import { canvas, ctx, equipSlots, visibleArea } from "../CONST.js";
+import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
+import { mapArea } from '../classes/MapArea.js';
+import { items } from '../classes/Items.js';
+import { player } from '../classes/Player.js';
+
 
 // general functions
+export const drawAll = () => {
+  status();
+  ui.draw();
+  mapArea.drawArea();
+  items.drawAllVisibleItems();
+  player.draw();
+  mapArea.drawUpperMostTiles();
+};
+
 export const generateHexId = () => {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
 };
@@ -145,6 +157,11 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
 
+  const equippedItem = Object.values(player.equipped).find(gear => gear && gear.id === item.id);
+  if (equippedItem) {
+    player.equipped[equippedItem.type] = null;
+  };
+
   // if (item.category === 'equipped') {
   //   player.equipped[item.type] = null; // Use null for consistency
   // } else if (item.category === 'inventory') {
@@ -155,11 +172,9 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   //   }
   // }
 
-  Object.assign(item, {
-    category: 'world',
-    worldPosition: { x: newFrameX, y: newFrameY },
-    held: false
-  });
+    item.category = 'world';
+    item.worldPosition = { x: newFrameX, y: newFrameY };
+    item.held = false;
 
   items.updateItemDrawPosition(item);
   updateItemsArray(item);
@@ -169,7 +184,7 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
 export const moveToEquip = (item, slot) => {
   if (!item || item.type !== slot) return; // Ensure valid item type
 
-  const existingItem = player.equipped[slot];
+  const existingItem = player.equipped[slot] || null;
 
   if (existingItem) {
     if (existingItem.id === item.id) return; 
@@ -198,9 +213,9 @@ export const moveToEquip = (item, slot) => {
 
   console.log(`Equipped ${item.name} in ${slot} slot.`);
   player.equipped[slot] = item;
-  updateItemsArray(item, items.allItems);
+  updateItemsArray(item);
 };
-
+    
 // export const handleOutOfRange = () => {
 //   const closeIfOutOfRange = (slot) => {
 //     if (inventory[slot].open && 

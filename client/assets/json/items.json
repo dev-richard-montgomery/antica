@@ -488,6 +488,7 @@
     {
       "name": "mace",
       "type": "mainhand",
+      "skill": "blunt",
       "stats": {
         "offense": 18,
         "defense": 4,
@@ -505,6 +506,7 @@
     {
       "name": "hand axe",
       "type": "mainhand",
+      "skill": "axe",
       "stats": {
         "offense": 4,
         "defense": 2,
@@ -523,6 +525,7 @@
     {
       "name": "hatchet",
       "type": "mainhand",
+      "skill": "axe",
       "stats": {
         "twohander": true,
         "offense": 15,
@@ -542,6 +545,7 @@
     {
       "name": "targe",
       "type": "offhand",
+      "skill": "defense",
       "stats": {
         "defense": 10,
         "weight": 5
@@ -559,6 +563,7 @@
     {
       "name": "heater",
       "type": "offhand",
+      "skill": "defense",
       "stats": {
         "defense": 15,
         "weight": 7
@@ -733,6 +738,23 @@
       "id": 17,
       "category": "world",
       "worldPosition": { "x": 155, "y": 191 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "fishing pole",
+      "type": "mainhand",
+      "tool": "fishing",
+      "stats": {
+        "twohander": true,
+        "weight": 1
+      },
+      "rarity": "common",
+      "description": "Hide those things you call feet.",
+      "sell": 25,
+      "spritePosition": { "x": 256, "y": 1088 },
+      "id": 18,
+      "category": "world",
+      "worldPosition": { "x": 155, "y": 192 },
       "drawPosition": { "x": null, "y": null }
     }
   ]

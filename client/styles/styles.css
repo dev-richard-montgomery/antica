@@ -53,14 +53,15 @@ p, h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('../assets/oasis.jpg') no-repeat center center;
+  background: url('../assets/antica.jpg') center / cover no-repeat fixed;
+  border: 2rem solid black;
 }
 
 /* form styles */
 .form-container {
   position: absolute;
   background: rgba(18, 23, 31, 0.8);
-  top: 40%;
+  top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
@@ -100,18 +101,30 @@ p, h1, h2, h3, h4, h5, h6 {
   color: #fff;
 }
 
-/* Player Creator Styles */
+/* Player Creator Styles */  
 .new-player {
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-areas:
-    "tabs tabs tabs"
-    "left canvas right"
-    "bottom bottom bottom";
+  "header header header"
+  "tabs tabs tabs"
+  "left canvas right"
+  "bottom bottom bottom";
   gap: 10px;
   padding: 20px;
   box-sizing: border-box;
+  top: -5%;
+  position: relative;
+}
+
+.player-name {
+  grid-area: header;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
 .tab-container {
@@ -125,22 +138,51 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .character-btn {
   background: transparent;
-  color: #fff; /* White text */
+  color: #fff;
   font-size: 16px;
   cursor: pointer;
   border: none;
   transition: all 0.3s ease;
   padding: 1rem 1.5rem;
   margin: 5px;
+  position: relative;
+  outline: none;
 }
 
 .character-btn:hover {
-  background: rgba(255, 255, 255, 0.2); /* Light overlay on hover */
-  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .character-btn:active {
-  background: rgba(255, 255, 255, 0.4); /* Darker overlay when clicked */
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Active tab styling */
+.character-btn.active-tab {
+  position: relative;
+}
+
+/* Underline */
+.character-btn.active-tab::after,
+.character-btn.active-tab::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 80%;
+  height: 3px;
+  background: #fff;
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+/* Underline */
+.character-btn.active-tab::after {
+  bottom: 0;
+}
+
+/* Overline */
+.character-btn.active-tab::before {
+  top: 0;
 }
 
 .left {
@@ -175,11 +217,25 @@ p, h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 10px 20px;
   background: transparent;
-  border: none;
+  border: 1px solid white;
   color: #eee;
-  margin: 5px;
+  margin-top: 30px;
+  width: auto;
+  max-width: 250px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.3s ease;
+}
+
+.bottom:hover {
+  background: rgba(13, 85, 179, 0.2);
+  border-color: #ddd;
+  transform: scale(1.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 /* Active Left Arrow */
@@ -221,6 +277,64 @@ p, h1, h2, h3, h4, h5, h6 {
   opacity: 0.5;
   pointer-events: none;
 }
+
+/* Intro Container Styles */
+.intro {
+  /* padding: 100px; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 800px;
+  height: 500px;
+}
+
+/* Fade-in effect */
+.fade-in {
+  animation: fadeInAnimation 2s ease-in-out forwards;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.intro section {
+  max-width: 600px; /* Limit section width */
+  text-align: center; /* Center the text */
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  color: #fff;
+}
+
+.intro-1 {
+  font-size: 1.8rem;
+}
+
+.intro-2 {
+  font-size: 1.2rem;
+}
+
+/* Style for the button */
+.intro button {
+  margin-top: 50px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #4CAF50; /* Green button */
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.intro button:hover {
+  background-color: #45a049;
+}
+
 
 /* Game Container Styles */
 .game-container {
