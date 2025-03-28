@@ -1,4 +1,4 @@
-import { canvas, ctx, equipSlots, visibleArea } from "../CONST.js";
+import { canvas, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
 import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
@@ -10,6 +10,7 @@ import { player } from '../classes/Player.js';
 export const drawAll = () => {
   status();
   ui.draw();
+  state.heldItem && equipSlotHighlight();
   mapArea.drawArea();
   items.drawAllVisibleItems();
   player.draw();
@@ -65,7 +66,6 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
 
   return hoverDetected;
 };
-
 
 // check valid areas
 export const isInRenderArea = (item) => {
@@ -157,7 +157,7 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
 
-  const equippedItem = Object.values(player.equipped).find(gear => gear && gear.id === item.id);
+  const equippedItem = Object.values(player.equipped).find(equippedItem => equippedItem && equippedItem.id === item.id);
   if (equippedItem) {
     player.equipped[equippedItem.type] = null;
   };
@@ -178,33 +178,38 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
 
   items.updateItemDrawPosition(item);
   updateItemsArray(item);
-  // drawAll(); // Ensure UI updates immediately
+};
+
+const unequipItem = (equippedItem, newItem) => {
+  if (!equippedItem) return;
+
+  equippedItem.category = 'world';
+  equippedItem.worldPosition = { ...newItem.worldPosition };
+  equippedItem.held = false;
+
+  player.equipped[equippedItem.type] = null;
+  items.updateItemDrawPosition(equippedItem);
+  updateItemsArray(equippedItem);
 };
 
 export const moveToEquip = (item, slot) => {
   if (!item || item.type !== slot) return; // Ensure valid item type
 
-  const existingItem = player.equipped[slot] || null;
+  // Unequip offhand if equipping a two-handed weapon
+  if (item?.stats?.twohander && player.equipped.offhand) {
+    unequipItem(player.equipped.offhand, item);
+  }
 
-  if (existingItem) {
-    if (existingItem.id === item.id) return; 
-    
-    // Swap items
-    existingItem.category = 'world';
-    existingItem.worldPosition = item.worldPosition;
-    existingItem.held = false;
-    
-    items.updateItemDrawPosition(existingItem);
-    updateItemsArray(existingItem);
-  };
+  // Unequip mainhand if equipping an offhand while mainhand is two-handed
+  if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
+    unequipItem(player.equipped.mainhand, item);
+  }
 
-  // if (item.category === 'inventory') {
-  //   const container = findItemContainer(item, items.allItems);
-  //   const index = container.contents.findIndex(curr => curr.id === item.id);
-  //   if (index > -1) container.contents.splice(index, 1);
-  //   console.log(`removed ${item.name} from inventory to equip section.`)
-  // };
-  
+  // Unequip and swap existing item in the slot
+  if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
+    unequipItem(player.equipped[slot], item);
+  }
+
   // Equip new item
   item.category = 'equipped';
   item.worldPosition = null;
@@ -215,11 +220,11 @@ export const moveToEquip = (item, slot) => {
   player.equipped[slot] = item;
   updateItemsArray(item);
 };
-    
+
 // export const handleOutOfRange = () => {
-//   const closeIfOutOfRange = (slot) => {
-//     if (inventory[slot].open && 
-//         !isInEquipArea(inventory[slot].item) && 
+  //   const closeIfOutOfRange = (slot) => {
+    //     if (inventory[slot].open && 
+    //         !isInEquipArea(inventory[slot].item) && 
 //         !isInRangeOfPlayer(inventory[slot].item)) {
 //       inventory[slot].open = false;
 //       inventory[slot].item = null;
@@ -243,6 +248,23 @@ export const moveToEquip = (item, slot) => {
 //   }
 // };
 
+const equipSlotHighlight = () => {
+  if (!state.heldItem) return;
+
+  const { type } = state.heldItem;
+  const isSlotEmpty = !player.equipped[type];
+
+  if (isSlotEmpty) {
+    const highlightPos = equipSlotsHighlightSpriteLocations[type];
+    const equipPos = equipSlots[type];
+
+    ctx.drawImage(
+      ui.image,
+      highlightPos.x, highlightPos.y, ui.btnSize, ui.btnSize,
+      equipPos.x, equipPos.y, ui.btnSize, ui.btnSize
+    );
+  };
+};
 
 // space validation
 const isMouseOnCanvas = (x, y) => (

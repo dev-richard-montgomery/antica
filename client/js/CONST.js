@@ -78,18 +78,6 @@ const equipSlots = {
   feet: { x: 960, y: 128 },
 };
 
-const equipSlotsNoHighlightSpriteLocations = {
-  neck: { x: 0, y: 192 },
-  head: { x: 64, y: 192 },
-  back: { x: 128, y: 192 },
-  mainhand: { x: 0, y: 256 },
-  chest: { x: 64, y: 256 },
-  offhand: { x: 128, y: 256 },
-  hands: { x: 0, y: 320 },
-  legs: { x: 64, y: 320 },
-  feet: { x: 128, y: 320 },
-};
-
 const equipSlotsHighlightSpriteLocations = {
   neck: { x: 192, y: 192 },
   head: { x: 256, y: 192 },
@@ -180,7 +168,8 @@ export {
   centerY, 
   chat, 
   ctx, 
-  equipSlots, 
+  equipSlots,
+  equipSlotsHighlightSpriteLocations,
   game, 
   inventory, 
   inventorySlots,

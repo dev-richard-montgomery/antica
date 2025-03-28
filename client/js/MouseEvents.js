@@ -12,7 +12,7 @@ export const handleMouseMove = (e) => {
   if (uiCursor) {
     canvas.style.cursor = uiCursor;
     return;
-  }
+  };
 
   // Default cursor state
   canvas.style.cursor = "crosshair";
@@ -21,7 +21,7 @@ export const handleMouseMove = (e) => {
   if (state.heldItem) {
     canvas.style.cursor = "grabbing";
     return;
-  }
+  };
 
   // Update hover states for in-game items
   if (updateItemHoverState(offsetX, offsetY)) return;
@@ -45,7 +45,7 @@ export const handleMouseDown = (e) => {
     state.lastValidPosition = { ...hoveredItem.drawPosition };
     state.heldItem = hoveredItem;
     canvas.style.cursor = "grabbing";
-  }
+  };
 };
 
 export const handleMouseUp = (e) => {
@@ -83,7 +83,6 @@ export const handleMouseUp = (e) => {
   
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
-    // state.lastValidPosition = null;
     // } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
     //   moveToInventory(heldItem, inventory.one.item);
     //   console.log(heldItem, ' in First Inventory');
