@@ -14,6 +14,22 @@ export const removeFocusFromChatInput = () => {
 export const addMessage = (sender, text) => {
   const chatbox = document.getElementById("chatbox");
   const message = document.createElement("div");
+
+  // Check if the message is the clear command
+  if (text.trim() === "/c") {
+    chatbox.innerHTML = ""; // Clears the chatbox
+    return; // Exit the function so nothing else gets appended
+  };
+
+  // Check for commands - /y /w 
+  if (text.startsWith("/y ")) {
+    text = '*yells* ' + text.slice(3).toUpperCase() + "!"; // Remove "/y" and convert to uppercase
+  };
+
+  if (text.startsWith("/w ")) {
+    text = '*whispers* ' + text.slice(3).toLowerCase(); // Remove "/y" and convert to uppercase
+  };
+
   message.classList.add("message", sender);
   message.innerHTML = `<strong>${sender}:</strong> ${text}`;
   chatbox.appendChild(message);
