@@ -39,13 +39,17 @@
         Welcome, warrior, to Genus Island…
       </section>
       <section class="intro-2 hidden">
-        Genus is the cradle of Antica, the proving grounds for new Antican warriors. On the island, you will test your mettle and ultimately choose your profession before facing the perils of the mainland. Beyond Genus, your bravery will be challenged, your cunning tested, and you will learn that reputation is worth its weight in platinum, but for now... demonstrate your curiosity.
+        Genus is the cradle of Antica, the proving grounds for new Antican warriors. On the island, you will test your mettle and ultimately choose your profession before facing the perils of the mainland. Beyond Genus, your bravery will be challenged, your cunning tested, and you will learn that reputation is worth its weight in platinum, but for now... rely on your curiosity.
       </section>
     </div>
 
     <div class="game-container hidden">
       <div class="player-details-container noselect"></div>
       <canvas class="game-canvas"></canvas>
+      <div class="chatbox-container">
+        <div class="chatbox" id="chatbox"></div>
+        <input type="text" id="chatInput" class="input-box noselect" placeholder="Press ENTER to type message..." readonly>
+      </div>
     </div>
     
     <script type="module" src="./js/index.js"></script>

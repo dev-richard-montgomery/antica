@@ -8,7 +8,8 @@ canvas.uiWidth = 192;
 
 // game variables
 const chat = {
-  on: false
+  on: false,
+  input: false
 };
 
 const game = {

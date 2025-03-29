@@ -1,6 +1,7 @@
 import { generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
+import { mapArea } from './MapArea.js';
 import { ui } from './UserInterface.js';
 import { ctx, state } from '../CONST.js';
 
@@ -72,6 +73,28 @@ class Items {
   
     this.allItems.splice(index, 1);
     this.allItems.push(item);
+  };
+
+  checkTileCollision(tileArray, newX, newY) {
+    const playerLocation = player.worldPosition;
+    const pixels = 64;
+    const x = (newX - playerLocation.x) * pixels + 384;
+    const y = (newY - playerLocation.y) * pixels + 320;
+  
+    const collision = tileArray.some(tile => {
+      const match = x === tile.dx && y === tile.dy;
+      return match;
+    });
+  
+    return collision; // Returns true if there's a collision
+  };
+
+  deleteItem(item) {
+    const index = this.allItems.findIndex(curr => curr.id === item.id);
+
+    if(index > -1) {
+      this.allItems.splice(index, 1);
+    };
   };
 
   draw(item) {

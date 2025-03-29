@@ -198,17 +198,17 @@ export const moveToEquip = (item, slot) => {
   // Unequip offhand if equipping a two-handed weapon
   if (item?.stats?.twohander && player.equipped.offhand) {
     unequipItem(player.equipped.offhand, item);
-  }
+  };
 
   // Unequip mainhand if equipping an offhand while mainhand is two-handed
   if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
     unequipItem(player.equipped.mainhand, item);
-  }
+  };
 
   // Unequip and swap existing item in the slot
   if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
     unequipItem(player.equipped[slot], item);
-  }
+  };
 
   // Equip new item
   item.category = 'equipped';
