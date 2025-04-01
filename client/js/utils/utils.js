@@ -267,8 +267,8 @@ const equipSlotHighlight = () => {
 };
 
 // space validation
-const isMouseOnCanvas = (x, y) => (
-  Number.isFinite(x) && Number.isFinite(y) &&
-  x >= 0 && x < canvas.width &&
-  y >= 0 && y < canvas.height
-);
+// const isMouseOnCanvas = (x, y) => (
+//   Number.isFinite(x) && Number.isFinite(y) &&
+//   x >= 0 && x < canvas.width &&
+//   y >= 0 && y < canvas.height
+// );

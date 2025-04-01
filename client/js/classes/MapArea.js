@@ -71,9 +71,9 @@ class MapArea {
             this.drawTile(this.image, tileData);
             if (tileID > 0 && waterTileIDs.includes(tileID - 1)) {
               this.waterTiles.push(tileData);
-            }
-          }
-        }
+            };
+          };
+        };
       });
     });
   };

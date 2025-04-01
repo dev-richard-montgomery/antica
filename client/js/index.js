@@ -5,6 +5,7 @@ import { ui } from './classes/UserInterface.js';
 import { addMessage, setFocusToChatInput, removeFocusFromChatInput } from './components/chatbox.js';
 import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
 import { drawAll } from './utils/utils.js';
+import { warpriest } from './classes/NPC.js';
 
 // event handlers ------------------------------------------------------------------------
 addEventListener("DOMContentLoaded", e => {  
@@ -53,6 +54,18 @@ addEventListener("DOMContentLoaded", e => {
     };
   });
 
+  // document.addEventListener("keydown", (e) => {
+  //   if (e.key === "Enter") {
+  //     const chatInput = document.getElementById("chatInput");
+  //     const text = chatInput.value.trim();
+  //     if (text) {
+  //       addMessage("Player", text);
+  //       checkNPCChatInteraction(player.worldPosition, text); // Check for NPCs nearby
+  //       chatInput.value = "";
+  //     }
+  //   }
+  // });
+
   // canvas.addEventListener("contextmenu", e => {
   //   handleRightClick(e);
   // });
@@ -71,6 +84,7 @@ function gameLoop() {
   // Update game logic
   if (game.on) {
     drawAll();
+    warpriest.move();
   };
 
   requestAnimationFrame(gameLoop);

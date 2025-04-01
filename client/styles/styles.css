@@ -149,14 +149,6 @@ p, h1, h2, h3, h4, h5, h6 {
   outline: none;
 }
 
-.character-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.character-btn:active {
-  background: rgba(255, 255, 255, 0.4);
-}
-
 /* Active tab styling */
 .character-btn.active-tab {
   position: relative;

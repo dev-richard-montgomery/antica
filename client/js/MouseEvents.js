@@ -98,7 +98,7 @@ export const handleMouseUp = (e) => {
       console.log(`Dropped ${state.heldItem.name} in water.`);
       items.deleteItem(state.heldItem);
       state.heldItem = null;
-    } else if (isBoundaryTile) { // ✅ Check explicitly for boundary
+    } else if (isBoundaryTile) {
       items.resetItemPosition(state.heldItem, state.lastValidPosition);
     } else {
       moveToVisibleArea(state.heldItem, newFrameX, newFrameY);
