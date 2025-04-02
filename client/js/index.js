@@ -1,11 +1,18 @@
-import { canvas, ctx, chat, game } from './CONST.js';
+import { canvas, ctx, chat, game, npcData } from './CONST.js';
+import { NPC } from './classes/NPC.js';
 import { login } from './components/login.js';
 import { player } from './classes/Player.js';
 import { ui } from './classes/UserInterface.js';
 import { addMessage, setFocusToChatInput, removeFocusFromChatInput } from './components/chatbox.js';
 import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
 import { drawAll } from './utils/utils.js';
-import { warpriest } from './classes/NPC.js';
+
+// init all npcs
+export const npcList = Object.values(npcData).map(npc => 
+  new NPC(npc.name, npc.spritePositions, npc.worldPosition, npc.validMovePositions, npc.responses, npc.speed)
+);
+
+// init all creatures
 
 // event handlers ------------------------------------------------------------------------
 addEventListener("DOMContentLoaded", e => {  
@@ -53,6 +60,29 @@ addEventListener("DOMContentLoaded", e => {
       };
     };
   });
+});
+
+// game loop -----------------------------------------------------------------------------
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Update game logic
+  if (game.on) {
+    const currentTime = performance.now(); // Get current time in milliseconds
+    drawAll();
+    npcList.forEach(npc => {
+      if (npc.isVisibleOnScreen()) {
+        npc.move(currentTime);           // Update the NPC's movement
+        npc.updateDrawPosition();        // Update the NPC's draw position
+        npc.draw();   // Draw the NPC with its updated position and direction
+      };
+    });
+  };
+
+  requestAnimationFrame(gameLoop);
+};
+
+gameLoop();
 
   // document.addEventListener("keydown", (e) => {
   //   if (e.key === "Enter") {
@@ -75,22 +105,7 @@ addEventListener("DOMContentLoaded", e => {
   // addEventListener('beforeunload', async (e) => {
   //   await updateAndPostGameData();
   // });
-});
 
-// game loop -----------------------------------------------------------------------------
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Update game logic
-  if (game.on) {
-    drawAll();
-    warpriest.move();
-  };
-
-  requestAnimationFrame(gameLoop);
-};
-
-gameLoop();
 
 // items in water get deleted
 // inventory

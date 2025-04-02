@@ -5,7 +5,6 @@ import { mapArea } from '../classes/MapArea.js';
 import { items } from '../classes/Items.js';
 import { player } from '../classes/Player.js';
 
-
 // general functions
 export const drawAll = () => {
   status();

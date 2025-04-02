@@ -16,6 +16,11 @@ const game = {
   on: false
 };
 
+const state = {
+  lastValidPosition: null,
+  heldItem: null
+};
+
 // path variables
 const API_URL_ITEMS = '/saveItemData';
 const API_URL_PLAYER = '/savePlayerData';
@@ -50,10 +55,6 @@ const selected = {
   legs: 0,
   boots: 0
 };
-
-// movement variables
-const centerX = 384;
-const centerY = 320;
 
 // map variables
 const uppermostTileIDs = [30, 31, 300, 301, 320, 321, 322, 323, 324, 340, 343, 360, 362, 363, 380, 383];
@@ -156,17 +157,43 @@ const uiSections = {
   }
 };
 
-const state = {
-  lastValidPosition: null,
-  heldItem: null
+const npcData = {
+  heremal: {
+    name: "Heremal",
+    description: "Warpriest",
+    spritePositions: { up: { x: 128, y: 0 }, down: { x: 0, y: 0 }, left: { x: 256, y: 0 }, right: { x: 384, y: 0 } },
+    worldPosition: { x: 153, y: 187 },
+    validMovePositions: [
+      { x: 153, y: 187 }, { x: 154, y: 187 }, { x: 155, y: 187 }, { x: 156, y: 187 }, { x: 157, y: 187 }, 
+      { x: 153, y: 188 }, { x: 154, y: 188 }, { x: 155, y: 188 }, { x: 156, y: 188 }, { x: 157, y: 188 },
+      { x: 153, y: 189 }, { x: 154, y: 189 }, { x: 156, y: 189 }, { x: 157, y: 189 }, 
+      { x: 153, y: 190 }, { x: 154, y: 190 }, { x: 155, y: 190 }, { x: 156, y: 190 }, { x: 157, y: 190 },
+      { x: 153, y: 191 }, { x: 154, y: 191 }, { x: 155, y: 191 }, { x: 156, y: 191 }, { x: 157, y: 191 }, 
+    ],
+    responses: {
+      greetings: {
+        "hi": "Greetings to Genus, Antican.",
+        "hello": "Greetings to Genus, Antican.",
+        "hey": "Greetings to Genus, Antican.",
+      },
+      help: {
+        "help": "Ass ass titties titties."
+      },
+      bye: {
+        "thanks": "You're welcome.",
+        "thx": "Come again.",
+        "bye": "Take care.",
+        "goodbye": "Safe travels."
+      },
+    },
+    speed: 5000
+  }
 };
 
 export { 
   API_URL_ITEMS, 
   API_URL_PLAYER, 
   canvas, 
-  centerX, 
-  centerY, 
   chat, 
   ctx, 
   equipSlots,
@@ -174,6 +201,7 @@ export {
   game, 
   inventory, 
   inventorySlots,
+  npcData,
   selected,
   spritePaths, 
   sprites, 

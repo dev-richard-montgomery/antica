@@ -1,8 +1,9 @@
 import { resources } from '../utils/resources.js';
-import { centerX, centerY, chat, ctx, game, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
+import { chat, ctx, game, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
 import { spriteManager } from '../components/create-player.js';
 import { mapArea } from './MapArea.js'; 
 import { generateHexId } from '../utils/utils.js';
+import { npcList } from '../index.js';
 
 class Player {
   constructor() {
@@ -84,6 +85,10 @@ class Player {
     });
   };
 
+  isNpcAtPosition(targetX, targetY) {
+    return npcList.some(npc => npc.drawPosition.x === targetX && npc.drawPosition.y === targetY);
+  };
+
   canMove = (boundaryTiles, newX, newY) => {
     return !boundaryTiles.some(boundary => 
       newX === boundary.dx && newY === boundary.dy
@@ -115,9 +120,11 @@ class Player {
     if (e.shiftKey) {
       return;
     };
-  
-    const newX = centerX + movementOffsets[key].x;
-    const newY = centerY + movementOffsets[key].y;
+    
+    const newX = 384 + movementOffsets[key].x;
+    const newY = 320 + movementOffsets[key].y;
+    
+    if (this.isNpcAtPosition(newX, newY)) return;
   
     if (this.canMove(mapArea.boundaryTiles, newX, newY)) {
       this.worldPosition.x += movementOffsets[key].x / this.pixels;
