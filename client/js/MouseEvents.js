@@ -1,6 +1,7 @@
 import { canvas, equipSlots, state } from './CONST.js';
 import { clearHoverStates, moveToEquip, moveToVisibleArea, updateItemHoverState } from './utils/utils.js';
 import { player } from './classes/Player.js';
+import { mapArea } from './classes/MapArea.js';
 import { items } from './classes/Items.js';
 import { ui } from './classes/UserInterface.js';
 
@@ -12,7 +13,7 @@ export const handleMouseMove = (e) => {
   if (uiCursor) {
     canvas.style.cursor = uiCursor;
     return;
-  }
+  };
 
   // Default cursor state
   canvas.style.cursor = "crosshair";
@@ -21,7 +22,7 @@ export const handleMouseMove = (e) => {
   if (state.heldItem) {
     canvas.style.cursor = "grabbing";
     return;
-  }
+  };
 
   // Update hover states for in-game items
   if (updateItemHoverState(offsetX, offsetY)) return;
@@ -45,7 +46,7 @@ export const handleMouseDown = (e) => {
     state.lastValidPosition = { ...hoveredItem.drawPosition };
     state.heldItem = hoveredItem;
     canvas.style.cursor = "grabbing";
-  }
+  };
 };
 
 export const handleMouseUp = (e) => {
@@ -83,7 +84,6 @@ export const handleMouseUp = (e) => {
   
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
-    // state.lastValidPosition = null;
     // } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
     //   moveToInventory(heldItem, inventory.one.item);
     //   console.log(heldItem, ' in First Inventory');
@@ -91,10 +91,21 @@ export const handleMouseUp = (e) => {
     //   moveToInventory(heldItem, inventory.two.item);
     //   console.log(heldItem, ' in Second Inventory');
   } else if (inRenderArea) {
-    moveToVisibleArea(state.heldItem, newFrameX, newFrameY);
+    const isBoundaryTile = items.checkTileCollision(mapArea.boundaryTiles, newFrameX, newFrameY);
+    const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
+
+    if (isWaterTile) {
+      console.log(`Dropped ${state.heldItem.name} in water.`);
+      items.deleteItem(state.heldItem);
+      state.heldItem = null;
+    } else if (isBoundaryTile) {
+      items.resetItemPosition(state.heldItem, state.lastValidPosition);
+    } else {
+      moveToVisibleArea(state.heldItem, newFrameX, newFrameY);
+    };
   } else {
     items.resetItemPosition(state.heldItem, state.lastValidPosition);
-  }
+  };
   // Handle moving between inventory and equip slots
   // if (heldItem.category === 'inventory' && inEquipSlot) {
   //   moveToEquip(heldItem, inEquipSlot);

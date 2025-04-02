@@ -20,7 +20,7 @@ class MapArea {
     });
   };
 
-  drawTile = (image, { sx, sy, dx, dy }) => {
+  drawTile(image, { sx, sy, dx, dy }) {
     if (!ctx) {
       console.error('Canvas context (ctx) is not defined.');
       return;
@@ -28,7 +28,7 @@ class MapArea {
     ctx.drawImage(image, sx, sy, this.tileSize, this.tileSize, dx, dy, this.tileSize, this.tileSize);
   };
   
-  drawArea = (currentMap = resources.mapData?.isLoaded ? resources.mapData.genus01?.layers : []) => {
+  drawArea(currentMap = resources.mapData?.isLoaded ? resources.mapData.genus01?.layers : []) {
     this.boundaryTiles = [];
     this.waterTiles = [];
     this.uppermostTiles = [];
@@ -71,14 +71,14 @@ class MapArea {
             this.drawTile(this.image, tileData);
             if (tileID > 0 && waterTileIDs.includes(tileID - 1)) {
               this.waterTiles.push(tileData);
-            }
-          }
-        }
+            };
+          };
+        };
       });
     });
   };
 
-  drawUpperMostTiles = () => {
+  drawUpperMostTiles() {
     this.uppermostTiles.forEach(tile => this.drawTile(this.image, tile));
   };
 };

@@ -54,7 +54,7 @@ p, h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: 100%;
   background: url('../assets/antica.jpg') center / cover no-repeat fixed;
-  border: 2rem solid black;
+  border: 5rem solid black;
 }
 
 /* form styles */
@@ -147,14 +147,6 @@ p, h1, h2, h3, h4, h5, h6 {
   margin: 5px;
   position: relative;
   outline: none;
-}
-
-.character-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.character-btn:active {
-  background: rgba(255, 255, 255, 0.4);
 }
 
 /* Active tab styling */
@@ -335,30 +327,79 @@ p, h1, h2, h3, h4, h5, h6 {
   background-color: #45a049;
 }
 
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 2s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 /* Game Container Styles */
 .game-container {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 200px auto; /* Left panel, canvas (auto), right panel */
+  grid-template-rows: auto 260px;
+  align-items: start;
   justify-content: center;
-  align-items: center;
   padding: 6px;
   border-width: 2px;
   border-style: solid;
   border-color: hsl(60, 25%, 30%) hsl(60, 25%, 20%) hsl(60, 25%, 20%) hsl(60, 25%, 30%);
 }
 
-/* Player Stats */
+/* Player Stats (Left Panel) */
 .player-details-container {
   display: flex;
   flex-direction: column;
   height: 704px;
-  width: 200px;   
+  width: 200px;
   background: #2e2e2e;
   color: #ccc;
   line-height: 2;
   font-size: 1.2rem;
   padding: 0.6rem;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Chatbox (Full Width at Bottom) */
+.chatbox-container {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+}
+
+.chatbox {
+  width: 100%;
+  height: 200px;
+  padding: 5px 10px;
+  background: #333;
+  overflow-y: auto;
+  color: white;
+  border-radius: 5px;
+}
+
+.input-box {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 3px;
+  background: #555;
+  color: white;
+  border: none; /* Removes border */
+  outline: none; /* Removes focus outline */
 }
 
 /* Utility Classes */

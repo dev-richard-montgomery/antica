@@ -8,11 +8,17 @@ canvas.uiWidth = 192;
 
 // game variables
 const chat = {
-  on: false
+  on: false,
+  input: false
 };
 
 const game = {
   on: false
+};
+
+const state = {
+  lastValidPosition: null,
+  heldItem: null
 };
 
 // path variables
@@ -50,10 +56,6 @@ const selected = {
   boots: 0
 };
 
-// movement variables
-const centerX = 384;
-const centerY = 320;
-
 // map variables
 const uppermostTileIDs = [30, 31, 300, 301, 320, 321, 322, 323, 324, 340, 343, 360, 362, 363, 380, 383];
 const waterTileIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -76,18 +78,6 @@ const equipSlots = {
   hands: { x: 832, y: 128 },
   legs: { x: 896, y: 128 },
   feet: { x: 960, y: 128 },
-};
-
-const equipSlotsNoHighlightSpriteLocations = {
-  neck: { x: 0, y: 192 },
-  head: { x: 64, y: 192 },
-  back: { x: 128, y: 192 },
-  mainhand: { x: 0, y: 256 },
-  chest: { x: 64, y: 256 },
-  offhand: { x: 128, y: 256 },
-  hands: { x: 0, y: 320 },
-  legs: { x: 64, y: 320 },
-  feet: { x: 128, y: 320 },
 };
 
 const equipSlotsHighlightSpriteLocations = {
@@ -167,23 +157,51 @@ const uiSections = {
   }
 };
 
-const state = {
-  lastValidPosition: null,
-  heldItem: null
+const npcData = {
+  heremal: {
+    name: "Heremal",
+    description: "Warpriest",
+    spritePositions: { up: { x: 128, y: 0 }, down: { x: 0, y: 0 }, left: { x: 256, y: 0 }, right: { x: 384, y: 0 } },
+    worldPosition: { x: 153, y: 187 },
+    validMovePositions: [
+      { x: 153, y: 187 }, { x: 154, y: 187 }, { x: 155, y: 187 }, { x: 156, y: 187 }, { x: 157, y: 187 }, 
+      { x: 153, y: 188 }, { x: 154, y: 188 }, { x: 155, y: 188 }, { x: 156, y: 188 }, { x: 157, y: 188 },
+      { x: 153, y: 189 }, { x: 154, y: 189 }, { x: 156, y: 189 }, { x: 157, y: 189 }, 
+      { x: 153, y: 190 }, { x: 154, y: 190 }, { x: 155, y: 190 }, { x: 156, y: 190 }, { x: 157, y: 190 },
+      { x: 153, y: 191 }, { x: 154, y: 191 }, { x: 155, y: 191 }, { x: 156, y: 191 }, { x: 157, y: 191 }, 
+    ],
+    responses: {
+      greetings: {
+        "hi": "Greetings to Genus, Antican.",
+        "hello": "Greetings to Genus, Antican.",
+        "hey": "Greetings to Genus, Antican.",
+      },
+      help: {
+        "help": "Ass ass titties titties."
+      },
+      bye: {
+        "thanks": "You're welcome.",
+        "thx": "Come again.",
+        "bye": "Take care.",
+        "goodbye": "Safe travels."
+      },
+    },
+    speed: 5000
+  }
 };
 
 export { 
   API_URL_ITEMS, 
   API_URL_PLAYER, 
   canvas, 
-  centerX, 
-  centerY, 
   chat, 
   ctx, 
-  equipSlots, 
+  equipSlots,
+  equipSlotsHighlightSpriteLocations,
   game, 
   inventory, 
   inventorySlots,
+  npcData,
   selected,
   spritePaths, 
   sprites, 
