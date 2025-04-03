@@ -172,18 +172,27 @@ const npcData = {
     ],
     responses: {
       greetings: {
-        "hi": "Greetings to Genus, Antican.",
-        "hello": "Greetings to Genus, Antican.",
-        "hey": "Greetings to Genus, Antican.",
+        greetings: "Well met, new wanderer. Do you seek <span><em>guidance</em></span>?",
+        hi: "Hail. Do you seek counsel or perhaps <span><em>guidance</em></span>?",
+        hello: "Greetings, Antican. The winds of destiny are ever upon us. Do you seek <span><em>guidance</em></em></span>?",
+        hey: "Ah, another wanderer. Greetings, fellow traveler. Do you seek <span><em>guidance</em></em></span>?",
       },
-      help: {
-        "help": "Ass ass titties titties."
+      dialog: {
+        "guidance": "What knowledge do you seek? The <span><em>island</em></span> we call home, the secrets of <span><em>beginnings</em></span>, where to <span><em>hunt</em></span>, the ancient <span><em>purpose</em></span> of our kin, or perhaps tales of the <span><em>mainland</em></span>?",
+        "island": "The island is called <span><em>Genus</em></span>, where the first breaths of humanity were taken. It is said that it has stood since the very dawn of creation.",
+        "genus": "Genus, the cradle of humanity, where we were born and shaped by the ancient forces that guide us.",
+        "purpose": "The stories of Antica tell of civilizations rising and crumbling, of races scattered across the land, struggling for meaning. Now, in this age, we must rise above the chaos and carve out our legacy.",
+        "beginnings": "To begin your journey, venture west, where the vendors trade in weapons of war. Arm yourself, for the world is fraught with peril.",
+        "hunt": "In the beginning, seek out the rats that infest the cellars below. Their blood will teach you the ways of combat. Once you have mastered them, you may roam farther.",
+        "mainland": "The mainland of Antica is a land of both peril and opportunity. The strong find glory in their deeds, and the worthy earn their death in battle. Only the bold survive the trials that await. We believe it is opportunity that is upon us now. Perhaps this is the time of man to shape Antica in its image.",
+        "butt": "I like butts. I cannot lie.",
+        "boob":  "heh... bewbs."
       },
       bye: {
-        "thanks": "You're welcome.",
-        "thx": "Come again.",
-        "bye": "Take care.",
-        "goodbye": "Safe travels."
+        "thanks": "Your thanks are well met, traveler.",
+        "thx": "No need for thanks, fellow warrior.",
+        "bye": "May the winds carry you swiftly.",
+        "goodbye": "Farewell, Antican. May your path be ever true."
       },
     },
     speed: 5000

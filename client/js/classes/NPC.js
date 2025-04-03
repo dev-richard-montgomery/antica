@@ -1,5 +1,6 @@
 import { ctx } from '../CONST.js';
 import { player } from './Player.js';
+import { addMessage } from '../components/chatbox.js';
 
 export class NPC {
   constructor(name, spritePositions, worldPosition, validMovePositions, responses, speed) {
@@ -16,8 +17,10 @@ export class NPC {
     this.direction = this.spritePositions.down;
     this.drawPosition = { x: 0, y: 0 }; // Prevents undefined errors
     this.lastMoveTime = 0; // Initialize timestamp tracking
+    this.engagementTimeout = null;
   }
 
+  // draw functions
   draw() {
     if (!this.direction) return; // Prevents errors if direction is missing
     ctx.drawImage(
@@ -39,10 +42,6 @@ export class NPC {
     this.drawPosition.y = (this.worldPosition.y - player.worldPosition.y) * pixels + 320;
   };
 
-  retrieveWorldPosition() {
-    return this.worldPosition;
-  };
-
   isVisibleOnScreen() {
     const visibleXStart = player.worldPosition.x - 6;
     const visibleXEnd = player.worldPosition.x + 6;
@@ -57,6 +56,46 @@ export class NPC {
     );
   };
 
+  // player interaction
+  isPlayerNearby() {
+    const distance = Math.abs(this.worldPosition.x - player.worldPosition.x) +
+                     Math.abs(this.worldPosition.y - player.worldPosition.y);
+    return distance <= 3;
+  };
+
+  checkPlayerDistance() {
+    if (!this.moving && !this.isPlayerNearby()) {
+      this.resumeMovement();
+    };
+  };
+
+  turnToFacePlayer() {
+    if (player.worldPosition.x > this.worldPosition.x) {
+      this.direction = this.spritePositions.right;
+    } else if (player.worldPosition.x < this.worldPosition.x) {
+      this.direction = this.spritePositions.left;
+    } else if (player.worldPosition.y > this.worldPosition.y) {
+      this.direction = this.spritePositions.down;
+    } else {
+      this.direction = this.spritePositions.up;
+    };
+  };
+
+  interact() {
+    this.isMoving = false;
+    this.turnToFacePlayer();
+
+    this.engagementTimeout = setTimeout(() => {
+      this.isMoving = true;
+    }, 60000);
+  };
+
+  resumeMovement() {
+    this.isMoving = true;
+    clearTimeout(this.engagementTimeout);
+  };
+
+  // npc movement
   move(currentTime) {
     if (!this.isMoving) return;
 
@@ -87,5 +126,7 @@ export class NPC {
 
     this.worldPosition = newPosition;
     this.updateDrawPosition();
-  }
+  };
+
+
 };

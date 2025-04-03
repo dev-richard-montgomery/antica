@@ -381,13 +381,19 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .chatbox {
-  width: 100%;
+  width: 1200px;
   height: 200px;
   padding: 5px 10px;
   background: #333;
   overflow-y: auto;
+  word-wrap: break-word; /* Ensures words wrap properly */
+  white-space: pre-wrap; /* Preserves spaces and wraps long text */
   color: white;
   border-radius: 5px;
+}
+
+span {
+  color: yellow;
 }
 
 .input-box {
