@@ -3,7 +3,10 @@ import { chat, ctx, game, selected, sprites, spriteTabs, visibleArea } from '../
 import { spriteManager } from '../components/create-player.js';
 import { mapArea } from './MapArea.js'; 
 import { generateHexId } from '../utils/utils.js';
-import { npcList } from '../index.js';
+import { getNpcList } from './NPCManager.js';
+
+// get npc list
+const npcList = getNpcList();
 
 class Player {
   constructor() {
