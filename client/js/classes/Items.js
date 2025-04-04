@@ -1,7 +1,6 @@
 import { generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
-import { mapArea } from './MapArea.js';
 import { ui } from './UserInterface.js';
 import { ctx, state } from '../CONST.js';
 
@@ -29,7 +28,7 @@ class Items {
     this.allItems = [...resources.itemData.itemsInGame];
   };
 
-  createItem(name, category = 'world', worldPosition = null) {
+  createItem(name, worldPosition = null, category = 'world') {
     const baseItem = resources.itemData.items.find(it => it.name === name);
     if (!baseItem) {
         console.error(`Item "${name}" not found in itemData.`);
@@ -41,10 +40,12 @@ class Items {
         id: generateHexId(),
         category,
         worldPosition,
+        drawPosition: { x: 0, y: 0 },
         hover: false,
         held: false
     };
 
+    this.updateItemDrawPosition(newItem);
     this.allItems.push(newItem);
     return newItem;
   };

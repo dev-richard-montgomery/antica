@@ -4,6 +4,7 @@ import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
 import { items } from '../classes/Items.js';
 import { player } from '../classes/Player.js';
+import { addMessage } from "../components/chatbox.js";;
 
 // general functions
 export const drawAll = () => {
@@ -248,7 +249,7 @@ export const moveToEquip = (item, slot) => {
 // };
 
 const equipSlotHighlight = () => {
-  if (!state.heldItem) return;
+  if (!state.heldItem?.type) return;
 
   const { type } = state.heldItem;
   const isSlotEmpty = !player.equipped[type];
@@ -271,3 +272,52 @@ const equipSlotHighlight = () => {
 //   x >= 0 && x < canvas.width &&
 //   y >= 0 && y < canvas.height
 // );
+
+// fishing functions
+const getCatchChance = () => {
+  const min = 0.18;
+  const max = 0.99;
+  const k = 0.06; // controls the curve steepness
+  const x0 = 50;  // the midpoint (center of curve)
+  
+  const sigmoid = 1 / (1 + Math.exp(-k * (player.skills.fishing - x0)));
+  return min + (max - min) * sigmoid;
+};
+
+const getRareCatchChance = () => {
+  return 1 / (1 + Math.exp(-0.07 * (player.skills.fishing - 85)));  
+};
+
+const getXPRequired = () => {
+  return 20 * Math.pow(1.1, player.skills.fishing - 10);
+};
+
+// Example: Check if a fishing attempt is successful
+export const attemptFishing = () => {
+  let xpGained = 0; // Default small XP for failed attempts
+
+  if (Math.random() < getCatchChance()) {
+    xpGained = 1; // Standard catch XP
+    addMessage("You caught a", "Silverscale!");
+    items.createItem("silverscale", { x: player.worldPosition.x, y: player.worldPosition.y });
+
+    if (Math.random() < getRareCatchChance()) {
+      addMessage("You caught a", "Flarefin!");
+      items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
+      xpGained = 5; // Rare catch overrides normal XP
+    }
+  } else {
+    console.log("You failed to catch anything.");
+  }
+
+  player.experience.fishing += xpGained;
+  console.log('chance', getCatchChance())
+  console.log(player.experience.fishing, '/', getXPRequired())
+
+  // Level up check with XP rollover
+  while (player.experience.fishing >= getXPRequired()) {
+    player.experience.fishing -= getXPRequired();
+    player.skills.fishing++;
+    console.log(`You leveled up! Fishing skill: ${player.skills.fishing}`);
+  }
+};

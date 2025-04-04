@@ -446,6 +446,33 @@
       "description": "Hide those things you call feet.",
       "sell": 25,
       "spritePosition": { "x": 256, "y": 1088 }
+    },
+    {
+      "name": "silverscale",
+      "food": true,
+      "stats": {
+        "hp": 25,
+        "mp": 25,
+        "accumulative": true,
+        "weight": 0.15
+      },
+      "rarity": "common",
+      "description": "So common, some say they bait themselves.",
+      "spritePosition": { "x": 0, "y": 1152 }
+    },
+    {
+      "name": "flarefin",
+      "food": true,
+      "stats": {
+        "hp": 150,
+        "mp": 150,
+        "accumulative": true,
+        "weight": 0.17
+      },
+      "rarity": "uncommon",
+      "description": "Flarefin, the protein shake of the sea.",
+      "sell": 25,
+      "spritePosition": { "x": 64, "y": 1152 }
     }
   ],
   "itemsInGame": [

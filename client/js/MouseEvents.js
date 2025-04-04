@@ -1,5 +1,5 @@
 import { canvas, equipSlots, state } from './CONST.js';
-import { clearHoverStates, moveToEquip, moveToVisibleArea, updateItemHoverState } from './utils/utils.js';
+import { attemptFishing, clearHoverStates, moveToEquip, moveToVisibleArea, updateItemHoverState } from './utils/utils.js';
 import { player } from './classes/Player.js';
 import { mapArea } from './classes/MapArea.js';
 import { items } from './classes/Items.js';
@@ -10,7 +10,9 @@ export const handleMouseMove = (e) => {
 
   // Check for UI interactions first
   const uiCursor = ui.handleUiStates(e);
-  if (uiCursor) {
+  if (player.isFishing) {
+    canvas.style.cursor = 'move';
+  } else if (uiCursor) {
     canvas.style.cursor = uiCursor;
     return;
   };
@@ -35,7 +37,11 @@ export const handleMouseDown = (e) => {
   clearHoverStates();
   const { offsetX, offsetY } = e;
   updateItemHoverState(offsetX, offsetY);
-
+  
+  const newFrameX = player.worldPosition.x + Math.floor((offsetX - 384) / 64);
+  const newFrameY = player.worldPosition.y + Math.floor((offsetY - 320) / 64);
+  const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
+  
   // Find hovered item to hold
   const hoveredItem = items.allItems.find(item => item.hover);
 
@@ -47,6 +53,19 @@ export const handleMouseDown = (e) => {
     state.heldItem = hoveredItem;
     canvas.style.cursor = "grabbing";
   };
+
+  // Fishing functions
+  if (player.isFishing && e.button === 0) {
+    
+    // Check if the clicked area is a water tile
+    if (isWaterTile) {
+      attemptFishing();  // Attempt to fish
+    };
+    
+    // Reset fishing mode and cursor
+    player.isFishing = false;
+    canvas.style.cursor = 'crosshair'; // Reset cursor to default
+  }
 };
 
 export const handleMouseUp = (e) => {

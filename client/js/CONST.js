@@ -186,7 +186,8 @@ const npcData = {
         "hunt": "In the beginning, seek out the rats that infest the cellars below. Their blood will teach you the ways of combat. Once you have mastered them, you may roam farther.",
         "mainland": "The mainland of Antica is a land of both peril and opportunity. The strong find glory in their deeds, and the worthy earn their death in battle. Only the bold survive the trials that await. We believe it is opportunity that is upon us now. Perhaps this is the time of man to shape Antica in its image.",
         "butt": "I like butts. I cannot lie.",
-        "boob":  "heh... bewbs."
+        "boob":  "heh... bewbs.",
+        "maddox": "Your dad says, \"Hey buddy. Love you. I hope you're doing well.\""
       },
       bye: {
         "thanks": "Your thanks are well met, traveler.",
