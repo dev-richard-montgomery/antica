@@ -11,14 +11,14 @@ export const handleMouseMove = (e) => {
   // Check for UI interactions first
   const uiCursor = ui.handleUiStates(e);
   if (player.isFishing) {
-    canvas.style.cursor = 'move';
+    canvas.style.cursor = 'crosshair';
   } else if (uiCursor) {
     canvas.style.cursor = uiCursor;
     return;
   };
 
   // Default cursor state
-  canvas.style.cursor = "crosshair";
+  canvas.style.cursor = "pointer";
 
   // If an item is held, update its position and cursor state
   if (state.heldItem) {
@@ -64,7 +64,7 @@ export const handleMouseDown = (e) => {
     
     // Reset fishing mode and cursor
     player.isFishing = false;
-    canvas.style.cursor = 'crosshair'; // Reset cursor to default
+    canvas.style.cursor = 'pointer'; // Reset cursor to default
   }
 };
 
@@ -137,7 +137,7 @@ export const handleMouseUp = (e) => {
 
   // Clear held state
   state.heldItem = null;
-  canvas.style.cursor = "crosshair";
+  canvas.style.cursor = "pointer";
 };
 
 const handleRightClick = (e) => {

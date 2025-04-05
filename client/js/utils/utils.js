@@ -153,6 +153,25 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
   );
 };
 
+export const findTopMostItemAtPosition = (currItem) => {
+  for (let i = items.allItems.length - 1; i >= 0; i--) {
+    const item = items.allItems[i];
+
+    if (
+      item.id !== currItem.id && // Don't compare with itself
+      item.worldPosition &&
+      item.worldPosition.x === currItem.worldPosition.x &&
+      item.worldPosition.y === currItem.worldPosition.y &&
+      item.name === currItem.name &&
+      item.stats?.size !== undefined &&
+      currItem.stats?.size !== undefined
+    ) {
+      return item;
+    }
+  }
+  return null;
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
@@ -172,12 +191,24 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   //   }
   // }
 
-    item.category = 'world';
-    item.worldPosition = { x: newFrameX, y: newFrameY };
-    item.held = false;
+  item.category = 'world';
+  item.worldPosition = { x: newFrameX, y: newFrameY };
+  item.held = false;
 
-  items.updateItemDrawPosition(item);
-  updateItemsArray(item);
+  if (item?.stats?.size) {
+    const topmost = findTopMostItemAtPosition(item);
+
+    if (topmost && topmost.id !== item.id) {
+      items.stackItems(topmost, item);
+      items.updateItemDrawPosition(topmost);
+      updateItemsArray(topmost);
+    }
+    
+  } else {
+    items.updateItemDrawPosition(item);
+    updateItemsArray(item);
+  };
+
 };
 
 const unequipItem = (equippedItem, newItem) => {
@@ -305,19 +336,19 @@ export const attemptFishing = () => {
       addMessage("You caught a", "Flarefin!");
       items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
       xpGained = 5; // Rare catch overrides normal XP
-    }
+    };
   } else {
     console.log("You failed to catch anything.");
-  }
+  };
 
   player.experience.fishing += xpGained;
-  console.log('chance', getCatchChance())
-  console.log(player.experience.fishing, '/', getXPRequired())
+  // console.log(`${(getCatchChance() * 100).toFixed(2)}%`)
+  // console.log(`${(getXPRequired() - player.experience.fishing).toFixed(2)} xp til next level`)
 
   // Level up check with XP rollover
   while (player.experience.fishing >= getXPRequired()) {
     player.experience.fishing -= getXPRequired();
     player.skills.fishing++;
-    console.log(`You leveled up! Fishing skill: ${player.skills.fishing}`);
-  }
+    addMessage("You leveled up! Fishing skill", `${player.skills.fishing}`);
+  };
 };

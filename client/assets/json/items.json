@@ -453,7 +453,7 @@
       "stats": {
         "hp": 25,
         "mp": 25,
-        "accumulative": true,
+        "size": 1,
         "weight": 0.15
       },
       "rarity": "common",
@@ -466,7 +466,7 @@
       "stats": {
         "hp": 150,
         "mp": 150,
-        "accumulative": true,
+        "size": 1,
         "weight": 0.17
       },
       "rarity": "uncommon",
