@@ -18,7 +18,8 @@ const game = {
 
 const state = {
   lastValidPosition: null,
-  heldItem: null
+  heldItem: null,
+  activeAnimations: []
 };
 
 // path variables
@@ -200,10 +201,18 @@ const npcData = {
   }
 };
 
+const centerMessage = {
+  text: '',
+  startTime: null,
+  duration: 2000,
+  fadeDuration: 500,
+};
+
 export { 
   API_URL_ITEMS, 
   API_URL_PLAYER, 
-  canvas, 
+  canvas,
+  centerMessage, 
   chat, 
   ctx, 
   equipSlots,

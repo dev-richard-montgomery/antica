@@ -1,10 +1,10 @@
-import { canvas, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
+import { canvas, centerMessage, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
 import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
 import { items } from '../classes/Items.js';
 import { player } from '../classes/Player.js';
-import { addMessage } from "../components/chatbox.js";;
+import { addMessage } from "../components/chatbox.js";
 
 // general functions
 export const drawAll = () => {
@@ -14,6 +14,7 @@ export const drawAll = () => {
   mapArea.drawArea();
   items.drawAllVisibleItems();
   player.draw();
+  currentAnimation();
   mapArea.drawUpperMostTiles();
 };
 
@@ -65,6 +66,66 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
   };
 
   return hoverDetected;
+};
+
+export const showCenterMessage = (message, duration = 2000) => {
+  centerMessage.text = message;
+  centerMessage.duration = duration;
+  centerMessage.fadeDuration = 500; // fade in/out over 0.5s
+  centerMessage.startTime = performance.now();
+};
+
+export const drawCenterMessage = () => {
+  if (!centerMessage.startTime) return;
+
+  const now = performance.now();
+  const elapsed = now - centerMessage.startTime;
+  const totalTime = centerMessage.duration + centerMessage.fadeDuration * 2;
+
+  if (elapsed > totalTime) {
+    centerMessage.startTime = null;
+    return;
+  }
+
+  let alpha = 1;
+
+  if (elapsed < centerMessage.fadeDuration) {
+    // Fade in
+    alpha = elapsed / centerMessage.fadeDuration;
+  } else if (elapsed > centerMessage.fadeDuration + centerMessage.duration) {
+    // Fade out
+    alpha = 1 - ((elapsed - centerMessage.fadeDuration - centerMessage.duration) / centerMessage.fadeDuration);
+  }
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "gold";
+  ctx.lineWidth = 3;
+  ctx.font = "bold 36px serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const x = (canvas.width / 2) - (canvas.uiWidth / 2);
+  const y = canvas.height / 2;
+
+  ctx.strokeText(centerMessage.text, x, y);
+  ctx.fillText(centerMessage.text, x, y);
+  ctx.restore();
+};
+
+export const currentAnimation = () => {
+  const now = performance.now();
+  state.activeAnimations.forEach(anim => {
+    anim.update(now);
+    anim.draw();
+  });
+
+  for (let i = state.activeAnimations.length - 1; i >= 0; i--) {
+    if (state.activeAnimations[i].done) {
+      state.activeAnimations.splice(i, 1);
+    };
+  };
 };
 
 // check valid areas
@@ -154,21 +215,32 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
 };
 
 export const findTopMostItemAtPosition = (currItem) => {
+  let topAtPosition = null;
+
   for (let i = items.allItems.length - 1; i >= 0; i--) {
     const item = items.allItems[i];
 
     if (
-      item.id !== currItem.id && // Don't compare with itself
+      item.id !== currItem.id && // Don't match itself
       item.worldPosition &&
       item.worldPosition.x === currItem.worldPosition.x &&
-      item.worldPosition.y === currItem.worldPosition.y &&
-      item.name === currItem.name &&
-      item.stats?.size !== undefined &&
-      currItem.stats?.size !== undefined
+      item.worldPosition.y === currItem.worldPosition.y
     ) {
-      return item;
+      // The first item we find in this loop at the position is the topmost
+      topAtPosition = item;
+      break;
     }
   }
+
+  if (
+    topAtPosition &&
+    topAtPosition.name === currItem.name &&
+    topAtPosition.stats?.size !== undefined &&
+    currItem.stats?.size !== undefined
+  ) {
+    return topAtPosition;
+  }
+
   return null;
 };
 
@@ -323,7 +395,6 @@ const getXPRequired = () => {
   return 20 * Math.pow(1.1, player.skills.fishing - 10);
 };
 
-// Example: Check if a fishing attempt is successful
 export const attemptFishing = () => {
   let xpGained = 0; // Default small XP for failed attempts
 
@@ -349,6 +420,7 @@ export const attemptFishing = () => {
   while (player.experience.fishing >= getXPRequired()) {
     player.experience.fishing -= getXPRequired();
     player.skills.fishing++;
-    addMessage("You leveled up! Fishing skill", `${player.skills.fishing}`);
+    // addMessage("You leveled up! Fishing skill", `${player.skills.fishing}`);
+    showCenterMessage("You gained a skill advance in fishing!");
   };
 };

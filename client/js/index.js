@@ -2,7 +2,7 @@ import { canvas, ctx, game } from './CONST.js';
 import { login } from './components/login.js';
 import { ui } from './classes/UserInterface.js';
 import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
-import { drawAll } from './utils/utils.js';
+import { drawAll, drawCenterMessage } from './utils/utils.js';
 import { getNpcList } from './classes/NPCManager.js';
 import { conversate } from './components/chatbox.js';
 import { player } from './classes/Player.js';
@@ -61,6 +61,8 @@ function gameLoop() {
         npc.draw();
       };
     });
+
+    drawCenterMessage();
   };
 
   requestAnimationFrame(gameLoop);
