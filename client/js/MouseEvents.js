@@ -37,10 +37,10 @@ export const handleMouseDown = (e) => {
 
   // Ensure only one hovered item
   clearHoverStates();
+  const { offsetX, offsetY } = e;
   updateItemHoverState(offsetX, offsetY);
   
   const playerLocation = player.worldPosition;
-  const { offsetX, offsetY } = e;
   const pixels = 64;
   
   const newFrameX = player.worldPosition.x + Math.floor((offsetX - 384) / pixels);

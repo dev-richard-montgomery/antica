@@ -214,7 +214,7 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
   );
 };
 
-export const findTopMostItemAtPosition = (currItem) => {
+export const findTopMostStackableItemAtPosition = (currItem) => {
   let topAtPosition = null;
 
   for (let i = items.allItems.length - 1; i >= 0; i--) {
@@ -262,25 +262,20 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   //     if (index > -1) container.contents.splice(index, 1);
   //   }
   // }
-
+  
   item.category = 'world';
   item.worldPosition = { x: newFrameX, y: newFrameY };
   item.held = false;
 
-  if (item?.stats?.size) {
-    const topmost = findTopMostItemAtPosition(item);
-
-    if (topmost && topmost.id !== item.id) {
-      items.stackItems(topmost, item);
-      items.updateItemDrawPosition(topmost);
-      updateItemsArray(topmost);
-    }
-    
+  const topmost = findTopMostStackableItemAtPosition(item);
+  
+  if (topmost && topmost.id !== item.id) {
+    items.combineItems(topmost, item);
+    updateItemsArray(topmost);
   } else {
     items.updateItemDrawPosition(item);
     updateItemsArray(item);
   };
-
 };
 
 const unequipItem = (equippedItem, newItem) => {

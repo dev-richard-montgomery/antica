@@ -1,4 +1,4 @@
-import { findTopMostItemAtPosition, generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
+import { findTopMostStackableItemAtPosition, generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
 import { ui } from './UserInterface.js';
@@ -47,8 +47,8 @@ class Items {
   
     // Attempt auto-stack if placing in world
     if (worldPosition) {
-      const topItem = findTopMostItemAtPosition(newItem);
-      if (topItem && this.stackItems(topItem, newItem)) {
+      const topItem = findTopMostStackableItemAtPosition(newItem);
+      if (topItem && this.combineItems(topItem, newItem)) {
         return topItem;
       };
     };
@@ -57,7 +57,7 @@ class Items {
     return newItem;
   };
 
-  stackItems(item1, item2) {
+  combineItems(item1, item2) {
     if (
       !item1 || !item2 ||
       item1.id === item2.id ||
