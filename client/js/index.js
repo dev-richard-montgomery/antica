@@ -2,9 +2,10 @@ import { canvas, ctx, game } from './CONST.js';
 import { login } from './components/login.js';
 import { ui } from './classes/UserInterface.js';
 import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
-import { drawAll } from './utils/utils.js';
+import { drawAll, drawCenterMessage } from './utils/utils.js';
 import { getNpcList } from './classes/NPCManager.js';
 import { conversate } from './components/chatbox.js';
+import { player } from './classes/Player.js';
 
 // get npc list
 const npcList = getNpcList();
@@ -13,6 +14,10 @@ const npcList = getNpcList();
 addEventListener("DOMContentLoaded", e => {  
   document.querySelector('#login-form').addEventListener('submit', login, { once: true });
   
+  document.addEventListener("keydown", e => {
+    conversate(e);
+  });
+
   canvas.addEventListener("mousedown", e => {
     handleMouseDown(e);
     ui.handleUiStates(e);
@@ -27,9 +32,16 @@ addEventListener("DOMContentLoaded", e => {
     handleMouseUp(e);
   });
 
-  document.addEventListener("keydown", e => {
-    conversate(e);
+  canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault(); // Prevent default right-click menu
+  
+    if (player.equipped.mainhand?.tool === 'fishing') {
+      player.isFishing = true; // Set fishing mode to true
+      canvas.style.cursor = "pointer";
+    };
   });
+  
+  
 });
 
 // game loop -----------------------------------------------------------------------------
@@ -49,6 +61,8 @@ function gameLoop() {
         npc.draw();
       };
     });
+
+    drawCenterMessage();
   };
 
   requestAnimationFrame(gameLoop);

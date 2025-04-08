@@ -21,6 +21,7 @@ class Player {
       x: (visibleArea.width / 2) - (this.pixels / 2 + this.pixels),
       y: (visibleArea.height / 2) - (this.pixels / 2 + this.pixels)
     };
+    this.isFishing = false;
   };
 
   loadImage() {

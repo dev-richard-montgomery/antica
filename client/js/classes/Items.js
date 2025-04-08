@@ -1,7 +1,6 @@
-import { generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
+import { findTopMostStackableItemAtPosition, generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
-import { mapArea } from './MapArea.js';
 import { ui } from './UserInterface.js';
 import { ctx, state } from '../CONST.js';
 
@@ -29,24 +28,56 @@ class Items {
     this.allItems = [...resources.itemData.itemsInGame];
   };
 
-  createItem(name, category = 'world', worldPosition = null) {
+  createItem(name, worldPosition = null, category = 'world') {
     const baseItem = resources.itemData.items.find(it => it.name === name);
     if (!baseItem) {
-        console.error(`Item "${name}" not found in itemData.`);
-        return null;
+      console.error(`Item "${name}" not found in itemData.`);
+      return null;
     };
-
-    const newItem = {
-        ...baseItem,
-        id: generateHexId(),
-        category,
-        worldPosition,
-        hover: false,
-        held: false
+  
+    const newItem = structuredClone(baseItem);
+    newItem.id = generateHexId();
+    newItem.category = category;
+    newItem.worldPosition = worldPosition;
+    newItem.drawPosition = { x: 0, y: 0 };
+    newItem.hover = false;
+    newItem.held = false;
+  
+    this.updateItemDrawPosition(newItem);
+  
+    // Attempt auto-stack if placing in world
+    if (worldPosition) {
+      const topItem = findTopMostStackableItemAtPosition(newItem);
+      if (topItem && this.combineItems(topItem, newItem)) {
+        return topItem;
+      };
     };
-
+  
     this.allItems.push(newItem);
     return newItem;
+  };
+
+  combineItems(item1, item2) {
+    if (
+      !item1 || !item2 ||
+      item1.id === item2.id ||
+      item1.name !== item2.name ||
+      !item1.stats?.size || !item2.stats?.size
+    ) return false;
+  
+    item1.stats.size += item2.stats.size;
+    item1.stats.weight += item2.stats.weight;
+  
+    this.deleteItem(item2);
+    return true;
+  };
+
+  deleteItem(item) {
+    const index = this.allItems.findIndex(curr => curr.id === item.id);
+
+    if(index > -1) {
+      this.allItems.splice(index, 1);
+    };
   };
 
   updateItemDrawPosition(item) {
@@ -89,14 +120,6 @@ class Items {
     return collision; // Returns true if there's a collision
   };
 
-  deleteItem(item) {
-    const index = this.allItems.findIndex(curr => curr.id === item.id);
-
-    if(index > -1) {
-      this.allItems.splice(index, 1);
-    };
-  };
-
   draw(item) {
     if (!item) return;
     if (item.worldPosition) this.updateItemDrawPosition(item);
@@ -115,6 +138,13 @@ class Items {
       size,
       size
     );
+
+    if (item?.stats?.size > 1) {
+      ctx.font = "10px Arial";
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "right";
+      ctx.fillText(item.stats.size, item.drawPosition.x + 54, item.drawPosition.y + 54);
+    };
   };
 
   drawAllVisibleItems() {

@@ -1,9 +1,10 @@
-import { canvas, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
+import { canvas, centerMessage, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
 import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
 import { items } from '../classes/Items.js';
 import { player } from '../classes/Player.js';
+import { addMessage } from "../components/chatbox.js";
 
 // general functions
 export const drawAll = () => {
@@ -13,6 +14,7 @@ export const drawAll = () => {
   mapArea.drawArea();
   items.drawAllVisibleItems();
   player.draw();
+  currentAnimation();
   mapArea.drawUpperMostTiles();
 };
 
@@ -64,6 +66,66 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
   };
 
   return hoverDetected;
+};
+
+export const showCenterMessage = (message, duration = 2000) => {
+  centerMessage.text = message;
+  centerMessage.duration = duration;
+  centerMessage.fadeDuration = 500; // fade in/out over 0.5s
+  centerMessage.startTime = performance.now();
+};
+
+export const drawCenterMessage = () => {
+  if (!centerMessage.startTime) return;
+
+  const now = performance.now();
+  const elapsed = now - centerMessage.startTime;
+  const totalTime = centerMessage.duration + centerMessage.fadeDuration * 2;
+
+  if (elapsed > totalTime) {
+    centerMessage.startTime = null;
+    return;
+  }
+
+  let alpha = 1;
+
+  if (elapsed < centerMessage.fadeDuration) {
+    // Fade in
+    alpha = elapsed / centerMessage.fadeDuration;
+  } else if (elapsed > centerMessage.fadeDuration + centerMessage.duration) {
+    // Fade out
+    alpha = 1 - ((elapsed - centerMessage.fadeDuration - centerMessage.duration) / centerMessage.fadeDuration);
+  }
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "gold";
+  ctx.lineWidth = 3;
+  ctx.font = "bold 36px serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const x = (canvas.width / 2) - (canvas.uiWidth / 2);
+  const y = canvas.height / 2;
+
+  ctx.strokeText(centerMessage.text, x, y);
+  ctx.fillText(centerMessage.text, x, y);
+  ctx.restore();
+};
+
+export const currentAnimation = () => {
+  const now = performance.now();
+  state.activeAnimations.forEach(anim => {
+    anim.update(now);
+    anim.draw();
+  });
+
+  for (let i = state.activeAnimations.length - 1; i >= 0; i--) {
+    if (state.activeAnimations[i].done) {
+      state.activeAnimations.splice(i, 1);
+    };
+  };
 };
 
 // check valid areas
@@ -152,6 +214,36 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
   );
 };
 
+export const findTopMostStackableItemAtPosition = (currItem) => {
+  let topAtPosition = null;
+
+  for (let i = items.allItems.length - 1; i >= 0; i--) {
+    const item = items.allItems[i];
+
+    if (
+      item.id !== currItem.id && // Don't match itself
+      item.worldPosition &&
+      item.worldPosition.x === currItem.worldPosition.x &&
+      item.worldPosition.y === currItem.worldPosition.y
+    ) {
+      // The first item we find in this loop at the position is the topmost
+      topAtPosition = item;
+      break;
+    }
+  }
+
+  if (
+    topAtPosition &&
+    topAtPosition.name === currItem.name &&
+    topAtPosition.stats?.size !== undefined &&
+    currItem.stats?.size !== undefined
+  ) {
+    return topAtPosition;
+  }
+
+  return null;
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
@@ -170,13 +262,20 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   //     if (index > -1) container.contents.splice(index, 1);
   //   }
   // }
+  
+  item.category = 'world';
+  item.worldPosition = { x: newFrameX, y: newFrameY };
+  item.held = false;
 
-    item.category = 'world';
-    item.worldPosition = { x: newFrameX, y: newFrameY };
-    item.held = false;
-
-  items.updateItemDrawPosition(item);
-  updateItemsArray(item);
+  const topmost = findTopMostStackableItemAtPosition(item);
+  
+  if (topmost && topmost.id !== item.id) {
+    items.combineItems(topmost, item);
+    updateItemsArray(topmost);
+  } else {
+    items.updateItemDrawPosition(item);
+    updateItemsArray(item);
+  };
 };
 
 const unequipItem = (equippedItem, newItem) => {
@@ -248,7 +347,7 @@ export const moveToEquip = (item, slot) => {
 // };
 
 const equipSlotHighlight = () => {
-  if (!state.heldItem) return;
+  if (!state.heldItem?.type) return;
 
   const { type } = state.heldItem;
   const isSlotEmpty = !player.equipped[type];
@@ -271,3 +370,52 @@ const equipSlotHighlight = () => {
 //   x >= 0 && x < canvas.width &&
 //   y >= 0 && y < canvas.height
 // );
+
+// fishing functions
+const getCatchChance = () => {
+  const min = 0.18;
+  const max = 0.99;
+  const k = 0.06; // controls the curve steepness
+  const x0 = 50;  // the midpoint (center of curve)
+  
+  const sigmoid = 1 / (1 + Math.exp(-k * (player.skills.fishing - x0)));
+  return min + (max - min) * sigmoid;
+};
+
+const getRareCatchChance = () => {
+  return 1 / (1 + Math.exp(-0.07 * (player.skills.fishing - 85)));  
+};
+
+const getXPRequired = () => {
+  return 20 * Math.pow(1.1, player.skills.fishing - 10);
+};
+
+export const attemptFishing = () => {
+  let xpGained = 0; // Default small XP for failed attempts
+
+  if (Math.random() < getCatchChance()) {
+    xpGained = 1; // Standard catch XP
+    addMessage("You caught a", "Silverscale!");
+    items.createItem("silverscale", { x: player.worldPosition.x, y: player.worldPosition.y });
+
+    if (Math.random() < getRareCatchChance()) {
+      addMessage("You caught a", "Flarefin!");
+      items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
+      xpGained = 5; // Rare catch overrides normal XP
+    };
+  } else {
+    console.log("You failed to catch anything.");
+  };
+
+  player.experience.fishing += xpGained;
+  // console.log(`${(getCatchChance() * 100).toFixed(2)}%`)
+  // console.log(`${(getXPRequired() - player.experience.fishing).toFixed(2)} xp til next level`)
+
+  // Level up check with XP rollover
+  while (player.experience.fishing >= getXPRequired()) {
+    player.experience.fishing -= getXPRequired();
+    player.skills.fishing++;
+    // addMessage("You leveled up! Fishing skill", `${player.skills.fishing}`);
+    showCenterMessage("You gained a skill advance in fishing!");
+  };
+};

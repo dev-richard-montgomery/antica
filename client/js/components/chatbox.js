@@ -35,7 +35,7 @@ export const addMessage = (sender, text) => {
     text = '*whispers* ' + text.slice(3).toLowerCase(); // Remove "/y" and convert to uppercase
   };
   
-  message.classList.add("message", sender);
+  // message.classList.add("message", sender);
   message.innerHTML = `<strong>${sender}:</strong> ${text}`;
   chatbox.appendChild(message);
   chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom of the chatbox
@@ -90,6 +90,7 @@ export const conversate = (e) => {
       return;
     };
   
+    // might move this to a more expected spot.
     if (!chat.on) {
       player.playerMove(e);
     };
