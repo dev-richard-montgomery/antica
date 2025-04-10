@@ -143,7 +143,7 @@ class Items {
       ctx.font = "10px Arial";
       ctx.fillStyle = "#fff";
       ctx.textAlign = "right";
-      ctx.fillText(item.stats.size, item.drawPosition.x + 54, item.drawPosition.y + 54);
+      ctx.fillText(item.stats.size, item.drawPosition.x + 56, item.drawPosition.y + 56);
     };
   };
 

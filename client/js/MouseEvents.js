@@ -80,8 +80,13 @@ export const handleMouseUp = (e) => {
   if (!state.heldItem) return;
 
   const { offsetX, offsetY } = e;
+  const playerLocation = player.worldPosition;
+  const pixels = 64;
+
   const newFrameX = player.worldPosition.x + Math.floor((offsetX - 384) / 64);
   const newFrameY = player.worldPosition.y + Math.floor((offsetY - 320) / 64);
+  const drawX = (newFrameX - playerLocation.x) * pixels + 384;
+  const drawY = (newFrameY - playerLocation.y) * pixels + 320;
 
   // Check valid drop locations
   const inRenderArea = offsetX >= 0 && offsetX < 832 && offsetY >= 0 && offsetY < 704;
@@ -111,6 +116,7 @@ export const handleMouseUp = (e) => {
   
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
+    player.manageModifiers();
     // } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
     //   moveToInventory(heldItem, inventory.one.item);
     //   console.log(heldItem, ' in First Inventory');
@@ -123,6 +129,7 @@ export const handleMouseUp = (e) => {
 
     if (isWaterTile) {
       console.log(`Dropped ${state.heldItem.name} in water.`);
+      splash.start(drawX, drawY);
       items.deleteItem(state.heldItem);
       state.heldItem = null;
     } else if (isBoundaryTile) {

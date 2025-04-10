@@ -180,12 +180,12 @@ const npcData = {
       },
       dialog: {
         "guidance": "What knowledge do you seek? The <span><em>island</em></span> we call home, the secrets of <span><em>beginnings</em></span>, where to <span><em>hunt</em></span>, the ancient <span><em>purpose</em></span> of our kin, or perhaps tales of the <span><em>mainland</em></span>?",
-        "island": "The island is called <span><em>Genus</em></span>, where the first breaths of humanity were taken. It is said that it has stood since the very dawn of creation.",
-        "genus": "Genus, the cradle of humanity, where we were born and shaped by the ancient forces that guide us.",
-        "purpose": "The stories of Antica tell of civilizations rising and crumbling, of races scattered across the land, struggling for meaning. Now, in this age, we must rise above the chaos and carve out our legacy.",
+        "island": "The island is called <span><em>Genus</em></span>. It is said that it has stood since the very dawn of creation.",
+        "genus": "Genus is the cradle of humanity, where we were born and shaped by the ancient forces that guide us.",
+        "purpose": "The stories of Antica are filled with civilizations rising and crumbling, of races scattered across the land, struggling to find purpose. Now, in this age, we must rise above the chaos and carve out our legacy.",
         "beginnings": "To begin your journey, venture west, where the vendors trade in weapons of war. Arm yourself, for the world is fraught with peril.",
-        "hunt": "In the beginning, seek out the rats that infest the cellars below. Their blood will teach you the ways of combat. Once you have mastered them, you may roam farther.",
-        "mainland": "The mainland of Antica is a land of both peril and opportunity. The strong find glory in their deeds, and the worthy earn their death in battle. Only the bold survive the trials that await. We believe it is opportunity that is upon us now. Perhaps this is the time of man to shape Antica in its image.",
+        "hunt": "In the beginning, seek out the rats that infest the cellars below. Learn the ways of combat. Once you have mastered them, you may roam farther.",
+        "mainland": "The mainland of Antica is a land of both peril and opportunity. The strong find glory in their deeds, and the worthy earn their death in battle. Only the bold survive the trials that await. Those who serve the Prima Fide believe it is opportunity that is upon us now. That this is the time for man to shape Antica in its image.",
         "butt": "I like butts. I cannot lie.",
         "boob":  "heh... bewbs.",
         "maddox": "Your dad says, \"Hey buddy. Love you. I hope you're doing well.\""

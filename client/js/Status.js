@@ -4,7 +4,7 @@ export const status = () => {
   const container = document.querySelector(".player-details-container");
   if (!container) return;
 
-  const { name, lvls, state, stats, equipped, skills } = player;
+  const { name, lvls, state, baseStats, equipped, skills } = player;
   const { mainhand: offense, offhand: defense } = equipped;
 
   const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
@@ -18,16 +18,16 @@ export const status = () => {
       
       <br>
       
-      <p><strong>Health:</strong> ${state.health}/${stats.health}</p>
-      <p><strong>Magic:</strong> ${state.magic}/${stats.magic}</p>
-      <p><strong>Capacity:</strong> ${state.capacity}/${stats.capacity}</p>
+      <p><strong>Health:</strong> ${state.health}/${baseStats.health}</p>
+      <p><strong>Magic:</strong> ${state.magic}/${baseStats.magic}</p>
+      <p><strong>Capacity:</strong> ${state.capacity}/${baseStats.capacity}</p>
       
       <br>
 
-      ${offense?.tool === "fishing" ? `<p><strong>Fishing:</strong> ${skills.fishing}</p>` :
-        offense ? `<p><strong>${capitalize(offense.skill)}:</strong> ${skills[offense.skill]}</p>` : ""}
+      ${offense?.tool === "fishing" ? `<p><strong>Fishing Skill:</strong> ${skills.fishing}</p>` :
+        offense ? `<p><strong>${capitalize(offense.skill)} Skill:</strong> ${skills[offense.skill]}</p>` : ""}
 
-      ${defense ? `<p><strong>Shield:</strong> ${skills.shield}</p>` : ""}
+      ${defense ? `<p><strong>Shield Skill:</strong> ${skills.shield}</p>` : ""}
     </div>
   `;
 };

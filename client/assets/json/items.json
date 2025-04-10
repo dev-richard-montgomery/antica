@@ -6,7 +6,7 @@
       "contents": [],
       "stats": {
         "slots": 8,
-        "weight": 0.5
+        "capacity": 0.5
       },
       "rarity": "common",
       "description": "At least it isn't plastic.",
@@ -20,7 +20,7 @@
       "contents": [],
       "stats": {
         "slots": 20,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "Ok Dora. Time for some exploring.",
@@ -34,7 +34,7 @@
       "contents": [],
       "stats": {
         "slots": 40,
-        "weight": 0
+        "capacity": 0
       },
       "rarity": "uncommon",
       "description": "Somebody used magic... on a backpack... and it was worth it.",
@@ -45,8 +45,8 @@
       "name": "wolf tooth necklace",
       "type": "neck",
       "stats": {
-        "hp": 5,
-        "weight": 0.4
+        "health": 5,
+        "capacity": 0.4
       },
       "rarity": "common",
       "description": "Where did you get that necklace, the gross store?",
@@ -57,8 +57,8 @@
       "name": "bejeweled pendant",
       "type": "neck",
       "stats": {
-        "mp": 8,
-        "weight": 0.8
+        "magic": 8,
+        "capacity": 0.8
       },
       "rarity": "common",
       "description": "Ooo, shiny! What's it do?",
@@ -69,10 +69,10 @@
       "name": "shawl",
       "type": "neck",
       "stats": {
-        "hp": 5,
-        "mp": 5,
+        "health": 5,
+        "magic": 5,
         "defense": 2,
-        "weight": 0.8
+        "capacity": 0.8
       },
       "rarity": "common",
       "description": "Stylish, mysterious, and possibly enchanted, or just really good at collecting crumbs.",
@@ -86,7 +86,7 @@
       "skill": "fist",
       "stats": {
         "offense": 2,
-        "weight": 0.4
+        "capacity": 0.4
       },
       "rarity": "common",
       "description": "Fabric... for your fists.",
@@ -101,7 +101,7 @@
       "stats": {
         "offense": 5,
         "defense": 2,
-        "weight": 1.2
+        "capacity": 1.2
       },
       "rarity": "common",
       "description": "When a handshake isn't enough.",
@@ -116,7 +116,7 @@
       "stats": {
         "offense": 10,
         "defense": 4,
-        "weight": 1.8
+        "capacity": 1.8
       },
       "rarity": "common",
       "description": "A fist with extra points--literally. Great for combat. Bad for pockets.",
@@ -130,7 +130,7 @@
       "stats": {
         "offense": 5,
         "defense": 2,
-        "weight": 7
+        "capacity": 7
       },
       "rarity": "common",
       "description": "Blunt force persuasion with environmental responsibility.",
@@ -145,7 +145,7 @@
       "stats": {
         "offense": 10,
         "defense": 2,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "Ideal for smashing foes, forging items, and your DIY projects.",
@@ -160,7 +160,7 @@
       "stats": {
         "offense": 18,
         "defense": 4,
-        "weight": 14
+        "capacity": 14
       },
       "rarity": "common",
       "description": "Blunt force persuasion with environmental responsibility.",
@@ -174,7 +174,7 @@
       "stats": {
         "offense": 4,
         "defense": 2,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "Small, sharp, and just unbalanced enough to make every swing an adventure.",
@@ -190,7 +190,7 @@
         "twohander": true,
         "offense": 15,
         "defense": 2,
-        "weight": 10
+        "capacity": 10
       },
       "rarity": "common",
       "description": "Uhm, yeah... it's called Survivalist Energy.",
@@ -205,7 +205,7 @@
       "stats": {
         "offense": 15,
         "defense": 4,
-        "weight": 9
+        "capacity": 9
       },
       "rarity": "common",
       "description": "Shields, doors, or enemies—this axe ensures they all open eventually.",
@@ -219,7 +219,7 @@
       "stats": {
         "offense": 3,
         "defense": 2,
-        "weight": 2
+        "capacity": 2
       },
       "rarity": "common",
       "description": "Small, sharp, concealable.",
@@ -234,7 +234,7 @@
       "stats": {
         "offense": 7,
         "defense": 4,
-        "weight": 4
+        "capacity": 4
       },
       "rarity": "common",
       "description": "Light, deadly, and guaranteed to make every duel 80% more dramatic.",
@@ -249,7 +249,7 @@
       "stats": {
         "offense": 14,
         "defense": 5,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "There's a glory end, and an entertainment end. Try and stay on the glory end.",
@@ -262,7 +262,7 @@
       "skill": "distance",
       "stats": {
         "offense": 12,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "It's like a knife... from a distance.",
@@ -276,7 +276,7 @@
       "skill": "defense",
       "stats": {
         "defense": 5,
-        "weight": 6
+        "capacity": 6
       },
       "rarity": "common",
       "description": "Block against the grain.",
@@ -290,7 +290,7 @@
       "skill": "defense",
       "stats": {
         "defense": 10,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "A shield that offers tactical punching.",
@@ -304,7 +304,7 @@
       "skill": "defense",
       "stats": {
         "defense": 15,
-        "weight": 7
+        "capacity": 7
       },
       "rarity": "common",
       "description": "Perfect for deflecting swords, arrows, and unsolicited life advice.",
@@ -316,7 +316,7 @@
       "type": "head",
       "stats": {
         "defense": 2,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "That look of questionable justice.",
@@ -329,10 +329,10 @@
       "type": "head",
       "stats": {
         "defense": 6,
-        "weight": 2
+        "capacity": 2
       },
       "rarity": "common",
-      "description": "Adds extra protection and just enough weight to make bad ideas seem like good ones.",
+      "description": "Adds extra protection and just enough capacity to make bad ideas seem like good ones.",
       "sell": 25,
       "spritePosition": { "x": 64, "y": 576 }
     },
@@ -341,7 +341,7 @@
       "type": "head",
       "stats": {
         "defense": 12,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "Offers solid defense, and mild neck pain.",
@@ -353,7 +353,7 @@
       "type": "chest",
       "stats": {
         "defense": 2,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "Protection against mild wind, and insecurity.",
@@ -366,7 +366,7 @@
       "type": "chest",
       "stats": {
         "defense": 8,
-        "weight": 4
+        "capacity": 4
       },
       "rarity": "common",
       "description": "Tough enough to stop a knife. Who wants to test it?",
@@ -378,7 +378,7 @@
       "type": "chest",
       "stats": {
         "defense": 16,
-        "weight": 8
+        "capacity": 8
       },
       "rarity": "common",
       "description": "Ok, this time it'll definitely stop a knife.",
@@ -390,7 +390,7 @@
       "type": "legs",
       "stats": {
         "defense": 2,
-        "weight": 2
+        "capacity": 2
       },
       "rarity": "common",
       "description": "Light, comfortable, and offering the same defense as strong opinions.",
@@ -403,7 +403,7 @@
       "type": "legs",
       "stats": {
         "defense": 6,
-        "weight": 3
+        "capacity": 3
       },
       "rarity": "common",
       "description": "Protects your thighs and your dignity—most of the time.",
@@ -415,10 +415,10 @@
       "type": "legs",
       "stats": {
         "defense": 16,
-        "weight": 6
+        "capacity": 6
       },
       "rarity": "common",
-      "description": "Great for defense, terrible for sneaking, fantastic for sounding important.",
+      "description": "Great for defense, terrible for sneaking, fantastic for sounding imagicortant.",
       "sell": 40,
       "spritePosition": { "x": 128, "y": 704 }
     },
@@ -427,7 +427,8 @@
       "type": "feet",
       "stats": {
         "defense": 3,
-        "weight": 1.6
+        "speed": 0.2,
+        "capacity": 1.6
       },
       "rarity": "common",
       "description": "Hide those things you call feet.",
@@ -440,7 +441,7 @@
       "type": "mainhand",
       "stats": {
         "twohander": true,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "Hide those things you call feet.",
@@ -451,10 +452,10 @@
       "name": "silverscale",
       "food": true,
       "stats": {
-        "hp": 25,
-        "mp": 25,
+        "health": 25,
+        "magic": 25,
         "size": 1,
-        "weight": 0.15
+        "capacity": 0.15
       },
       "rarity": "common",
       "description": "So common, some say they bait themselves.",
@@ -464,10 +465,10 @@
       "name": "flarefin",
       "food": true,
       "stats": {
-        "hp": 150,
-        "mp": 150,
+        "health": 150,
+        "magic": 150,
         "size": 1,
-        "weight": 0.17
+        "capacity": 0.17
       },
       "rarity": "uncommon",
       "description": "Flarefin, the protein shake of the sea.",
@@ -482,7 +483,7 @@
       "contents": [],
       "stats": {
         "slots": 8,
-        "weight": 0.5
+        "capacity": 0.5
       },
       "rarity": "common",
       "description": "At least it isn't plastic.",
@@ -500,7 +501,7 @@
       "contents": [],
       "stats": {
         "slots": 20,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "Ok Dora. Time for some exploring.",
@@ -519,7 +520,7 @@
       "stats": {
         "offense": 18,
         "defense": 4,
-        "weight": 14
+        "capacity": 14
       },
       "rarity": "common",
       "description": "Blunt force persuasion with environmental responsibility.",
@@ -537,7 +538,7 @@
       "stats": {
         "offense": 4,
         "defense": 2,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "Small, sharp, and just unbalanced enough to make every swing an adventure.",
@@ -557,7 +558,7 @@
         "twohander": true,
         "offense": 15,
         "defense": 2,
-        "weight": 10
+        "capacity": 10
       },
       "rarity": "common",
       "description": "Uhm, yeah... it's called Survivalist Energy.",
@@ -575,7 +576,7 @@
       "skill": "defense",
       "stats": {
         "defense": 10,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "A shield that offers tactical punching.",
@@ -593,7 +594,7 @@
       "skill": "defense",
       "stats": {
         "defense": 15,
-        "weight": 7
+        "capacity": 7
       },
       "rarity": "common",
       "description": "Perfect for deflecting swords, arrows, and unsolicited life advice.",
@@ -609,7 +610,7 @@
       "type": "head",
       "stats": {
         "defense": 2,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "That look of questionable justice.",
@@ -626,10 +627,10 @@
       "type": "head",
       "stats": {
         "defense": 6,
-        "weight": 2
+        "capacity": 2
       },
       "rarity": "common",
-      "description": "Adds extra protection and just enough weight to make bad ideas seem like good ones.",
+      "description": "Adds extra protection and just enough capacity to make bad ideas seem like good ones.",
       "sell": 25,
       "spritePosition": { "x": 64, "y": 576 },
       "id": 9,
@@ -642,7 +643,7 @@
       "type": "head",
       "stats": {
         "defense": 12,
-        "weight": 5
+        "capacity": 5
       },
       "rarity": "common",
       "description": "Offers solid defense, and mild neck pain.",
@@ -658,7 +659,7 @@
       "type": "chest",
       "stats": {
         "defense": 2,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "Protection against mild wind, and insecurity.",
@@ -675,7 +676,7 @@
       "type": "chest",
       "stats": {
         "defense": 8,
-        "weight": 4
+        "capacity": 4
       },
       "rarity": "common",
       "description": "Tough enough to stop a knife. Who wants to test it?",
@@ -691,7 +692,7 @@
       "type": "chest",
       "stats": {
         "defense": 16,
-        "weight": 8
+        "capacity": 8
       },
       "rarity": "common",
       "description": "Ok, this time it'll definitely stop a knife.",
@@ -707,7 +708,7 @@
       "type": "legs",
       "stats": {
         "defense": 2,
-        "weight": 2
+        "capacity": 2
       },
       "rarity": "common",
       "description": "Light, comfortable, and offering the same defense as strong opinions.",
@@ -724,7 +725,7 @@
       "type": "legs",
       "stats": {
         "defense": 6,
-        "weight": 3
+        "capacity": 3
       },
       "rarity": "common",
       "description": "Protects your thighs and your dignity—most of the time.",
@@ -740,10 +741,10 @@
       "type": "legs",
       "stats": {
         "defense": 16,
-        "weight": 6
+        "capacity": 6
       },
       "rarity": "common",
-      "description": "Great for defense, terrible for sneaking, fantastic for sounding important.",
+      "description": "Great for defense, terrible for sneaking, fantastic for sounding imagicortant.",
       "sell": 40,
       "spritePosition": { "x": 128, "y": 704 },
       "id": 16,
@@ -756,7 +757,7 @@
       "type": "feet",
       "stats": {
         "defense": 3,
-        "weight": 1.6
+        "capacity": 1.6
       },
       "rarity": "common",
       "description": "Hide those things you call feet.",
@@ -773,7 +774,7 @@
       "tool": "fishing",
       "stats": {
         "twohander": true,
-        "weight": 1
+        "capacity": 1
       },
       "rarity": "common",
       "description": "Hide those things you call feet.",

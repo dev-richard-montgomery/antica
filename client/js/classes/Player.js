@@ -2,8 +2,9 @@ import { resources } from '../utils/resources.js';
 import { chat, ctx, game, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
 import { spriteManager } from '../components/create-player.js';
 import { mapArea } from './MapArea.js'; 
-import { generateHexId } from '../utils/utils.js';
+import { generateHexId, showCenterMessage } from '../utils/utils.js';
 import { getNpcList } from './NPCManager.js';
+import { addMessage } from '../components/chatbox.js';
 
 // get npc list
 const npcList = getNpcList();
@@ -16,6 +17,9 @@ class Player {
     this.currentDirection = 0;
     this.worldPosition = { x: 155, y: 189 };
     this.cooldown = false;
+    this.currentModifiers = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
+    // this.baseStats = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
+    // this.state = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
     this.speed = 0.5;
     this.drawTo = { 
       x: (visibleArea.width / 2) - (this.pixels / 2 + this.pixels),
@@ -89,17 +93,19 @@ class Player {
     });
   };
 
+  // checks for valid spaces
   isNpcAtPosition(targetX, targetY) {
     return npcList.some(npc => npc.drawPosition.x === targetX && npc.drawPosition.y === targetY);
   };
 
-  canMove = (boundaryTiles, newX, newY) => {
+  canMove (boundaryTiles, newX, newY) {
     return !boundaryTiles.some(boundary => 
       newX === boundary.dx && newY === boundary.dy
     );
   };
   
-  playerMove = e => {
+  // player move
+  playerMove(e) {
     if (!game.on || chat.on || this.cooldown) return;
   
     const movementOffsets = {
@@ -140,6 +146,62 @@ class Player {
   
     this.cooldown = true;
     setTimeout(() => this.cooldown = false, this.speed * 1000);
+  };
+
+  applyDamage(amount) {
+    if (this.state.health > amount) {
+      this.state.health = Math.max(0, this.state.health - amount);
+    } else {
+      this.state.health = 0;
+      showCenterMessage("You are dead.");
+    };
+  };
+
+  useMagic(cost) {
+    if (this.state.magic >= cost) {
+      this.state.magic = Math.max(0, this.state.magic - cost);
+    } else {
+      addMessage("Magic","Insufficient");
+    };
+  };
+  
+  // stat management
+  manageModifiers() {
+    // Initialize modifiers
+    const updatedModifiers = {
+      health: 0,
+      magic: 0,
+      capacity: 0,
+      offense: 0,
+      defense: 0,
+      speed: 0
+    };
+  
+    // Loop through equipped items and sum up their modifiers
+    for (const slot in this.equipped) {
+      const item = this.equipped[slot];
+      if (!item || !item.stats) continue;
+  
+      for (const stat in item.stats) {
+        if (updatedModifiers.hasOwnProperty(stat)) {
+          updatedModifiers[stat] += item.stats[stat];
+        };
+      };
+    };
+
+    // Apply difference to player.state
+    for (const stat in updatedModifiers) {
+      const prev = this.currentModifiers[stat] || 0;
+      const next = updatedModifiers[stat] || 0;
+      const delta = next - prev;
+
+      if (this.state.hasOwnProperty(stat)) {
+        // check if capacity. capacity should not exceed baseStat.capacity
+        this.state[stat] += delta;
+      };
+    };
+    
+    this.currentModifiers = updatedModifiers;
   };
 };
 

@@ -364,13 +364,6 @@ const equipSlotHighlight = () => {
   };
 };
 
-// space validation
-// const isMouseOnCanvas = (x, y) => (
-//   Number.isFinite(x) && Number.isFinite(y) &&
-//   x >= 0 && x < canvas.width &&
-//   y >= 0 && y < canvas.height
-// );
-
 // fishing functions
 const getCatchChance = () => {
   const min = 0.18;
@@ -415,7 +408,6 @@ export const attemptFishing = () => {
   while (player.experience.fishing >= getXPRequired()) {
     player.experience.fishing -= getXPRequired();
     player.skills.fishing++;
-    // addMessage("You leveled up! Fishing skill", `${player.skills.fishing}`);
     showCenterMessage("You gained a skill advance in fishing!");
   };
 };

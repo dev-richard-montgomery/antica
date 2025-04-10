@@ -60,7 +60,7 @@ function gameLoop() {
         npc.updateDrawPosition();
         npc.draw();
       };
-    });
+    }); // consider moving this into my drawAll
 
     drawCenterMessage();
   };
