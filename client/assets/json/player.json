@@ -9,16 +9,21 @@
       "lvl": 0, 
       "mglvl": 0 
     },
-    "stats": {
+    "baseStats": {
       "health": 20, 
       "magic": 10, 
       "capacity": 50, 
-      "speed": 0.5
+      "speed": 0.5,
+      "offense": 0,
+      "defense": 0
     },
     "state": {
       "health": 20,
       "magic": 10,
-      "capacity": 50
+      "capacity": 0,
+      "speed": 0.5,
+      "offense": 0,
+      "defense": 0
     },
     "equipped": {
       "neck": null, 

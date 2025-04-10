@@ -87,7 +87,7 @@ export class NPC {
 
     this.engagementTimeout = setTimeout(() => {
       this.isMoving = true;
-    }, 60000);
+    }, 120000); // 2 minutes
   };
 
   resumeMovement() {
@@ -127,6 +127,4 @@ export class NPC {
     this.worldPosition = newPosition;
     this.updateDrawPosition();
   };
-
-
 };
