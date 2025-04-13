@@ -1,15 +1,17 @@
-import { canvas, centerMessage, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
+import { canvas, centerMessage, ctx, equipSlots, inventory, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
 import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
 import { items } from '../classes/Items.js';
 import { player } from '../classes/Player.js';
+import { drawInventory, moveToInventory } from "../components/inventory.js";
 import { addMessage } from "../components/chatbox.js";
 
 // general functions
 export const drawAll = () => {
   status();
   ui.draw();
+  drawInventory();
   state.heldItem && equipSlotHighlight();
   mapArea.drawArea();
   items.drawAllVisibleItems();
@@ -161,39 +163,39 @@ export const isInEquipArea = (item) => {
   );
 };
 
-// export const isInInventoryArea = (item) => {
-//   const slotSize = 32; // Assuming each inventory slot is 32x32 pixels
-//   const slotsPerRow = 6;
+export const isInInventoryArea = (item) => {
+  const slotSize = 32; // Assuming each inventory slot is 32x32 pixels
+  const slotsPerRow = 6;
 
-//   // First inventory area
-//   const firstStartX = 832;
-//   const firstStartY = 288;
-//   const firstSlots = inventory.one.item?.stats?.slots ?? 0; // Check available slots
+  // First inventory area
+  const firstStartX = 832;
+  const firstStartY = 288;
+  const firstSlots = inventory.one.item?.stats?.slots ?? 0; // Check available slots
 
-//   // Second inventory area
-//   const secondStartX = 832;
-//   const secondStartY = 448;
-//   const secondSlots = inventory.two.item?.stats?.slots ?? 0; // Check available slots
+  // Second inventory area
+  const secondStartX = 832;
+  const secondStartY = 448;
+  const secondSlots = inventory.two.item?.stats?.slots ?? 0; // Check available slots
 
-//   const isInSlot = (startX, startY, slots, itemX, itemY) => {
-//     for (let i = 0; i < slots; i++) {
-//       const row = Math.floor(i / slotsPerRow);
-//       const col = i % slotsPerRow;
+  const isInSlot = (startX, startY, slots, itemX, itemY) => {
+    for (let i = 0; i < slots; i++) {
+      const row = Math.floor(i / slotsPerRow);
+      const col = i % slotsPerRow;
 
-//       const slotX = startX + col * slotSize;
-//       const slotY = startY + row * slotSize;
+      const slotX = startX + col * slotSize;
+      const slotY = startY + row * slotSize;
 
-//       if (itemX >= slotX && itemX < slotX + slotSize &&
-//           itemY >= slotY && itemY < slotY + slotSize) {
-//         return true; // Item is within this slot
-//       }
-//     }
-//     return false;
-//   };
+      if (itemX >= slotX && itemX < slotX + slotSize &&
+          itemY >= slotY && itemY < slotY + slotSize) {
+        return true; // Item is within this slot
+      }
+    }
+    return false;
+  };
 
-//   return isInSlot(firstStartX, firstStartY, firstSlots, item.x, item.y) ||
-//          isInSlot(secondStartX, secondStartY, secondSlots, item.x, item.y);
-// };
+  return isInSlot(firstStartX, firstStartY, firstSlots, item.x, item.y) ||
+         isInSlot(secondStartX, secondStartY, secondSlots, item.x, item.y);
+};
 
 export const isInRangeOfPlayer = (item) => {
   const playerFrameX = player.worldPosition.x;
@@ -244,6 +246,18 @@ export const findTopMostStackableItemAtPosition = (currItem) => {
   return null;
 };
 
+const findItemContainer = (item, itemList) => {
+  // Check inside each item's 'contents' array (if it exists)
+  for (const container of itemList) {
+    if (Array.isArray(container.contents)) {
+      const found = container.contents?.includes(item) && container;
+      if (found) return found;
+    };
+  };
+  
+  return null; // If not found in any array
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
@@ -253,15 +267,15 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
     player.equipped[equippedItem.type] = null;
   };
 
-  // if (item.category === 'equipped') {
-  //   player.equipped[item.type] = null; // Use null for consistency
-  // } else if (item.category === 'inventory') {
-  //   const container = findItemContainer(item, inGameItems);
-  //   if (container && container.contents) { // Ensure container exists
-  //     const index = container.contents.findIndex(curr => curr.id === item.id);
-  //     if (index > -1) container.contents.splice(index, 1);
-  //   }
-  // }
+  if (item.category === 'equipped') {
+    player.equipped[item.type] = null; // Use null for consistency
+  } else if (item.category === 'inventory') {
+    const container = findItemContainer(item, items.allItems);
+    if (container && container.contents) { // Ensure container exists
+      const index = container.contents.findIndex(curr => curr.id === item.id);
+      if (index > -1) container.contents.splice(index, 1);
+    };
+  };
   
   item.category = 'world';
   item.worldPosition = { x: newFrameX, y: newFrameY };
@@ -295,17 +309,36 @@ export const moveToEquip = (item, slot) => {
 
   // Unequip offhand if equipping a two-handed weapon
   if (item?.stats?.twohander && player.equipped.offhand) {
-    unequipItem(player.equipped.offhand, item);
+    if (inventory.one.open) {
+      moveToInventory(player.equipped.offand, inventory.one.item);
+    } else {
+      unequipItem(player.equipped.offhand, item);
+    };
   };
 
   // Unequip mainhand if equipping an offhand while mainhand is two-handed
   if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
-    unequipItem(player.equipped.mainhand, item);
+    if (inventory.one.open) {
+      moveToInventory(player.equipped.mainhand, inventory.one.item);
+    } else {
+      unequipItem(player.equipped.mainhand, item);
+    };
   };
 
   // Unequip and swap existing item in the slot
   if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
-    unequipItem(player.equipped[slot], item);
+    if (inventory.one.open) {
+      moveToInventory(player.equipped[slot], inventory.one.item);
+    } else {
+      unequipItem(player.equipped[slot], item);
+    };
+  };
+
+  if (item.category === 'inventory') {
+    const container = findItemContainer(item, items.allItems);
+    const index = container.contents.findIndex(curr => curr.id === item.id);
+    if (index > -1) container.contents.splice(index, 1);
+    console.log(`removed ${item.name} from inventory to equip section.`)
   };
 
   // Equip new item

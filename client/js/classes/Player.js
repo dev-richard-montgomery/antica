@@ -18,8 +18,8 @@ class Player {
     this.worldPosition = { x: 155, y: 189 };
     this.cooldown = false;
     this.currentModifiers = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
-    // this.baseStats = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
-    // this.state = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
+    this.baseStats = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
+    this.state = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
     this.speed = 0.5;
     this.drawTo = { 
       x: (visibleArea.width / 2) - (this.pixels / 2 + this.pixels),
@@ -161,7 +161,7 @@ class Player {
     if (this.state.magic >= cost) {
       this.state.magic = Math.max(0, this.state.magic - cost);
     } else {
-      addMessage("Magic","Insufficient");
+      addMessage("Magic","Insufficient.");
     };
   };
   
@@ -196,8 +196,11 @@ class Player {
       const delta = next - prev;
 
       if (this.state.hasOwnProperty(stat)) {
-        // check if capacity. capacity should not exceed baseStat.capacity
-        this.state[stat] += delta;
+        if (stat === "capacity" && this.state[stat] + delta > this.baseStats[stat]) {
+          addMessage("Capacity", "Insufficient.");
+        } else {
+          this.state[stat] += delta;
+        };
       };
     };
     

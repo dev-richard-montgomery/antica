@@ -51,7 +51,7 @@ class Ui {
       ctx.drawImage(this.image, 192, 0, 192, 64, visibleArea.width, 256, 192, 64);
       for (let y = 320; y <= (this.state.activeToggle === "player" ? 512 : 576); y += 64) {
         ctx.drawImage(this.image, 192, 64, 192, 64, visibleArea.width, y, 192, 64);
-      }
+      };
       ctx.drawImage(this.image, 192, 128, 192, 64, visibleArea.width, this.state.activeToggle === "player" ? 576 : 640, 192, 64);
     }
 

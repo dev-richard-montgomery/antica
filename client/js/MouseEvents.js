@@ -1,10 +1,18 @@
-import { canvas, equipSlots, state } from './CONST.js';
-import { attemptFishing, clearHoverStates, moveToEquip, moveToVisibleArea, updateItemHoverState } from './utils/utils.js';
+import { canvas, equipSlots, inventory, inventorySlots, state } from './CONST.js';
 import { player } from './classes/Player.js';
 import { mapArea } from './classes/MapArea.js';
 import { items } from './classes/Items.js';
 import { ui } from './classes/UserInterface.js';
 import { splash } from './classes/Animations.js';
+import { handleInventory, moveToInventory } from './components/inventory.js';
+import { 
+  attemptFishing, 
+  clearHoverStates, 
+  isCursorOverItem,
+  moveToEquip, 
+  moveToVisibleArea, 
+  updateItemHoverState, 
+  updateItemsArray} from './utils/utils.js';
 
 export const handleMouseMove = (e) => {
   const { offsetX, offsetY } = e;
@@ -73,7 +81,7 @@ export const handleMouseDown = (e) => {
     // Reset fishing mode and cursor
     player.isFishing = false;
     canvas.style.cursor = 'pointer'; // Reset cursor to default
-  }
+  };
 };
 
 export const handleMouseUp = (e) => {
@@ -89,41 +97,43 @@ export const handleMouseUp = (e) => {
   const drawY = (newFrameY - playerLocation.y) * pixels + 320;
 
   // Check valid drop locations
-  const inRenderArea = offsetX >= 0 && offsetX < 832 && offsetY >= 0 && offsetY < 704;
+  const inVisibleArea = offsetX >= 0 && offsetX < 832 && offsetY >= 0 && offsetY < 704;
 
   const inEquipSlot = Object.keys(equipSlots).find(slot => {
     const { x, y } = equipSlots[slot];
     return offsetX >= x && offsetX < x + 64 && offsetY >= y && offsetY < y + 64 ? slot : null;
   });
 
-  // const inFirstInventory = 
-  //   offsetX >= inventorySlots.primary.slots.x && 
-  //   offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
-  //   offsetY >= inventorySlots.primary.slots.y && 
-  //   offsetY < inventorySlots.primary.slots.y + inventorySlots.primary.slots.height;
+  const inFirstInventory = 
+    offsetX >= inventorySlots.primary.slots.x && 
+    offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
+    offsetY >= inventorySlots.primary.slots.y && 
+    offsetY < inventorySlots.primary.slots.y + inventorySlots.primary.slots.height;
 
-  // const inFirstInventoryExpanded = 
-  //   offsetX >= inventorySlots.primary.slots.x && 
-  //   offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
-  //   offsetY >= inventorySlots.primary.slots.y && 
-  //   offsetY < inventorySlots.primary.slots.expandedHeight;
+  const inFirstInventoryExpanded = 
+    offsetX >= inventorySlots.primary.slots.x && 
+    offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
+    offsetY >= inventorySlots.primary.slots.y && 
+    offsetY < inventorySlots.primary.slots.expandedHeight;
 
-  // const inSecondInventory = 
-  //   offsetX >= inventorySlots.secondary.slots.x && 
-  //   offsetX < inventorySlots.secondary.slots.x + inventorySlots.secondary.slots.width && 
-  //   offsetY >= inventorySlots.secondary.slots.y && 
-  //   offsetY < inventorySlots.secondary.slots.y + inventorySlots.secondary.slots.height;
+  const inSecondInventory = 
+    offsetX >= inventorySlots.secondary.slots.x && 
+    offsetX < inventorySlots.secondary.slots.x + inventorySlots.secondary.slots.width && 
+    offsetY >= inventorySlots.secondary.slots.y && 
+    offsetY < inventorySlots.secondary.slots.y + inventorySlots.secondary.slots.height;
   
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
     player.manageModifiers();
-    // } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
-    //   moveToInventory(heldItem, inventory.one.item);
-    //   console.log(heldItem, ' in First Inventory');
-    // } else if (inSecondInventory && inventory.two.open) {
-    //   moveToInventory(heldItem, inventory.two.item);
-    //   console.log(heldItem, ' in Second Inventory');
-  } else if (inRenderArea) {
+    } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
+      moveToInventory(state.heldItem, inventory.one.item);
+      updateItemsArray(state.heldItem, inventory.one.item.contents);
+      // console.log(state.heldItem, ' in First Inventory');
+    } else if (inSecondInventory && inventory.two.open) {
+      moveToInventory(state.heldItem, inventory.two.item);
+      updateItemsArray(state.heldItem, inventory.two.item.contents);
+      // console.log(state.heldItem, ' in Second Inventory');
+  } else if (inVisibleArea) {
     const isBoundaryTile = items.checkTileCollision(mapArea.boundaryTiles, newFrameX, newFrameY);
     const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
 
@@ -141,57 +151,29 @@ export const handleMouseUp = (e) => {
     items.resetItemPosition(state.heldItem, state.lastValidPosition);
   };
   // Handle moving between inventory and equip slots
-  // if (heldItem.category === 'inventory' && inEquipSlot) {
-  //   moveToEquip(heldItem, inEquipSlot);
-  //   console.log(heldItem, ' equipped');
-  // };
-//   console.log("Mouse Up at:", offsetX, offsetY);
-// console.log("Equip Slot Bounds:", equipSlots);
-// console.log("inRenderArea:", inRenderArea);
-// console.log("inEquipSlot:", inEquipSlot);
+  if (state.heldItem.category === 'inventory' && inEquipSlot) {
+    moveToEquip(state.heldItem, inEquipSlot);
+    console.log(state.heldItem, ' equipped');
+  };
+  // console.log("Mouse Up at:", offsetX, offsetY);
+  // console.log("Equip Slot Bounds:", equipSlots);
+  // console.log("inVisibleArea:", inVisibleArea);
+  // console.log("inEquipSlot:", inEquipSlot);
 
   // Clear held state
   state.heldItem = null;
   canvas.style.cursor = "pointer";
 };
 
-const handleRightClick = (e) => {
+export const handleRightClick = (e) => {
   e.preventDefault(); // Prevents the default right-click context menu
 
   const { offsetX, offsetY } = e;
-  const item = inGameItems.find(item => isCursorOverItem(item, offsetX, offsetY));
+  const item = items.allItems.find(item => isCursorOverItem(item, offsetX, offsetY));
 
   if (!item || !item.contents) return; // Only proceed if the item has a 'content' property
   
-  if (uiState === 'inventory') {
-    if(isInRangeOfPlayer(item) || player.data.details.equipped.back === item) {
-      if (!inventory.one.item) {
-        inventory.one.item = item;
-        inventory.one.open = true;
-        inventory.expanded = true;
-      } else if (item !== inventory.one.item && !inventory.two.item) {
-        inventory.two.item = item;
-        inventory.two.open = true;
-        inventory.expanded = false;
-      } else if (inventory.one.item === item) {
-        inventory.one.item = null;
-        inventory.one.open = false;
-        inventory.expanded = false;
-    
-        if (inventory.two.item) {
-          inventory.one.item = inventory.two.item;
-          inventory.one.open = inventory.two.open;
-          inventory.two.item = null;
-          inventory.two.open = false;
-          inventory.expanded = true;
-        }
-      } else if (inventory.two.item === item) {
-        inventory.two.item = null;
-        inventory.two.open = false;
-        inventory.expanded = true;
-      };
-      console.log("Inventory state updated:", inventory);
-      drawInventory();
-    };
+  if (ui.state.activeToggle === 'inventory') {
+    handleInventory(item);
   };
 };

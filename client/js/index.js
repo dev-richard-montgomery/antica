@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from './CONST.js';
 import { login } from './components/login.js';
 import { ui } from './classes/UserInterface.js';
-import { handleMouseMove, handleMouseDown, handleMouseUp } from './MouseEvents.js';
+import { handleMouseMove, handleMouseDown, handleMouseUp, handleRightClick } from './MouseEvents.js';
 import { drawAll, drawCenterMessage } from './utils/utils.js';
 import { getNpcList } from './classes/NPCManager.js';
 import { conversate } from './components/chatbox.js';
@@ -34,11 +34,13 @@ addEventListener("DOMContentLoaded", e => {
 
   canvas.addEventListener("contextmenu", (e) => {
     e.preventDefault(); // Prevent default right-click menu
+    handleRightClick(e);
   
     if (player.equipped.mainhand?.tool === 'fishing') {
       player.isFishing = true; // Set fishing mode to true
-      canvas.style.cursor = "pointer";
+      // canvas.style.cursor = "pointer";
     };
+
   });
   
   
@@ -70,22 +72,6 @@ function gameLoop() {
 
 gameLoop();
 
-  // document.addEventListener("keydown", (e) => {
-  //   if (e.key === "Enter") {
-  //     const chatInput = document.getElementById("chatInput");
-  //     const text = chatInput.value.trim();
-  //     if (text) {
-  //       addMessage("Player", text);
-  //       checkNPCChatInteraction(player.worldPosition, text); // Check for NPCs nearby
-  //       chatInput.value = "";
-  //     }
-  //   }
-  // });
-
-  // canvas.addEventListener("contextmenu", e => {
-  //   handleRightClick(e);
-  // });
-
   // // window.addEventListener('resize', resizeCanvas);
 
   // addEventListener('beforeunload', async (e) => {
@@ -93,12 +79,8 @@ gameLoop();
   // });
 
 
-// items in water get deleted
 // inventory
 // depot
-// stats and items
-// create chat box
-// create npcs and interaction
 // player list
 // create enemies
 // create attacking, stats increase, item drop

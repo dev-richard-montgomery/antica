@@ -1,4 +1,4 @@
-import { findTopMostStackableItemAtPosition, generateHexId, isInEquipArea, isInRenderArea } from '../utils/utils.js';
+import { findTopMostStackableItemAtPosition, generateHexId, isInEquipArea, isInInventoryArea, isInRenderArea } from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
 import { ui } from './UserInterface.js';
@@ -156,6 +156,10 @@ class Items {
       if (isInEquipArea(item) && item.category === 'equipped' && ui.state.activeToggle === 'inventory') {
         this.draw(item);
       };
+
+      if (isInInventoryArea(item) && item.category === 'inventory' && ui.state.activeToggle === 'inventory') {
+        this.draw(item);
+      }
     });    
   };
 };
