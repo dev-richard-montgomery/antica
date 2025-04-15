@@ -1,8 +1,8 @@
 import { resources } from '../utils/resources.js';
-import { chat, ctx, game, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
+import { chat, ctx, game, movement, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
 import { spriteManager } from '../components/create-player.js';
 import { mapArea } from './MapArea.js'; 
-import { generateHexId, showCenterMessage } from '../utils/utils.js';
+import { containerOutOfRange, generateHexId, showCenterMessage, updateCursorAfterMove } from '../utils/utils.js';
 import { getNpcList } from './NPCManager.js';
 import { addMessage } from '../components/chatbox.js';
 
@@ -141,8 +141,8 @@ class Player {
       this.worldPosition.y += movementOffsets[key].y / this.pixels;
     };
   
-    // handleOutOfRange(); // this function checks if inventories or opened items are in range or not
-    // updateCursorAfterMove(); // Simulate mouse movement to update cursor after movement
+    containerOutOfRange(); // this function checks if player stepped away from open container
+    updateCursorAfterMove(movement.lastMouseX, movement.lastMouseY); // Simulate mouse movement to update cursor after movement
   
     this.cooldown = true;
     setTimeout(() => this.cooldown = false, this.speed * 1000);

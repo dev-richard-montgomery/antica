@@ -1,4 +1,4 @@
-import { canvas, ctx, game } from './CONST.js';
+import { canvas, ctx, game, movement } from './CONST.js';
 import { login } from './components/login.js';
 import { ui } from './classes/UserInterface.js';
 import { handleMouseMove, handleMouseDown, handleMouseUp, handleRightClick } from './MouseEvents.js';
@@ -24,6 +24,8 @@ addEventListener("DOMContentLoaded", e => {
   });
 
   canvas.addEventListener("mousemove", e => {
+    movement.lastMouseX = e.clientX;
+    movement.lastMouseY = e.clientY;
     handleMouseMove(e);
     ui.handleUiStates(e);
   }); 

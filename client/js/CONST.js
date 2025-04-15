@@ -22,6 +22,11 @@ const state = {
   activeAnimations: []
 };
 
+const movement = {
+  lastMouseX: 0,
+  lastMouseY: 0
+};
+
 // path variables
 const API_URL_ITEMS = '/saveItemData';
 const API_URL_PLAYER = '/savePlayerData';
@@ -158,6 +163,13 @@ const uiSections = {
   }
 };
 
+const centerMessage = {
+  text: '',
+  startTime: null,
+  duration: 2000,
+  fadeDuration: 500,
+};
+
 const npcData = {
   heremal: {
     name: "Heremal",
@@ -201,13 +213,6 @@ const npcData = {
   }
 };
 
-const centerMessage = {
-  text: '',
-  startTime: null,
-  duration: 2000,
-  fadeDuration: 500,
-};
-
 export { 
   API_URL_ITEMS, 
   API_URL_PLAYER, 
@@ -220,6 +225,7 @@ export {
   game, 
   inventory, 
   inventorySlots,
+  movement,
   npcData,
   selected,
   spritePaths, 

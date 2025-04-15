@@ -4,12 +4,14 @@ import { mapArea } from './classes/MapArea.js';
 import { items } from './classes/Items.js';
 import { ui } from './classes/UserInterface.js';
 import { splash } from './classes/Animations.js';
-import { handleInventory, moveToInventory } from './components/inventory.js';
 import { 
   attemptFishing, 
   clearHoverStates, 
+  findItemContainer,
+  handleInventory,
   isCursorOverItem,
   moveToEquip, 
+  moveToInventory,
   moveToVisibleArea, 
   updateItemHoverState, 
   updateItemsArray} from './utils/utils.js';
@@ -114,7 +116,7 @@ export const handleMouseUp = (e) => {
     offsetX >= inventorySlots.primary.slots.x && 
     offsetX < inventorySlots.primary.slots.x + inventorySlots.primary.slots.width && 
     offsetY >= inventorySlots.primary.slots.y && 
-    offsetY < inventorySlots.primary.slots.expandedHeight;
+    offsetY < inventorySlots.primary.slots.y + inventorySlots.primary.slots.expandedHeight;
 
   const inSecondInventory = 
     offsetX >= inventorySlots.secondary.slots.x && 
@@ -133,13 +135,26 @@ export const handleMouseUp = (e) => {
       moveToInventory(state.heldItem, inventory.two.item);
       updateItemsArray(state.heldItem, inventory.two.item.contents);
       // console.log(state.heldItem, ' in Second Inventory');
-  } else if (inVisibleArea) {
-    const isBoundaryTile = items.checkTileCollision(mapArea.boundaryTiles, newFrameX, newFrameY);
-    const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
-
+    } else if (inVisibleArea) {
+      const isBoundaryTile = items.checkTileCollision(mapArea.boundaryTiles, newFrameX, newFrameY);
+      const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
+  
     if (isWaterTile) {
       console.log(`Dropped ${state.heldItem.name} in water.`);
       splash.start(drawX, drawY);
+
+      // Remove from equip or inventory before deleting
+      const equippedItem = Object.values(player.equipped).find(equipped => equipped && equipped.id === state.heldItem.id);
+      if (equippedItem) {
+        player.equipped[equippedItem.type] = null;
+      };
+
+      const container = findItemContainer(state.heldItem, items.allItems);
+      if (container && container.contents) {
+        const index = container.contents.findIndex(i => i.id === state.heldItem.id);
+        if (index > -1) container.contents.splice(index, 1);
+      };
+
       items.deleteItem(state.heldItem);
       state.heldItem = null;
     } else if (isBoundaryTile) {
@@ -147,18 +162,13 @@ export const handleMouseUp = (e) => {
     } else {
       moveToVisibleArea(state.heldItem, newFrameX, newFrameY);
     };
-  } else {
-    items.resetItemPosition(state.heldItem, state.lastValidPosition);
   };
+
   // Handle moving between inventory and equip slots
-  if (state.heldItem.category === 'inventory' && inEquipSlot) {
+  if (state.heldItem?.category === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
     console.log(state.heldItem, ' equipped');
   };
-  // console.log("Mouse Up at:", offsetX, offsetY);
-  // console.log("Equip Slot Bounds:", equipSlots);
-  // console.log("inVisibleArea:", inVisibleArea);
-  // console.log("inEquipSlot:", inEquipSlot);
 
   // Clear held state
   state.heldItem = null;
@@ -169,7 +179,14 @@ export const handleRightClick = (e) => {
   e.preventDefault(); // Prevents the default right-click context menu
 
   const { offsetX, offsetY } = e;
-  const item = items.allItems.find(item => isCursorOverItem(item, offsetX, offsetY));
+  // const item = items.allItems.find(item => isCursorOverItem(item, offsetX, offsetY));
+  let item = null;
+  for (let i = items.allItems.length - 1; i >= 0; i--) {
+    if (isCursorOverItem(items.allItems[i], offsetX, offsetY)) {
+      item = items.allItems[i];
+      break;
+    };
+  };
 
   if (!item || !item.contents) return; // Only proceed if the item has a 'content' property
   
