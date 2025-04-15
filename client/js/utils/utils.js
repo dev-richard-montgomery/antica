@@ -543,14 +543,24 @@ const getXPRequired = () => {
 export const attemptFishing = () => {
   let xpGained = 0; // Default small XP for failed attempts
 
+  const hasInventorySpace = () => inventory.one.open && inventory.one.item.contents.length < inventory.one.item.stats.slots;
+  
   if (Math.random() < getCatchChance()) {
     xpGained = 1; // Standard catch XP
     addMessage("", " You caught a Silverscale!");
-    items.createItem("silverscale", { x: player.worldPosition.x, y: player.worldPosition.y });
+    if (hasInventorySpace()) {
+      inventory.one.item.contents.push(items.createItem("silverscale", null, 'inventory'));  
+    } else {
+      items.createItem("silverscale", { x: player.worldPosition.x, y: player.worldPosition.y });
+    };
 
     if (Math.random() < getRareCatchChance()) {
       addMessage("", "You caught a Flarefin!");
-      items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
+      if (hasInventorySpace()) {
+        inventory.one.item.contents.push(items.createItem("flarefin", null, 'inventory'));
+      } else {
+        items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
+      };
       xpGained = 5; // Rare catch overrides normal XP
     };
   } else {
