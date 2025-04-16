@@ -1,4 +1,4 @@
-import { canvas, centerMessage, ctx, equipSlots, equipSlotsHighlightSpriteLocations, state, visibleArea } from "../CONST.js";
+import { canvas, centerMessage, ctx, equipSlots, inventory, inventorySlots, equipSlotsHighlightSpriteLocations, movement, state, visibleArea } from "../CONST.js";
 import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
@@ -10,6 +10,7 @@ import { addMessage } from "../components/chatbox.js";
 export const drawAll = () => {
   status();
   ui.draw();
+  drawInventory();
   state.heldItem && equipSlotHighlight();
   mapArea.drawArea();
   items.drawAllVisibleItems();
@@ -22,7 +23,7 @@ export const generateHexId = () => {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
 };
 
-export const updateCursorAfterMove = () => {
+export const updateCursorAfterMove = (lastMouseX, lastMouseY) => {
   const event = new MouseEvent("mousemove", {
     clientX: lastMouseX, 
     clientY: lastMouseY
@@ -68,6 +69,24 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
   return hoverDetected;
 };
 
+export const showCustomPrompt = (question, callback) => {
+  const promptBox = document.getElementById("customPrompt");
+  const promptText = document.getElementById("customPromptText");
+  const input = document.getElementById("customPromptInput");
+  const confirm = document.getElementById("customPromptConfirm");
+
+  promptText.textContent = question;
+  input.value = "";
+  promptBox.style.display = "block";
+
+  confirm.onclick = () => {
+    const value = parseInt(input.value, 10);
+    promptBox.style.display = "none";
+    callback(value);
+  };
+};
+
+// displays eventful messages to screen
 export const showCenterMessage = (message, duration = 2000) => {
   centerMessage.text = message;
   centerMessage.duration = duration;
@@ -114,6 +133,7 @@ export const drawCenterMessage = () => {
   ctx.restore();
 };
 
+// animations
 export const currentAnimation = () => {
   const now = performance.now();
   state.activeAnimations.forEach(anim => {
@@ -161,39 +181,39 @@ export const isInEquipArea = (item) => {
   );
 };
 
-// export const isInInventoryArea = (item) => {
-//   const slotSize = 32; // Assuming each inventory slot is 32x32 pixels
-//   const slotsPerRow = 6;
+export const isInInventoryArea = (item) => {
+  const slotSize = 32; // Assuming each inventory slot is 32x32 pixels
+  const slotsPerRow = 6;
 
-//   // First inventory area
-//   const firstStartX = 832;
-//   const firstStartY = 288;
-//   const firstSlots = inventory.one.item?.stats?.slots ?? 0; // Check available slots
+  // First inventory area
+  const firstStartX = 832;
+  const firstStartY = 288;
+  const firstSlots = inventory.one.item?.stats?.slots ?? 0; // Check available slots
 
-//   // Second inventory area
-//   const secondStartX = 832;
-//   const secondStartY = 448;
-//   const secondSlots = inventory.two.item?.stats?.slots ?? 0; // Check available slots
+  // Second inventory area
+  const secondStartX = 832;
+  const secondStartY = 448;
+  const secondSlots = inventory.two.item?.stats?.slots ?? 0; // Check available slots
 
-//   const isInSlot = (startX, startY, slots, itemX, itemY) => {
-//     for (let i = 0; i < slots; i++) {
-//       const row = Math.floor(i / slotsPerRow);
-//       const col = i % slotsPerRow;
+  const isInSlot = (startX, startY, slots, itemX, itemY) => {
+    for (let i = 0; i < slots; i++) {
+      const row = Math.floor(i / slotsPerRow);
+      const col = i % slotsPerRow;
 
-//       const slotX = startX + col * slotSize;
-//       const slotY = startY + row * slotSize;
+      const slotX = startX + col * slotSize;
+      const slotY = startY + row * slotSize;
 
-//       if (itemX >= slotX && itemX < slotX + slotSize &&
-//           itemY >= slotY && itemY < slotY + slotSize) {
-//         return true; // Item is within this slot
-//       }
-//     }
-//     return false;
-//   };
+      if (itemX >= slotX && itemX < slotX + slotSize &&
+          itemY >= slotY && itemY < slotY + slotSize) {
+        return true; // Item is within this slot
+      }
+    }
+    return false;
+  };
 
-//   return isInSlot(firstStartX, firstStartY, firstSlots, item.x, item.y) ||
-//          isInSlot(secondStartX, secondStartY, secondSlots, item.x, item.y);
-// };
+  return isInSlot(firstStartX, firstStartY, firstSlots, item.x, item.y) ||
+         isInSlot(secondStartX, secondStartY, secondSlots, item.x, item.y);
+};
 
 export const isInRangeOfPlayer = (item) => {
   const playerFrameX = player.worldPosition.x;
@@ -244,6 +264,18 @@ export const findTopMostStackableItemAtPosition = (currItem) => {
   return null;
 };
 
+export const findItemContainer = (item, itemList) => {
+  // Check inside each item's 'contents' array (if it exists)
+  for (const container of itemList) {
+    if (Array.isArray(container.contents)) {
+      const found = container.contents?.includes(item) && container;
+      if (found) return found;
+    };
+  };
+  
+  return null; // If not found in any array
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
@@ -253,15 +285,15 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
     player.equipped[equippedItem.type] = null;
   };
 
-  // if (item.category === 'equipped') {
-  //   player.equipped[item.type] = null; // Use null for consistency
-  // } else if (item.category === 'inventory') {
-  //   const container = findItemContainer(item, inGameItems);
-  //   if (container && container.contents) { // Ensure container exists
-  //     const index = container.contents.findIndex(curr => curr.id === item.id);
-  //     if (index > -1) container.contents.splice(index, 1);
-  //   }
-  // }
+  if (item.category === 'equipped') {
+    player.equipped[item.type] = null; // Use null for consistency
+  } else if (item.category === 'inventory') {
+    const container = findItemContainer(item, items.allItems);
+    if (container && container.contents) { // Ensure container exists
+      const index = container.contents.findIndex(curr => curr.id === item.id);
+      if (index > -1) container.contents.splice(index, 1);
+    };
+  };
   
   item.category = 'world';
   item.worldPosition = { x: newFrameX, y: newFrameY };
@@ -274,8 +306,58 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
     updateItemsArray(topmost);
   } else {
     items.updateItemDrawPosition(item);
-    updateItemsArray(item);
+    updateItemsArray(item);  
   };
+
+  containerOutOfRange(movement.lastMouseX, movement.lastMouseY);
+};
+
+export const moveToEquip = (item, slot) => {
+  if (!item || item.type !== slot) return; // Ensure valid item type
+
+  // Unequip offhand if equipping a two-handed weapon
+  if (item?.stats?.twohander && player.equipped.offhand) {
+    if (inventory.one.open) {
+      moveToInventory(player.equipped.offand, inventory.one.item);
+    } else {
+      unequipItem(player.equipped.offhand, item);
+    };
+  };
+
+  // Unequip mainhand if equipping an offhand while mainhand is two-handed
+  if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
+    if (inventory.one.open) {
+      moveToInventory(player.equipped.mainhand, inventory.one.item);
+    } else {
+      unequipItem(player.equipped.mainhand, item);
+    };
+  };
+
+  // Unequip and swap existing item in the slot
+  if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
+    if (inventory.one.open) {
+      moveToInventory(player.equipped[slot], inventory.one.item);
+    } else {
+      unequipItem(player.equipped[slot], item);
+    };
+  };
+
+  if (item.category === 'inventory') {
+    const container = findItemContainer(item, items.allItems);
+    const index = container.contents.findIndex(curr => curr.id === item.id);
+    if (index > -1) container.contents.splice(index, 1);
+    console.log(`removed ${item.name} from inventory to equip section.`)
+  };
+
+  // Equip new item
+  item.category = 'equipped';
+  item.worldPosition = null;
+  item.drawPosition = { x: equipSlots[slot].x, y: equipSlots[slot].y };
+  item.held = false;
+
+  console.log(`Equipped ${item.name} in ${slot} slot.`);
+  player.equipped[slot] = item;
+  updateItemsArray(item);
 };
 
 const unequipItem = (equippedItem, newItem) => {
@@ -290,61 +372,32 @@ const unequipItem = (equippedItem, newItem) => {
   updateItemsArray(equippedItem);
 };
 
-export const moveToEquip = (item, slot) => {
-  if (!item || item.type !== slot) return; // Ensure valid item type
-
-  // Unequip offhand if equipping a two-handed weapon
-  if (item?.stats?.twohander && player.equipped.offhand) {
-    unequipItem(player.equipped.offhand, item);
+export const containerOutOfRange = () => {
+  const closeIfOutOfRange = (slot) => {
+    if (inventory[slot].open && 
+      !isInEquipArea(inventory[slot].item) && 
+      !isInRangeOfPlayer(inventory[slot].item)) {
+      inventory[slot].open = false;
+      inventory[slot].item = null;
+      return true;
+    };
+    return false;
   };
 
-  // Unequip mainhand if equipping an offhand while mainhand is two-handed
-  if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
-    unequipItem(player.equipped.mainhand, item);
+  // Close second slot if item is out of range
+  closeIfOutOfRange("two");
+
+  // Close first slot if item is out of range
+  if (closeIfOutOfRange("one") && inventory.two.open) {
+    // Move second slot item to first slot if it's valid
+    if (isInRangeOfPlayer(inventory.two.item) || isInEquipArea(inventory.two.item)) {
+      inventory.one.open = true;
+      inventory.one.item = inventory.two.item;
+      inventory.two.open = false;
+      inventory.two.item = null;
+    };
   };
-
-  // Unequip and swap existing item in the slot
-  if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
-    unequipItem(player.equipped[slot], item);
-  };
-
-  // Equip new item
-  item.category = 'equipped';
-  item.worldPosition = null;
-  item.drawPosition = { x: equipSlots[slot].x, y: equipSlots[slot].y };
-  item.held = false;
-
-  console.log(`Equipped ${item.name} in ${slot} slot.`);
-  player.equipped[slot] = item;
-  updateItemsArray(item);
 };
-
-// export const handleOutOfRange = () => {
-  //   const closeIfOutOfRange = (slot) => {
-    //     if (inventory[slot].open && 
-    //         !isInEquipArea(inventory[slot].item) && 
-//         !isInRangeOfPlayer(inventory[slot].item)) {
-//       inventory[slot].open = false;
-//       inventory[slot].item = null;
-//       return true;
-//     }
-//     return false;
-//   };
-
-//   // Close second slot if item is out of range
-//   closeIfOutOfRange("two");
-
-//   // Close first slot if item is out of range
-//   if (closeIfOutOfRange("one") && inventory.two.open) {
-//     // Move second slot item to first slot if it's valid
-//     if (isInRangeOfPlayer(inventory.two.item) || isInEquipArea(inventory.two.item)) {
-//       inventory.one.open = true;
-//       inventory.one.item = inventory.two.item;
-//       inventory.two.open = false;
-//       inventory.two.item = null;
-//     }
-//   }
-// };
 
 const equipSlotHighlight = () => {
   if (!state.heldItem?.type) return;
@@ -361,6 +414,127 @@ const equipSlotHighlight = () => {
       highlightPos.x, highlightPos.y, ui.btnSize, ui.btnSize,
       equipPos.x, equipPos.y, ui.btnSize, ui.btnSize
     );
+  };
+};
+
+export const handleInventory = (item) => {
+  if (isInRangeOfPlayer(item) || player.equipped.back === item) {
+    if (!inventory.one.item) { // opens in first inventory
+      inventory.one.item = item;
+      inventory.one.open = true;
+      inventory.expanded = true;
+    } else if (item !== inventory.one.item && !inventory.two.item) { // opens in second inventory
+      inventory.two.item = item;
+      inventory.two.open = true;
+      inventory.expanded = false;
+    } else if (inventory.one.item === item) { // closes first inventory
+      inventory.one.item = null;
+      inventory.one.open = false;
+      inventory.expanded = false;
+  
+      if (inventory.two.item) { // because first inventory closed, if second inventory is open, set the second to the first, and close the second
+        inventory.one.item = inventory.two.item;
+        inventory.one.open = inventory.two.open;
+        inventory.two.item = null;
+        inventory.two.open = false;
+        inventory.expanded = true;
+      }
+    } else if (inventory.two.item === item) { // else close the second inventory
+      inventory.two.item = null;
+      inventory.two.open = false;
+      inventory.expanded = true;
+    };
+  };
+};
+
+export const moveToInventory = (item, container) => {
+  if (!item || !container) return;
+
+  // Ensure inventory has space before checking for duplicates
+  if (container.contents.length >= container.stats.slots) return;
+
+  // Prevent adding duplicate items
+  if (container.contents.includes(item)) return;
+
+  // Remove item from equipped section if applicable
+  if (player.equipped[item.type] === item) {
+    player.equipped[item.type] = null; // Proper assignment
+    console.log(`Removed ${item.name} from equip section to inventory.`);
+  };
+
+  // Update item properties
+  item.category = 'inventory';
+  item.worldPosition = null;
+  item.held = false;
+  item.hover = false;
+
+  // Add item to inventory container
+  container.contents.push(item);
+};
+
+export const drawInventory = () => {
+  const { primary, secondary } = inventorySlots;
+
+  // Clear and draw inventory background
+  // ctx.clearRect(visibleArea.width, 256, 192, 448); // 384
+  // ctx.drawImage(ui.image, 192, 0, 192, 384, visibleArea.width, 256, 192, 384);
+  
+  if (ui.state.activeToggle === 'inventory' && inventory.one.open) {
+    ctx.clearRect(visibleArea.width, 256, 192, 448);
+    ctx.fillStyle = "white";
+    ctx.fillRect(visibleArea.width, 256, 192, 448);
+  };
+
+  const drawInventorySection = (container, section, scroll, expanded) => {
+    if (!container) return;
+
+    const numOfRows = expanded && section === 1 ? 11 : 5;
+    const rowLength = 4;
+    const size = 48;
+    let position = scroll * rowLength;
+
+    const header = section === 1 ? primary.header : secondary.header;
+    const slots = section === 1 ? primary.slots : secondary.slots;
+
+    const drawInventorySlot = (x,y) => {
+      ctx.fillStyle = "lightgray";
+      ctx.fillRect(x, y, size, size);
+  
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
+    };
+
+    // Draw inventory header
+    ctx.drawImage(items.image, container.spritePosition.x, container.spritePosition.y, 64, 64, header.x + 64 + 16, header.y, 32, 32);
+
+    // Draw inventory slots and contents
+    for (let row = 0; row < numOfRows * rowLength; row++) {
+      const x = slots.x + (row % rowLength) * size;
+      const y = slots.y + Math.floor(row / rowLength) * size;
+
+      if (position < container.stats.slots) {
+        drawInventorySlot(x, y);
+        const item = container.contents[position];
+
+        if (typeof item === 'object') {
+          item.drawPosition = { x: x, y: y };
+          updateItemsArray(item);
+          ctx.drawImage(items.image, item.spritePosition.x, item.spritePosition.y, 64, 64, x, y, size, size);
+        };
+      };
+
+      position++;
+    };
+  };
+
+  if (ui.state.activeToggle === 'inventory') {
+    if (inventory.one.open && !inventory.two.open) {
+      drawInventorySection(inventory.one.item, 1, inventory.one.scroll, true);
+    } else if (inventory.two.open) {     
+      drawInventorySection(inventory.one.item, 1, inventory.one.scroll, false);
+      drawInventorySection(inventory.two.item, 2, inventory.two.scroll, false);
+    };
   };
 };
 
@@ -386,14 +560,24 @@ const getXPRequired = () => {
 export const attemptFishing = () => {
   let xpGained = 0; // Default small XP for failed attempts
 
+  const hasInventorySpace = () => inventory.one.open && inventory.one.item.contents.length < inventory.one.item.stats.slots;
+  
   if (Math.random() < getCatchChance()) {
     xpGained = 1; // Standard catch XP
-    addMessage("You caught a", "Silverscale!");
-    items.createItem("silverscale", { x: player.worldPosition.x, y: player.worldPosition.y });
+    addMessage("", " You caught a Silverscale!");
+    if (hasInventorySpace()) {
+      inventory.one.item.contents.push(items.createItem("silverscale", null, 'inventory'));  
+    } else {
+      items.createItem("silverscale", { x: player.worldPosition.x, y: player.worldPosition.y });
+    };
 
     if (Math.random() < getRareCatchChance()) {
-      addMessage("You caught a", "Flarefin!");
-      items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
+      addMessage("", "You caught a Flarefin!");
+      if (hasInventorySpace()) {
+        inventory.one.item.contents.push(items.createItem("flarefin", null, 'inventory'));
+      } else {
+        items.createItem("flarefin", { x: player.worldPosition.x, y: player.worldPosition.y });
+      };
       xpGained = 5; // Rare catch overrides normal XP
     };
   } else {
@@ -410,4 +594,6 @@ export const attemptFishing = () => {
     player.skills.fishing++;
     showCenterMessage("You gained a skill advance in fishing!");
   };
+
+  player.isFishing = false;
 };

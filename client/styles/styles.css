@@ -57,6 +57,33 @@ p, h1, h2, h3, h4, h5, h6 {
   border: 5rem solid black;
 }
 
+#customPrompt {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e1e1e;
+  color: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  border: 2px solid #444;
+  box-shadow: 0 0 12px rgba(0,0,0,0.6);
+  text-align: center;
+  font-family: sans-serif;
+}
+
+#customPrompt input {
+  margin-top: 12px;
+}
+
+#customPrompt button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding-left: 10px;
+}
+
 /* form styles */
 .form-container {
   position: absolute;
