@@ -37,15 +37,7 @@ addEventListener("DOMContentLoaded", e => {
   canvas.addEventListener("contextmenu", (e) => {
     e.preventDefault(); // Prevent default right-click menu
     handleRightClick(e);
-  
-    if (player.equipped.mainhand?.tool === 'fishing') {
-      player.isFishing = true; // Set fishing mode to true
-      // canvas.style.cursor = "pointer";
-    };
-
-  });
-  
-  
+  });  
 });
 
 // game loop -----------------------------------------------------------------------------
@@ -79,10 +71,3 @@ gameLoop();
   // addEventListener('beforeunload', async (e) => {
   //   await updateAndPostGameData();
   // });
-
-
-// inventory
-// depot
-// player list
-// create enemies
-// create attacking, stats increase, item drop

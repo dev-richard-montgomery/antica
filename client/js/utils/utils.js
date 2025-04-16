@@ -69,6 +69,23 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
   return hoverDetected;
 };
 
+export const showCustomPrompt = (question, callback) => {
+  const promptBox = document.getElementById("customPrompt");
+  const promptText = document.getElementById("customPromptText");
+  const input = document.getElementById("customPromptInput");
+  const confirm = document.getElementById("customPromptConfirm");
+
+  promptText.textContent = question;
+  input.value = "";
+  promptBox.style.display = "block";
+
+  confirm.onclick = () => {
+    const value = parseInt(input.value, 10);
+    promptBox.style.display = "none";
+    callback(value);
+  };
+};
+
 // displays eventful messages to screen
 export const showCenterMessage = (message, duration = 2000) => {
   centerMessage.text = message;
@@ -577,4 +594,6 @@ export const attemptFishing = () => {
     player.skills.fishing++;
     showCenterMessage("You gained a skill advance in fishing!");
   };
+
+  player.isFishing = false;
 };

@@ -19,70 +19,78 @@ import {
 export const handleMouseMove = (e) => {
   const { offsetX, offsetY } = e;
 
-  const uiCursor = ui.handleUiStates(e); // move this up
-
+  // Fishing mode overrides everything
   if (player.isFishing) {
     canvas.style.cursor = 'crosshair';
     return;
-  } else if (uiCursor) {
+  };
+
+  // UI cursor override
+  const uiCursor = ui.handleUiStates(e);
+  if (uiCursor) {
     canvas.style.cursor = uiCursor;
     return;
   };
 
-  // Default cursor state
-  canvas.style.cursor = "pointer";
-
-  // If an item is held, update its position and cursor state
+  // Held item
   if (state.heldItem) {
     canvas.style.cursor = "grabbing";
     return;
   };
 
-  // Update hover states for in-game items
-  if (updateItemHoverState(offsetX, offsetY)) return;
+  // Hover over item
+  if (updateItemHoverState(offsetX, offsetY)) {
+    return;
+  };
+
+  // Default cursor
+  canvas.style.cursor = "pointer";
 };
 
 export const handleMouseDown = (e) => {
-  if (e.button !== 0) return; // Left click only
+  if (e.button !== 0) return; // Only handle left-click
 
-  // Ensure only one hovered item
-  clearHoverStates();
   const { offsetX, offsetY } = e;
+  clearHoverStates();
   updateItemHoverState(offsetX, offsetY);
-  
-  const playerLocation = player.worldPosition;
+
   const pixels = 64;
-  
-  const newFrameX = player.worldPosition.x + Math.floor((offsetX - 384) / pixels);
-  const newFrameY = player.worldPosition.y + Math.floor((offsetY - 320) / pixels);
+  const playerLocation = player.worldPosition;
+
+  const newFrameX = playerLocation.x + Math.floor((offsetX - 384) / pixels);
+  const newFrameY = playerLocation.y + Math.floor((offsetY - 320) / pixels);
   const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
+
   const drawX = (newFrameX - playerLocation.x) * pixels + 384;
   const drawY = (newFrameY - playerLocation.y) * pixels + 320;
-  
-  // Find hovered item to hold
-  const hoveredItem = items.allItems.find(item => item.hover);
 
-  // Ensure a valid item is found and prevent holding multiple items
+  const hoveredItem = items.allItems.find(item => item.hover);
+  const isShift = e.shiftKey;
+
+  // Shift + Left Click = Uncombine
+  if (hoveredItem && isShift) {
+    hoveredItem.hover = false;
+    items.uncombineItems(hoveredItem);
+    canvas.style.cursor = "grabbing";
+    return;
+  };
+
+  // Pick up item
   if (hoveredItem && !state.heldItem) {
-    hoveredItem.held = true;
     hoveredItem.hover = false;
     state.lastValidPosition = { ...hoveredItem.drawPosition };
     state.heldItem = hoveredItem;
     canvas.style.cursor = "grabbing";
   };
 
-  // Fishing functions
-  if (player.isFishing && e.button === 0) {
-    
-    // Check if the clicked area is a water tile
+  // Fishing logic
+  if (player.isFishing) {
     if (isWaterTile) {
-      attemptFishing();  // Attempt to fish
+      attemptFishing();
       splash.start(drawX, drawY);
-    };
-    
-    // Reset fishing mode and cursor
+    }
     player.isFishing = false;
-    canvas.style.cursor = 'pointer'; // Reset cursor to default
+    canvas.style.cursor = 'pointer';
   };
 };
 
@@ -179,7 +187,8 @@ export const handleRightClick = (e) => {
   e.preventDefault(); // Prevents the default right-click context menu
 
   const { offsetX, offsetY } = e;
-  // const item = items.allItems.find(item => isCursorOverItem(item, offsetX, offsetY));
+  
+  // top item
   let item = null;
   for (let i = items.allItems.length - 1; i >= 0; i--) {
     if (isCursorOverItem(items.allItems[i], offsetX, offsetY)) {
@@ -188,8 +197,15 @@ export const handleRightClick = (e) => {
     };
   };
 
+  // player fishing state
+  if (item && item === player.equipped.mainhand && player.equipped.mainhand?.tool === 'fishing') {
+    player.isFishing = true;
+    canvas.style.cursor = "crosshair";
+  };
+
   if (!item || !item.contents) return; // Only proceed if the item has a 'content' property
   
+  // handles inventory state
   if (ui.state.activeToggle === 'inventory') {
     handleInventory(item);
   };

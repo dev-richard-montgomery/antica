@@ -3,7 +3,7 @@ import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
 import { ui } from './UserInterface.js';
 import { ctx, state } from '../CONST.js';
-
+import { showCustomPrompt } from '../utils/utils.js';
 
 class Items {
   constructor() {
@@ -70,6 +70,29 @@ class Items {
   
     this.deleteItem(item2);
     return true;
+  };
+
+  uncombineItems(item) {
+    if (!item || !item.stats?.size || item.stats.size <= 1) return false;
+  
+    showCustomPrompt(`How many ${item.name}s do you want to separate? (1 - ${item.stats.size - 1})`, (amount) => {
+      if (isNaN(amount) || amount <= 0 || amount >= item.stats.size) {
+        alert("Invalid amount.");
+        return false;
+      };
+
+      // Reduce original item's size and weight
+      item.stats.size -= amount;
+      const weightPerUnit = item.stats.weight / (item.stats.size + amount); // total weight before reduction
+      item.stats.weight = weightPerUnit * item.stats.size;
+    
+      // Create new item with split amount and weight
+      const newItem = this.createItem(item.name);
+      newItem.stats.size = amount;
+      newItem.stats.weight = weightPerUnit * amount;
+      state.heldItem = newItem;
+      return true;
+    });  
   };
 
   deleteItem(item) {
