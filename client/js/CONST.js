@@ -19,7 +19,8 @@ const game = {
 const state = {
   lastValidPosition: null,
   heldItem: null,
-  activeAnimations: []
+  activeAnimations: [],
+  prompt: false
 };
 
 const movement = {

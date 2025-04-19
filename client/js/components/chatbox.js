@@ -1,7 +1,6 @@
 import { player } from '../classes/Player.js';
-import { chat, game } from '../CONST.js';
+import { chat, game, state } from '../CONST.js';
 import { getNpcList } from '../classes/NPCManager.js';
-
 
 // Function to set focus on the chat input
 export const setFocusToChatInput = () => {
@@ -46,7 +45,7 @@ export const conversate = (e) => {
   const npcList = getNpcList();
   
   if (game.on) {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !state.prompt) {
       if (chat.on) {
         const text = chatInput.value.trim();
         if (text) {

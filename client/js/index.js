@@ -71,3 +71,19 @@ gameLoop();
   // addEventListener('beforeunload', async (e) => {
   //   await updateAndPostGameData();
   // });
+
+
+
+  
+  /*
+  
+  KNOWN CURRENT BUGS
+
+  equipping a two hander while mainhand and offhand equipped, and inventory open.
+
+  proper management of modifiers, particularly with stacks.
+
+  throwing items through walls... talking to npcs through walls.
+
+  
+  */

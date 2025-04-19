@@ -75,18 +75,32 @@ export const showCustomPrompt = (question, callback) => {
   const input = document.getElementById("customPromptInput");
   const confirm = document.getElementById("customPromptConfirm");
 
+  state.prompt = true;
   promptText.textContent = question;
   input.value = "";
   promptBox.style.display = "block";
+  setTimeout(() => input.focus(), 0);
 
-  confirm.onclick = () => {
+  const handleConfirm = () => {
     const value = parseInt(input.value, 10);
     promptBox.style.display = "none";
+    input.removeEventListener("keydown", onEnter);
+    state.prompt = false;
     callback(value);
   };
+
+  const onEnter = (e) => {
+    if (state.prompt && e.key === "Enter") {
+      e.preventDefault();      // Prevent form submissions or default Enter behavior
+      e.stopPropagation();     // Stop event from bubbling to chatbox or other handlers
+      handleConfirm();
+    }
+  };
+
+  confirm.onclick = handleConfirm;
+  input.addEventListener("keydown", onEnter);
 };
 
-// displays eventful messages to screen
 export const showCenterMessage = (message, duration = 2000) => {
   centerMessage.text = message;
   centerMessage.duration = duration;
@@ -131,6 +145,26 @@ export const drawCenterMessage = () => {
   ctx.strokeText(centerMessage.text, x, y);
   ctx.fillText(centerMessage.text, x, y);
   ctx.restore();
+};
+
+export const getBagCapacity = (bag) => {
+  let total = 0;
+
+  // Base case: if it's not a valid container, return 0
+  if (!bag || !bag.contents) return total;
+
+  for (const item of bag.contents) {
+    if (item?.stats?.capacity) {
+      total += item.stats.capacity;
+    }
+
+    // Recurse if item has contents (i.e., it's a nested bag)
+    if (item?.contents?.length) {
+      total += getBagCapacity(item);
+    }
+  }
+
+  return total;
 };
 
 // animations
@@ -276,6 +310,24 @@ export const findItemContainer = (item, itemList) => {
   return null; // If not found in any array
 };
 
+export const isStackableItemInInventory = (item1, item2, offsetX, offsetY, pixel = 32) => {
+  if (
+    !item1 || !item2 ||
+    item1.name !== item2.name ||
+    item1 === item2 ||
+    !item1?.stats?.size || !item2?.stats?.size
+  ) return false;
+
+  const { x, y } = item1.drawPosition;
+
+  return (
+    offsetX >= x &&
+    offsetX < x + pixel &&
+    offsetY >= y &&
+    offsetY < y + pixel
+  );
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return; // Ensure item exists before proceeding
@@ -312,52 +364,90 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   containerOutOfRange(movement.lastMouseX, movement.lastMouseY);
 };
 
+// Placeholder function to get total capacity of all inventory contents
+function getInventoryCapacity() {
+  // You'll implement actual logic here
+  return 0;
+}
+
 export const moveToEquip = (item, slot) => {
-  if (!item || item.type !== slot) return; // Ensure valid item type
+  if (!item || item.type !== slot) return;
 
-  // Unequip offhand if equipping a two-handed weapon
-  if (item?.stats?.twohander && player.equipped.offhand) {
-    if (inventory.one.open) {
-      moveToInventory(player.equipped.offand, inventory.one.item);
-    } else {
-      unequipItem(player.equipped.offhand, item);
-    };
-  };
+  const mainhandItem = player.equipped.mainhand;
+  const offhandItem = player.equipped.offhand;
+  const currentItem = player.equipped[slot];
+  const backpack = inventory.one.item;
+  const hasInventory = inventory.one.open && backpack;
 
-  // Unequip mainhand if equipping an offhand while mainhand is two-handed
-  if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
-    if (inventory.one.open) {
-      moveToInventory(player.equipped.mainhand, inventory.one.item);
-    } else {
-      unequipItem(player.equipped.mainhand, item);
-    };
-  };
-
-  // Unequip and swap existing item in the slot
-  if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
-    if (inventory.one.open) {
-      moveToInventory(player.equipped[slot], inventory.one.item);
-    } else {
-      unequipItem(player.equipped[slot], item);
-    };
-  };
-
+  // 🔁 Remove the item from inventory *before* checking capacity
   if (item.category === 'inventory') {
     const container = findItemContainer(item, items.allItems);
     const index = container.contents.findIndex(curr => curr.id === item.id);
-    if (index > -1) container.contents.splice(index, 1);
-    console.log(`removed ${item.name} from inventory to equip section.`)
+    if (index > -1) {
+      container.contents.splice(index, 1);
+      console.log(`Removed ${item.name} from inventory to equip section.`);
+    }
+  }
+
+  const currentCapacity = currentItem?.stats?.capacity || 0;
+  const newCapacity = item.stats?.capacity || 0;
+  const offhandCapacity = (item.type === "mainhand" && item.stats?.twohander && offhandItem?.stats?.capacity) || 0;
+  const capAdjust = player.state.capacity - currentCapacity - offhandCapacity + newCapacity;
+
+  if (capAdjust > player.baseStats.capacity) {
+    addMessage("", `Insufficient capacity to equip ${item.name}`);
+    
+    // Put item back if we pulled it from inventory
+    if (item.category === 'inventory') {
+      backpack.contents.push(item);
+    }
+    return;
+  }
+
+  // 🔁 Helper: move equipped item to inventory or drop it
+  const tryMoveOut = (equipItem) => {
+    if (!equipItem) return;
+    if (hasInventory && backpack.contents.length < backpack.stats.slots) {
+      moveToInventory(equipItem, backpack);
+    } else {
+      moveToVisibleArea(equipItem, player.worldPosition.x, player.worldPosition.y);
+    }
   };
 
-  // Equip new item
+  // 🔁 If equipping a twohander, unequip offhand
+  if (item.type === "mainhand" && item.stats?.twohander) {
+    if (offhandItem) {
+      tryMoveOut(offhandItem);
+      player.equipped.offhand = null;
+    }
+
+    // Also remove previous twohander if different
+    if (mainhandItem && mainhandItem.id !== item.id && mainhandItem.stats?.twohander) {
+      tryMoveOut(mainhandItem);
+    }
+  }
+
+  // 🔁 If equipping offhand and mainhand is twohander, unequip mainhand
+  if (item.type === "offhand" && mainhandItem?.stats?.twohander) {
+    tryMoveOut(mainhandItem);
+    player.equipped.mainhand = null;
+  }
+
+  // 🔁 Remove previously equipped item in this slot (if different)
+  if (currentItem && currentItem.id !== item.id) {
+    tryMoveOut(currentItem);
+  }
+
+  // ✅ Equip the new item
   item.category = 'equipped';
   item.worldPosition = null;
   item.drawPosition = { x: equipSlots[slot].x, y: equipSlots[slot].y };
   item.held = false;
 
-  console.log(`Equipped ${item.name} in ${slot} slot.`);
   player.equipped[slot] = item;
   updateItemsArray(item);
+
+  console.log(`Equipped ${item.name} in ${slot} slot.`);
 };
 
 const unequipItem = (equippedItem, newItem) => {

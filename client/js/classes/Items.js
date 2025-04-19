@@ -2,7 +2,7 @@ import { findTopMostStackableItemAtPosition, generateHexId, isInEquipArea, isInI
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
 import { ui } from './UserInterface.js';
-import { ctx, state } from '../CONST.js';
+import { ctx, inventory, state } from '../CONST.js';
 import { showCustomPrompt } from '../utils/utils.js';
 
 class Items {
@@ -68,6 +68,18 @@ class Items {
     item1.stats.size += item2.stats.size;
     item1.stats.weight += item2.stats.weight;
   
+    if (inventory.one.open && inventory.one.item?.contents.includes(item2)) {
+      const index = inventory.one.item.contents.findIndex(curr => curr.id === item2.id);
+      if(index > -1) {
+        inventory.one.item.contents.splice(index, 1);
+      };  
+    } else if (inventory.two.open && inventory.two.item?.contents.includes(item2)) {
+      const index = inventory.two.item.contents.findIndex(curr => curr.id === item2.id);
+      if(index > -1) {
+        inventory.two.item.contents.splice(index, 1);
+      };  
+    };
+
     this.deleteItem(item2);
     return true;
   };
@@ -146,10 +158,10 @@ class Items {
   draw(item) {
     if (!item) return;
     if (item.worldPosition) this.updateItemDrawPosition(item);
-    
+  
     const { spritePosition, drawPosition } = item;
     const size = 64;
-    
+  
     ctx.drawImage(
       items.image,
       spritePosition.x,
@@ -161,14 +173,23 @@ class Items {
       size,
       size
     );
-
-    if (item?.stats?.size > 1) {
-      ctx.font = "10px Arial";
-      ctx.fillStyle = "#fff";
+  
+    const drawStackNumber = (x, y, number, fontSize, color) => {
+      ctx.font = `${fontSize}px Arial`;
+      ctx.fillStyle = color;
       ctx.textAlign = "right";
-      ctx.fillText(item.stats.size, item.drawPosition.x + 56, item.drawPosition.y + 56);
+      ctx.textBaseline = "bottom";
+      ctx.fillText(number, x, y);
     };
-  };
+  
+    if (item?.stats?.size > 1) {
+      if (item.category === 'world') {
+        drawStackNumber(item.drawPosition.x + 60, item.drawPosition.y + 60, item.stats.size, 10, "#fff");
+      } else if (item.category === 'inventory') {
+        drawStackNumber(item.drawPosition.x + 28, item.drawPosition.y + 28, item.stats.size, 10, "black");
+      };
+    };
+  };  
 
   drawAllVisibleItems() {
     this.allItems.forEach(item => {

@@ -2,7 +2,7 @@ import { resources } from '../utils/resources.js';
 import { chat, ctx, game, movement, selected, sprites, spriteTabs, visibleArea } from '../CONST.js';
 import { spriteManager } from '../components/create-player.js';
 import { mapArea } from './MapArea.js'; 
-import { containerOutOfRange, generateHexId, showCenterMessage, updateCursorAfterMove } from '../utils/utils.js';
+import { containerOutOfRange, generateHexId, getBagCapacity, showCenterMessage, updateCursorAfterMove } from '../utils/utils.js';
 import { getNpcList } from './NPCManager.js';
 import { addMessage } from '../components/chatbox.js';
 
@@ -205,6 +205,12 @@ class Player {
     };
     
     this.currentModifiers = updatedModifiers;
+
+    const capacity = getBagCapacity(this.equipped.back);
+    if (this.state.capacity + capacity <= this.baseStats.capacity) {
+      // this.state.capacity += capacity;
+      this.currentModifiers.capacity += capacity;
+    };
   };
 };
 

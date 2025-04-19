@@ -10,6 +10,7 @@ import {
   findItemContainer,
   handleInventory,
   isCursorOverItem,
+  isStackableItemInInventory,
   moveToEquip, 
   moveToInventory,
   moveToVisibleArea, 
@@ -130,19 +131,32 @@ export const handleMouseUp = (e) => {
     offsetX >= inventorySlots.secondary.slots.x && 
     offsetX < inventorySlots.secondary.slots.x + inventorySlots.secondary.slots.width && 
     offsetY >= inventorySlots.secondary.slots.y && 
-    offsetY < inventorySlots.secondary.slots.y + inventorySlots.secondary.slots.height;
-  
+    offsetY < inventorySlots.secondary.slots.y + inventorySlots.secondary.slots.height;  
+
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
     player.manageModifiers();
     } else if ((inFirstInventoryExpanded && inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
-      moveToInventory(state.heldItem, inventory.one.item);
-      updateItemsArray(state.heldItem, inventory.one.item.contents);
-      // console.log(state.heldItem, ' in First Inventory');
+      const stackableItem = items.allItems.find(item =>
+        item !== state.heldItem &&
+        isStackableItemInInventory(item, state.heldItem, offsetX, offsetY)
+      );
+      
+      if (stackableItem) {
+        items.combineItems(stackableItem, state.heldItem);
+      } else {
+        moveToInventory(state.heldItem, inventory.one.item);
+        updateItemsArray(state.heldItem, inventory.one.item.contents);
+      };
+      
     } else if (inSecondInventory && inventory.two.open) {
-      moveToInventory(state.heldItem, inventory.two.item);
-      updateItemsArray(state.heldItem, inventory.two.item.contents);
-      // console.log(state.heldItem, ' in Second Inventory');
+      if (stackableItem) {
+        items.combineItems(stackableItem, state.heldItem);
+      } else {
+        moveToInventory(state.heldItem, inventory.two.item);
+        updateItemsArray(state.heldItem, inventory.two.item.contents);
+      };
+            
     } else if (inVisibleArea) {
       const isBoundaryTile = items.checkTileCollision(mapArea.boundaryTiles, newFrameX, newFrameY);
       const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
