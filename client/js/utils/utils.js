@@ -147,26 +147,6 @@ export const drawCenterMessage = () => {
   ctx.restore();
 };
 
-export const getBagCapacity = (bag) => {
-  let total = 0;
-
-  // Base case: if it's not a valid container, return 0
-  if (!bag || !bag.contents) return total;
-
-  for (const item of bag.contents) {
-    if (item?.stats?.capacity) {
-      total += item.stats.capacity;
-    }
-
-    // Recurse if item has contents (i.e., it's a nested bag)
-    if (item?.contents?.length) {
-      total += getBagCapacity(item);
-    }
-  }
-
-  return total;
-};
-
 // animations
 export const currentAnimation = () => {
   const now = performance.now();
@@ -328,139 +308,114 @@ export const isStackableItemInInventory = (item1, item2, offsetX, offsetY, pixel
   );
 };
 
+export const ensureValidItemPlacement = (item) => {
+  if (!item.category || (item.category === 'inventory' && !findItemContainer(item, items.allItems))) {
+    console.warn(`Item "${item.name}" had no valid category or container. Moving to visible area.`);
+    moveToVisibleArea(item, player.worldPosition.x, player.worldPosition.y);
+  }
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
-  if (!item) return; // Ensure item exists before proceeding
+  if (!item) return;
 
-  const equippedItem = Object.values(player.equipped).find(equippedItem => equippedItem && equippedItem.id === item.id);
-  if (equippedItem) {
-    player.equipped[equippedItem.type] = null;
-  };
+  // 🧹 Remove from equipment or inventory
+  items.removeItemFromAnywhere(item);
 
-  if (item.category === 'equipped') {
-    player.equipped[item.type] = null; // Use null for consistency
-  } else if (item.category === 'inventory') {
-    const container = findItemContainer(item, items.allItems);
-    if (container && container.contents) { // Ensure container exists
-      const index = container.contents.findIndex(curr => curr.id === item.id);
-      if (index > -1) container.contents.splice(index, 1);
-    };
-  };
-  
+  // 🌍 Update world positioning
   item.category = 'world';
   item.worldPosition = { x: newFrameX, y: newFrameY };
   item.held = false;
+  item.hover = false;
 
+  // 📦 Try stacking with a topmost item
   const topmost = findTopMostStackableItemAtPosition(item);
-  
   if (topmost && topmost.id !== item.id) {
     items.combineItems(topmost, item);
     updateItemsArray(topmost);
   } else {
     items.updateItemDrawPosition(item);
-    updateItemsArray(item);  
-  };
-
+    updateItemsArray(item);
+  }
+  ensureValidItemPlacement(item);
   containerOutOfRange(movement.lastMouseX, movement.lastMouseY);
 };
-
-// Placeholder function to get total capacity of all inventory contents
-function getInventoryCapacity() {
-  // You'll implement actual logic here
-  return 0;
-}
 
 export const moveToEquip = (item, slot) => {
   if (!item || item.type !== slot) return;
 
-  const mainhandItem = player.equipped.mainhand;
-  const offhandItem = player.equipped.offhand;
-  const currentItem = player.equipped[slot];
-  const backpack = inventory.one.item;
-  const hasInventory = inventory.one.open && backpack;
-
-  // 🔁 Remove the item from inventory *before* checking capacity
-  if (item.category === 'inventory') {
-    const container = findItemContainer(item, items.allItems);
-    const index = container.contents.findIndex(curr => curr.id === item.id);
-    if (index > -1) {
-      container.contents.splice(index, 1);
-      console.log(`Removed ${item.name} from inventory to equip section.`);
-    }
-  }
-
-  const currentCapacity = currentItem?.stats?.capacity || 0;
-  const newCapacity = item.stats?.capacity || 0;
-  const offhandCapacity = (item.type === "mainhand" && item.stats?.twohander && offhandItem?.stats?.capacity) || 0;
-  const capAdjust = player.state.capacity - currentCapacity - offhandCapacity + newCapacity;
-
-  if (capAdjust > player.baseStats.capacity) {
-    addMessage("", `Insufficient capacity to equip ${item.name}`);
-    
-    // Put item back if we pulled it from inventory
-    if (item.category === 'inventory') {
-      backpack.contents.push(item);
-    }
+  if (player.equipped[slot]?.id === item.id) {
+    showCenterMessage("No room in inventory! Dropped items at your feet.");
     return;
   }
+  
+  const mainhandItem = player.equipped.mainhand;
+  const offhandItem = player.equipped.offhand;
+  const currentlyEquipped = player.equipped[slot];
+  const backpack = inventory.one.item;
+  const hasInventory = inventory.one.open && backpack;
+  const inventoryHasSpace = hasInventory && backpack.contents.length < backpack.stats.slots;
 
-  // 🔁 Helper: move equipped item to inventory or drop it
-  const tryMoveOut = (equipItem) => {
+  // 🧹 Remove item from wherever it's coming from
+  items.removeItemFromAnywhere(item);
+
+  // 🔁 Helper: try to store item in inventory, or drop it
+  const tryStoreOrDrop = (equipItem) => {
     if (!equipItem) return;
-    if (hasInventory && backpack.contents.length < backpack.stats.slots) {
+    if (inventoryHasSpace) {
       moveToInventory(equipItem, backpack);
     } else {
       moveToVisibleArea(equipItem, player.worldPosition.x, player.worldPosition.y);
     }
   };
 
-  // 🔁 If equipping a twohander, unequip offhand
+  // ⚔️ Twohander logic: unequip offhand if equipping twohander
   if (item.type === "mainhand" && item.stats?.twohander) {
     if (offhandItem) {
-      tryMoveOut(offhandItem);
+      tryStoreOrDrop(offhandItem);
       player.equipped.offhand = null;
     }
 
-    // Also remove previous twohander if different
     if (mainhandItem && mainhandItem.id !== item.id && mainhandItem.stats?.twohander) {
-      tryMoveOut(mainhandItem);
+      tryStoreOrDrop(mainhandItem);
     }
   }
 
-  // 🔁 If equipping offhand and mainhand is twohander, unequip mainhand
+  // 🛡 If equipping offhand and mainhand is twohander, unequip mainhand
   if (item.type === "offhand" && mainhandItem?.stats?.twohander) {
-    tryMoveOut(mainhandItem);
+    tryStoreOrDrop(mainhandItem);
     player.equipped.mainhand = null;
   }
 
-  // 🔁 Remove previously equipped item in this slot (if different)
-  if (currentItem && currentItem.id !== item.id) {
-    tryMoveOut(currentItem);
+  // 🔁 Handle standard slot swap (different item in same slot)
+  if (currentlyEquipped && currentlyEquipped.id !== item.id) {
+    tryStoreOrDrop(currentlyEquipped);
   }
 
-  // ✅ Equip the new item
+  // ✅ Equip item
   item.category = 'equipped';
   item.worldPosition = null;
   item.drawPosition = { x: equipSlots[slot].x, y: equipSlots[slot].y };
   item.held = false;
+  item.hover = false;
 
   player.equipped[slot] = item;
   updateItemsArray(item);
-
-  console.log(`Equipped ${item.name} in ${slot} slot.`);
+  ensureValidItemPlacement(item);
+  console.log(`Equipped ${item.name} in ${slot}`);
 };
 
-const unequipItem = (equippedItem, newItem) => {
-  if (!equippedItem) return;
+// const unequipItem = (equippedItem, newItem) => {
+//   if (!equippedItem) return;
 
-  equippedItem.category = 'world';
-  equippedItem.worldPosition = { ...newItem.worldPosition };
-  equippedItem.held = false;
+//   equippedItem.category = 'world';
+//   equippedItem.worldPosition = { ...newItem.worldPosition };
+//   equippedItem.held = false;
 
-  player.equipped[equippedItem.type] = null;
-  items.updateItemDrawPosition(equippedItem);
-  updateItemsArray(equippedItem);
-};
+//   player.equipped[equippedItem.type] = null;
+//   items.updateItemDrawPosition(equippedItem);
+//   updateItemsArray(equippedItem);
+// };
 
 export const containerOutOfRange = () => {
   const closeIfOutOfRange = (slot) => {
@@ -540,35 +495,34 @@ export const handleInventory = (item) => {
 export const moveToInventory = (item, container) => {
   if (!item || !container) return;
 
-  // Ensure inventory has space before checking for duplicates
-  if (container.contents.length >= container.stats.slots) return;
+  const inventoryFull = container.contents.length >= container.stats.slots;
+  if (inventoryFull) return;
 
-  // Prevent adding duplicate items
-  if (container.contents.includes(item)) return;
+  // Prevent re-adding an item already inside
+  if (container.contents.includes(item)) {
+    updateItemsArray(item, container.contents);
+    return;
+  }
 
-  // Remove item from equipped section if applicable
-  if (player.equipped[item.type] === item) {
-    player.equipped[item.type] = null; // Proper assignment
-    console.log(`Removed ${item.name} from equip section to inventory.`);
-  };
+  // 🧹 Remove the item from wherever it is currently
+  items.removeItemFromAnywhere(item);
 
-  // Update item properties
+  // ✅ Set item state and add to container
   item.category = 'inventory';
   item.worldPosition = null;
   item.held = false;
   item.hover = false;
 
-  // Add item to inventory container
   container.contents.push(item);
+  updateItemsArray(item);
+  ensureValidItemPlacement(item);
+  console.log(`Moved ${item.name} to inventory`);
 };
 
 export const drawInventory = () => {
   const { primary, secondary } = inventorySlots;
 
-  // Clear and draw inventory background
-  // ctx.clearRect(visibleArea.width, 256, 192, 448); // 384
-  // ctx.drawImage(ui.image, 192, 0, 192, 384, visibleArea.width, 256, 192, 384);
-  
+  // draw inventory background
   if (ui.state.activeToggle === 'inventory' && inventory.one.open) {
     ctx.clearRect(visibleArea.width, 256, 192, 448);
     ctx.fillStyle = "white";

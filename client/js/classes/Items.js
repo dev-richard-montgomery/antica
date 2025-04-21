@@ -3,7 +3,7 @@ import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
 import { ui } from './UserInterface.js';
 import { ctx, inventory, state } from '../CONST.js';
-import { showCustomPrompt } from '../utils/utils.js';
+import { findItemContainer, showCustomPrompt } from '../utils/utils.js';
 
 class Items {
   constructor() {
@@ -80,7 +80,7 @@ class Items {
       };  
     };
 
-    this.deleteItem(item2);
+    this.deleteItemFromAllItems(item2);
     return true;
   };
 
@@ -107,12 +107,36 @@ class Items {
     });  
   };
 
-  deleteItem(item) {
+  deleteItemFromAllItems(item) {
     const index = this.allItems.findIndex(curr => curr.id === item.id);
 
     if(index > -1) {
       this.allItems.splice(index, 1);
     };
+  };
+
+  removeItemFromAnywhere(item) {
+    if (!item) return;
+  
+    // 🔁 Unequip if it's currently equipped
+    const equippedSlot = Object.keys(player.equipped).find(slot => {
+      return player.equipped[slot]?.id === item.id;
+    });
+  
+    if (equippedSlot) {
+      player.equipped[equippedSlot] = null;
+      console.log(`Unequipped ${item.name} from ${equippedSlot}.`);
+    }
+  
+    // 🔁 Remove from any inventory container it's in
+    const container = findItemContainer(item, items.allItems);
+    if (container?.contents) {
+      const index = container.contents.findIndex(i => i.id === item.id);
+      if (index > -1) {
+        container.contents.splice(index, 1);
+        console.log(`Removed ${item.name} from container.`);
+      }
+    }
   };
 
   updateItemDrawPosition(item) {
