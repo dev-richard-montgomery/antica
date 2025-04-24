@@ -8,6 +8,10 @@ class Ui {
     this.state = {
       activeToggle: 'inventory',
       activeStance: 'passive', // Can be 'offense', 'defense', or 'passive'
+      inventoryArrows: {
+        primary: {},
+        secondary: {}
+      }
     };
   }
 

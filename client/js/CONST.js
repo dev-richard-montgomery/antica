@@ -102,39 +102,22 @@ const equipSlotsHighlightSpriteLocations = {
 // inventory variables
 const inventory = {
   expanded: false,
-  one: { item: null, open: false, scroll: 0 },
-  two: { item: null, open: false, scroll: 0 }
+  one: { item: null, open: false, start: null, size: null, scroll: 0 },
+  two: { item: null, open: false, start: null, size: null, scroll: 0 }
 };
 
-const inventorySlots = {
-  primary: {
-    header: { x: visibleArea.width, y: 192 + 64, width: 192, height: 32 },
-    slots: { x: visibleArea.width, y: 192 + 64 + 32, width: 192, height: 160, expandedHeight: 352 }
+const arrows = {
+  up: {
+    active: {},
+    inactive: {}
   },
-  secondary: {
-    header: { x: visibleArea.width, y: 192 + 64 + 32 + 160, width: 192, height: 32 },
-    slots: { x: visibleArea.width, y: 192 + 64 + 32 + 160 + 32, width: 192, height: 160 }
+  down: {
+    active: {},
+    inactive: {}
   }
-};
+}
 
 // toggle variables
-const inventoryArrows = {
-  sprites: {
-    downActive: { x: 256, y: 640 + 16 }, 
-    downInactive: { x: 320, y: 640 + 16 }, 
-    upActive: { x: 128, y: 640 + 16 }, 
-    upInactive: { x: 192, y: 640 + 16 },
-  },
-  one: { 
-    down: { x: visibleArea.width + 128, y: 192 + 64 },
-    up: { x: visibleArea.width, y: 192 + 64 }
-  },
-  two: { 
-    down: { x: visibleArea.width + 128, y: 192 + 64 + 32 + 160 },
-    up: { x: visibleArea.width, y: 192 + 64 + 32 + 160 }
-  }
-};
-
 const uiSections = {
   top: {
     location: { x: visibleArea.width, y: 0 },
@@ -217,6 +200,7 @@ const npcData = {
 export { 
   API_URL_ITEMS, 
   API_URL_PLAYER, 
+  arrows,
   canvas,
   centerMessage, 
   chat, 
@@ -225,7 +209,6 @@ export {
   equipSlotsHighlightSpriteLocations,
   game, 
   inventory, 
-  inventorySlots,
   movement,
   npcData,
   selected,

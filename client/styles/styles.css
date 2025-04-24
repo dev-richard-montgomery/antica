@@ -269,6 +269,14 @@ p, h1, h2, h3, h4, h5, h6 {
   opacity: 1;
 }
 
+.left-arrow-active:hover {
+  background: rgba(13, 85, 179, 0.2);
+  border-color: #ddd;
+  transform: scale(1.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
 /* Inactive Left Arrow */
 .left-arrow-inactive {
   width: 40px;
@@ -287,6 +295,14 @@ p, h1, h2, h3, h4, h5, h6 {
   border-radius: 2px;
   cursor: pointer;
   opacity: 1;
+}
+
+.right-arrow-active:hover {
+  background: rgba(13, 85, 179, 0.2);
+  border-color: #ddd;
+  transform: scale(1.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 /* Inactive Right Arrow */

@@ -33,7 +33,7 @@
       "type": "back",
       "contents": [],
       "stats": {
-        "slots": 40,
+        "slots": 32,
         "capacity": 0
       },
       "rarity": "uncommon",
@@ -783,6 +783,42 @@
       "id": 18,
       "category": "world",
       "worldPosition": { "x": 155, "y": 192 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "canvas bag",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 8,
+        "capacity": 0.5
+      },
+      "rarity": "common",
+      "description": "At least it isn't plastic.",
+      "buy": 3,
+      "sell": 1,
+      "spritePosition": { "x": 0, "y": 0 },
+      "id": 19,
+      "category": "world",
+      "worldPosition": { "x": 156, "y": 188 },
+      "drawPosition": { "x": null, "y": null }
+    },
+    {
+      "name": "backpack",
+      "type": "back",
+      "contents": [],
+      "stats": {
+        "slots": 20,
+        "capacity": 1
+      },
+      "rarity": "common",
+      "description": "Ok Dora. Time for some exploring.",
+      "buy": 50,
+      "sell": 10,
+      "spritePosition": { "x": 64, "y": 0 },
+      "id": 20,
+      "category": "world",
+      "worldPosition": { "x": 157, "y": 188 },
       "drawPosition": { "x": null, "y": null }
     }
   ]
