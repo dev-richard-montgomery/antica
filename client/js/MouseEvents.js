@@ -7,7 +7,6 @@ import { splash } from './classes/Animations.js';
 import { 
   attemptFishing, 
   clearHoverStates,
-  drawInventory,
   handleInventory,
   isCursorOverItem,
   isStackableItemInInventory,
@@ -97,8 +96,9 @@ export const handleMouseDown = (e) => {
 
 export const handleMouseUp = (e) => {
   if (!state.heldItem) return;
-
+  
   const { offsetX, offsetY } = e;
+
   const pixels = 64;
   const playerLocation = player.worldPosition;
 
@@ -129,12 +129,13 @@ export const handleMouseUp = (e) => {
   const isBoundaryTile = items.checkTileCollision(mapArea.boundaryTiles, newFrameX, newFrameY);
   const isWaterTile = items.checkTileCollision(mapArea.waterTiles, newFrameX, newFrameY);
 
-  // 🌟 Handle equip
+  // Handle equip
   if (ui.state.activeToggle === 'inventory' && inEquipSlot) {
     moveToEquip(state.heldItem, inEquipSlot);
 
-  // 🎒 Handle first inventory slot
-  } else if ((inventory.one.open && !inventory.two.open) || (inFirstInventory && inventory.one.open)) {
+  // Handle first inventory slot
+  
+  } else if (inFirstInventory && inventory.one.open) {
     const stackableItem = items.allItems.find(item =>
       item !== state.heldItem &&
       isStackableItemInInventory(item, state.heldItem, offsetX, offsetY)
@@ -146,7 +147,7 @@ export const handleMouseUp = (e) => {
       moveToInventory(state.heldItem, inventory.one.item);
     }
 
-  // 🎒 Handle second inventory slot
+  // Handle second inventory slot
   } else if (inSecondInventory && inventory.two.open) {
     const stackableItem = items.allItems.find(item =>
       item !== state.heldItem &&
@@ -159,7 +160,7 @@ export const handleMouseUp = (e) => {
       moveToInventory(state.heldItem, inventory.two.item);
     }
 
-  // 🌊 Handle dropping in the world
+  // Handle dropping in the world
   } else if (inVisibleArea) {
     if (isWaterTile) {
       console.log(`Dropped ${state.heldItem.name} in water.`);
@@ -177,49 +178,49 @@ export const handleMouseUp = (e) => {
   canvas.style.cursor = "pointer";
 };
 
-export const handleInventoryArrowClick = (offsetX, offsetY) => {
-  const arrows = ui.state.inventoryArrows;
+// export const handleInventoryArrowClick = (offsetX, offsetY) => {
+//   const arrows = ui.state.inventoryArrows;
 
-  const clicked = (arrow) =>
-    offsetX >= arrow.x &&
-    offsetX < arrow.x + arrow.width &&
-    offsetY >= arrow.y &&
-    offsetY < arrow.y + arrow.height;
+//   const clicked = (arrow) =>
+//     offsetX >= arrow.x &&
+//     offsetX < arrow.x + arrow.width &&
+//     offsetY >= arrow.y &&
+//     offsetY < arrow.y + arrow.height;
 
-  // Primary inventory
-  if (arrows.primary.up && clicked(arrows.primary.up)) {
-    inventory.one.scroll = Math.max(0, inventory.one.scroll - 1);
-    drawInventory();
-    return true;
-  }
-  if (arrows.primary.down && clicked(arrows.primary.down)) {
-    const maxScroll = Math.ceil(inventory.one.item.stats.slots / 4) - (inventory.two.open ? 5 : 11);
-    inventory.one.scroll = Math.min(maxScroll, inventory.one.scroll + 1);
-    drawInventory();
-    return true;
-  }
+//   // Primary inventory
+//   if (arrows.primary.up && clicked(arrows.primary.up)) {
+//     inventory.one.scroll = Math.max(0, inventory.one.scroll - 1);
+//     drawInventory();
+//     return true;
+//   }
+//   if (arrows.primary.down && clicked(arrows.primary.down)) {
+//     const maxScroll = Math.ceil(inventory.one.item.stats.slots / 4) - (inventory.two.open ? 5 : 11);
+//     inventory.one.scroll = Math.min(maxScroll, inventory.one.scroll + 1);
+//     drawInventory();
+//     return true;
+//   }
 
-  // Secondary inventory
-  if (arrows.secondary.up && clicked(arrows.secondary.up)) {
-    inventory.two.scroll = Math.max(0, inventory.two.scroll - 1);
-    drawInventory();
-    return true;
-  }
-  if (arrows.secondary.down && clicked(arrows.secondary.down)) {
-    const maxScroll = Math.ceil(inventory.two.item.stats.slots / 4) - 5;
-    inventory.two.scroll = Math.min(maxScroll, inventory.two.scroll + 1);
-    drawInventory();
-    return true;
-  }
+//   // Secondary inventory
+//   if (arrows.secondary.up && clicked(arrows.secondary.up)) {
+//     inventory.two.scroll = Math.max(0, inventory.two.scroll - 1);
+//     drawInventory();
+//     return true;
+//   }
+//   if (arrows.secondary.down && clicked(arrows.secondary.down)) {
+//     const maxScroll = Math.ceil(inventory.two.item.stats.slots / 4) - 5;
+//     inventory.two.scroll = Math.min(maxScroll, inventory.two.scroll + 1);
+//     drawInventory();
+//     return true;
+//   }
 
-  return false;
-};
+//   return false;
+// };
 
 export const handleRightClick = (e) => {
   e.preventDefault(); // Prevents the default right-click context menu
 
   const { offsetX, offsetY } = e;
-  
+
   // top item
   let item = null;
   for (let i = items.allItems.length - 1; i >= 0; i--) {

@@ -492,7 +492,7 @@
       "spritePosition": { "x": 0, "y": 0 },
       "id": 1,
       "category": "world",
-      "worldPosition": { "x": 152, "y": 188 },
+      "worldPosition": { "x": 156, "y": 189 },
       "drawPosition": { "x": null, "y": null }
     },
     {
@@ -510,7 +510,7 @@
       "spritePosition": { "x": 64, "y": 0 },
       "id": 2,
       "category": "world",
-      "worldPosition": { "x": 153, "y": 188 },
+      "worldPosition": { "x": 157, "y": 189 },
       "drawPosition": { "x": null, "y": null }
     },
     {

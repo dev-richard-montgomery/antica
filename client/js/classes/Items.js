@@ -118,7 +118,7 @@ class Items {
   removeItemFromAnywhere(item) {
     if (!item) return;
   
-    // 🔁 Unequip if it's currently equipped
+    // Unequip if it's currently equipped
     const equippedSlot = Object.keys(player.equipped).find(slot => {
       return player.equipped[slot]?.id === item.id;
     });
@@ -128,7 +128,7 @@ class Items {
       console.log(`Unequipped ${item.name} from ${equippedSlot}.`);
     }
   
-    // 🔁 Remove from any inventory container it's in
+    // Remove from any inventory container it's in
     const container = findItemContainer(item, items.allItems);
     if (container?.contents) {
       const index = container.contents.findIndex(i => i.id === item.id);

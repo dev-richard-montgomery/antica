@@ -101,21 +101,20 @@ const equipSlotsHighlightSpriteLocations = {
 
 // inventory variables
 const inventory = {
-  expanded: false,
-  one: { item: null, open: false, start: null, size: null, scroll: 0 },
-  two: { item: null, open: false, start: null, size: null, scroll: 0 }
+  one: { item: null, open: false, start: null, size: null, scroll: 0, stack: [], backBtn: {x: null, y: null, size: 32} },
+  two: { item: null, open: false, start: null, size: null, scroll: 0, stack: [], backBtn: {x: null, y: null, size: 32} }
 };
 
 const arrows = {
-  up: {
-    active: {},
-    inactive: {}
-  },
   down: {
-    active: {},
-    inactive: {}
+    inactive: { x: 0, y: 576 },
+    active: { x: 64, y: 576 }
+  },
+  up: {
+    inactive: { x: 0, y: 608},
+    active: { x: 64, y: 608 }
   }
-}
+};
 
 // toggle variables
 const uiSections = {
