@@ -1,4 +1,4 @@
-import { canvas, centerMessage, ctx, equipSlots, inventory, inventorySlots, equipSlotsHighlightSpriteLocations, movement, state, visibleArea } from "../CONST.js";
+import { arrows, canvas, centerMessage, ctx, equipSlots, inventory, equipSlotsHighlightSpriteLocations, movement, state, visibleArea } from "../CONST.js";
 import { status } from '../Status.js';
 import { ui } from '../classes/UserInterface.js';
 import { mapArea } from '../classes/MapArea.js';
@@ -69,24 +69,39 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
   return hoverDetected;
 };
 
+// messages
 export const showCustomPrompt = (question, callback) => {
   const promptBox = document.getElementById("customPrompt");
   const promptText = document.getElementById("customPromptText");
   const input = document.getElementById("customPromptInput");
   const confirm = document.getElementById("customPromptConfirm");
 
+  state.prompt = true;
   promptText.textContent = question;
   input.value = "";
   promptBox.style.display = "block";
+  setTimeout(() => input.focus(), 0);
 
-  confirm.onclick = () => {
+  const handleConfirm = () => {
     const value = parseInt(input.value, 10);
     promptBox.style.display = "none";
+    input.removeEventListener("keydown", onEnter);
+    state.prompt = false;
     callback(value);
   };
+
+  const onEnter = (e) => {
+    if (state.prompt && e.key === "Enter") {
+      e.preventDefault();      // Prevent form submissions or default Enter behavior
+      e.stopPropagation();     // Stop event from bubbling to chatbox or other handlers
+      handleConfirm();
+    }
+  };
+
+  confirm.onclick = handleConfirm;
+  input.addEventListener("keydown", onEnter);
 };
 
-// displays eventful messages to screen
 export const showCenterMessage = (message, duration = 2000) => {
   centerMessage.text = message;
   centerMessage.duration = duration;
@@ -182,8 +197,8 @@ export const isInEquipArea = (item) => {
 };
 
 export const isInInventoryArea = (item) => {
-  const slotSize = 32; // Assuming each inventory slot is 32x32 pixels
-  const slotsPerRow = 6;
+  const slotSize = 48; // Assuming each inventory slot is 32x32 pixels
+  const slotsPerRow = 4;
 
   // First inventory area
   const firstStartX = 832;
@@ -276,100 +291,164 @@ export const findItemContainer = (item, itemList) => {
   return null; // If not found in any array
 };
 
+export const isStackableItemInInventory = (item1, item2, offsetX, offsetY, pixel = 32) => {
+  if (
+    !item1 || !item2 ||
+    item1.name !== item2.name ||
+    item1 === item2 ||
+    !item1?.stats?.size || !item2?.stats?.size
+  ) return false;
+
+  const { x, y } = item1.drawPosition;
+
+  return (
+    offsetX >= x &&
+    offsetX < x + pixel &&
+    offsetY >= y &&
+    offsetY < y + pixel
+  );
+};
+
+export const ensureValidItemPlacement = (item) => {
+  if (!item.category || (item.category === 'inventory' && !findItemContainer(item, items.allItems))) {
+    console.warn(`Item "${item.name}" had no valid category or container. Moving to visible area.`);
+    moveToVisibleArea(item, player.worldPosition.x, player.worldPosition.y);
+  }
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
-  if (!item) return; // Ensure item exists before proceeding
+  if (!item) return;
 
-  const equippedItem = Object.values(player.equipped).find(equippedItem => equippedItem && equippedItem.id === item.id);
-  if (equippedItem) {
-    player.equipped[equippedItem.type] = null;
-  };
+  // 🧹 Remove from equipment or inventory
+  items.removeItemFromAnywhere(item);
 
-  if (item.category === 'equipped') {
-    player.equipped[item.type] = null; // Use null for consistency
-  } else if (item.category === 'inventory') {
-    const container = findItemContainer(item, items.allItems);
-    if (container && container.contents) { // Ensure container exists
-      const index = container.contents.findIndex(curr => curr.id === item.id);
-      if (index > -1) container.contents.splice(index, 1);
-    };
-  };
-  
+  // 🌍 Update world positioning
   item.category = 'world';
   item.worldPosition = { x: newFrameX, y: newFrameY };
   item.held = false;
+  item.hover = false;
 
+  // 📦 Try stacking with a topmost item
   const topmost = findTopMostStackableItemAtPosition(item);
-  
   if (topmost && topmost.id !== item.id) {
     items.combineItems(topmost, item);
     updateItemsArray(topmost);
   } else {
     items.updateItemDrawPosition(item);
-    updateItemsArray(item);  
-  };
-
+    updateItemsArray(item);
+  }
+  ensureValidItemPlacement(item);
   containerOutOfRange(movement.lastMouseX, movement.lastMouseY);
 };
 
 export const moveToEquip = (item, slot) => {
-  if (!item || item.type !== slot) return; // Ensure valid item type
+  if (!item || item.type !== slot) return;
 
-  // Unequip offhand if equipping a two-handed weapon
-  if (item?.stats?.twohander && player.equipped.offhand) {
-    if (inventory.one.open) {
-      moveToInventory(player.equipped.offand, inventory.one.item);
+  if (player.equipped[slot]?.id === item.id) {
+    showCenterMessage("No room in inventory! Dropped items at your feet.");
+    return;
+  }
+  
+  const mainhandItem = player.equipped.mainhand;
+  const offhandItem = player.equipped.offhand;
+  const currentlyEquipped = player.equipped[slot];
+  const backpack = inventory.one.item;
+  const hasInventory = inventory.one.open && backpack;
+  const inventoryHasSpace = hasInventory && backpack.contents.length < backpack.stats.slots;
+
+  // 🧹 Remove item from wherever it's coming from
+  items.removeItemFromAnywhere(item);
+
+  // 🔁 Helper: try to store item in inventory, or drop it
+  const tryStoreOrDrop = (equipItem) => {
+    if (!equipItem) return;
+    if (inventoryHasSpace) {
+      moveToInventory(equipItem, backpack);
     } else {
-      unequipItem(player.equipped.offhand, item);
-    };
+      moveToVisibleArea(equipItem, player.worldPosition.x, player.worldPosition.y);
+    }
   };
 
-  // Unequip mainhand if equipping an offhand while mainhand is two-handed
-  if (item.type === 'offhand' && player.equipped.mainhand?.stats?.twohander) {
-    if (inventory.one.open) {
-      moveToInventory(player.equipped.mainhand, inventory.one.item);
-    } else {
-      unequipItem(player.equipped.mainhand, item);
-    };
-  };
+  // ⚔️ Twohander logic: unequip offhand if equipping twohander
+  if (item.type === "mainhand" && item.stats?.twohander) {
+    if (offhandItem) {
+      tryStoreOrDrop(offhandItem);
+      player.equipped.offhand = null;
+    }
 
-  // Unequip and swap existing item in the slot
-  if (player.equipped[slot] && player.equipped[slot].id !== item.id) {
-    if (inventory.one.open) {
-      moveToInventory(player.equipped[slot], inventory.one.item);
-    } else {
-      unequipItem(player.equipped[slot], item);
-    };
-  };
+    if (mainhandItem && mainhandItem.id !== item.id && mainhandItem.stats?.twohander) {
+      tryStoreOrDrop(mainhandItem);
+    }
+  }
 
-  if (item.category === 'inventory') {
-    const container = findItemContainer(item, items.allItems);
-    const index = container.contents.findIndex(curr => curr.id === item.id);
-    if (index > -1) container.contents.splice(index, 1);
-    console.log(`removed ${item.name} from inventory to equip section.`)
-  };
+  // 🛡 If equipping offhand and mainhand is twohander, unequip mainhand
+  if (item.type === "offhand" && mainhandItem?.stats?.twohander) {
+    tryStoreOrDrop(mainhandItem);
+    player.equipped.mainhand = null;
+  }
 
-  // Equip new item
+  // 🔁 Handle standard slot swap (different item in same slot)
+  if (currentlyEquipped && currentlyEquipped.id !== item.id) {
+    tryStoreOrDrop(currentlyEquipped);
+  }
+
+  // ✅ Equip item
   item.category = 'equipped';
   item.worldPosition = null;
   item.drawPosition = { x: equipSlots[slot].x, y: equipSlots[slot].y };
   item.held = false;
+  item.hover = false;
 
-  console.log(`Equipped ${item.name} in ${slot} slot.`);
   player.equipped[slot] = item;
   updateItemsArray(item);
+  ensureValidItemPlacement(item);
+  console.log(`Equipped ${item.name} in ${slot}`);
 };
 
-const unequipItem = (equippedItem, newItem) => {
-  if (!equippedItem) return;
+export const moveToInventory = (item, container) => {
+  if (!item || !container) return;
 
-  equippedItem.category = 'world';
-  equippedItem.worldPosition = { ...newItem.worldPosition };
-  equippedItem.held = false;
+  const inventoryFull = container.contents.length >= container.stats.slots;
+  if (inventoryFull) return;
 
-  player.equipped[equippedItem.type] = null;
-  items.updateItemDrawPosition(equippedItem);
-  updateItemsArray(equippedItem);
+  // Prevent re-adding an item already inside
+  if (container.contents.includes(item)) {
+    updateItemsArray(item, container.contents);
+    return;
+  }
+
+  // 🧹 Remove the item from wherever it is currently
+  items.removeItemFromAnywhere(item);
+
+  // ✅ Set item state and add to container
+  item.category = 'inventory';
+  item.worldPosition = null;
+  item.held = false;
+  item.hover = false;
+
+  container.contents.push(item);
+  updateItemsArray(item);
+  ensureValidItemPlacement(item);
+  console.log(`Moved ${item.name} to inventory`);
+};
+
+const equipSlotHighlight = () => {
+  if (!state.heldItem?.type) return;
+
+  const { type } = state.heldItem;
+  const isSlotEmpty = !player.equipped[type];
+
+  if (isSlotEmpty) {
+    const highlightPos = equipSlotsHighlightSpriteLocations[type];
+    const equipPos = equipSlots[type];
+
+    ctx.drawImage(
+      ui.image,
+      highlightPos.x, highlightPos.y, ui.btnSize, ui.btnSize,
+      equipPos.x, equipPos.y, ui.btnSize, ui.btnSize
+    );
+  };
 };
 
 export const containerOutOfRange = () => {
@@ -399,24 +478,6 @@ export const containerOutOfRange = () => {
   };
 };
 
-const equipSlotHighlight = () => {
-  if (!state.heldItem?.type) return;
-
-  const { type } = state.heldItem;
-  const isSlotEmpty = !player.equipped[type];
-
-  if (isSlotEmpty) {
-    const highlightPos = equipSlotsHighlightSpriteLocations[type];
-    const equipPos = equipSlots[type];
-
-    ctx.drawImage(
-      ui.image,
-      highlightPos.x, highlightPos.y, ui.btnSize, ui.btnSize,
-      equipPos.x, equipPos.y, ui.btnSize, ui.btnSize
-    );
-  };
-};
-
 export const handleInventory = (item) => {
   if (isInRangeOfPlayer(item) || player.equipped.back === item) {
     if (!inventory.one.item) { // opens in first inventory
@@ -431,7 +492,7 @@ export const handleInventory = (item) => {
       inventory.one.item = null;
       inventory.one.open = false;
       inventory.expanded = false;
-  
+      
       if (inventory.two.item) { // because first inventory closed, if second inventory is open, set the second to the first, and close the second
         inventory.one.item = inventory.two.item;
         inventory.one.open = inventory.two.open;
@@ -447,94 +508,76 @@ export const handleInventory = (item) => {
   };
 };
 
-export const moveToInventory = (item, container) => {
-  if (!item || !container) return;
-
-  // Ensure inventory has space before checking for duplicates
-  if (container.contents.length >= container.stats.slots) return;
-
-  // Prevent adding duplicate items
-  if (container.contents.includes(item)) return;
-
-  // Remove item from equipped section if applicable
-  if (player.equipped[item.type] === item) {
-    player.equipped[item.type] = null; // Proper assignment
-    console.log(`Removed ${item.name} from equip section to inventory.`);
-  };
-
-  // Update item properties
-  item.category = 'inventory';
-  item.worldPosition = null;
-  item.held = false;
-  item.hover = false;
-
-  // Add item to inventory container
-  container.contents.push(item);
-};
-
 export const drawInventory = () => {
-  const { primary, secondary } = inventorySlots;
-
-  // Clear and draw inventory background
-  // ctx.clearRect(visibleArea.width, 256, 192, 448); // 384
-  // ctx.drawImage(ui.image, 192, 0, 192, 384, visibleArea.width, 256, 192, 384);
+  const slotSize = 48;
+  const itemsPerRow = 4;
+  const firstInventorySize = inventory.one.item ? slotSize * Math.ceil(inventory.one.item.stats.slots / itemsPerRow) : 0; 
+  const secondInventorySize = inventory.two.item ? slotSize * Math.ceil(inventory.two.item.stats.slots / itemsPerRow) : 0; 
+  inventory.one.start = 192 + 64;
+  inventory.one.size = !inventory.two.open ? firstInventorySize : secondInventorySize === 96 ? firstInventorySize : firstInventorySize === 96 ? firstInventorySize : 192;
+  inventory.two.start = 192 + 64 + 32 + inventory.one.size;
+  inventory.two.size = firstInventorySize === 96 && secondInventorySize <= 288 ? secondInventorySize : 192;
   
-  if (ui.state.activeToggle === 'inventory' && inventory.one.open) {
-    ctx.clearRect(visibleArea.width, 256, 192, 448);
-    ctx.fillStyle = "white";
-    ctx.fillRect(visibleArea.width, 256, 192, 448);
+  const drawHeader = (inventory, scroll) => {
+    const max = Math.ceil(inventory.item.stats.slots / 4);
+    const left = scroll === 0 ? arrows.up.inactive : arrows.up.active; // up --- item --- down
+    const right = scroll === max ? arrows.down.inactive : arrows.down.active;
+    // only draw arrows if scrolling is necessary... then figure out the logic. If the visible contents of the inventory is 192px by 192px, you should be able to see 16 items total.
+    // then a backpack with 20 items should only let you scroll up or down once. If a backpack has 40, you should be able to scroll 6 times. I'll just hardcode it.
+
+    // draw left arrow
+    ctx.drawImage(items.image, left.x, left.y, 64, 32, visibleArea.width + 16, inventory.start, 64, 32);
+
+    // draws inventory container in middle
+    ctx.drawImage(items.image, inventory.item.spritePosition.x, inventory.item.spritePosition.y, 64, 64, visibleArea.width + 64 + 16, inventory.start, 32, 32);
+
+    // draw right arrow
+    ctx.drawImage(items.image, right.x, right.y, 64, 32, visibleArea.width + 64 + 64 + 16, inventory.start, 64, 32);
   };
 
-  const drawInventorySection = (container, section, scroll, expanded) => {
-    if (!container) return;
+  const drawSection = (inventory, scroll) => {  
+    let startIndex = scroll * itemsPerRow;
+    const maxVisibleSlots = (inventory.size / 48) * itemsPerRow;
 
-    const numOfRows = expanded && section === 1 ? 11 : 5;
-    const rowLength = 4;
-    const size = 48;
-    let position = scroll * rowLength;
+    for (let i = 0; i < maxVisibleSlots; i++) {
+      const index = startIndex + i;
+      if (index >= inventory.item.stats.slots) break;
 
-    const header = section === 1 ? primary.header : secondary.header;
-    const slots = section === 1 ? primary.slots : secondary.slots;
-
-    const drawInventorySlot = (x,y) => {
+      const col = i % itemsPerRow;
+      const row = Math.floor(i / itemsPerRow);
+      const x = visibleArea.width + col * slotSize;
+      const y = inventory.start + 32 + row * slotSize;
+      
+      // Slot background
       ctx.fillStyle = "lightgray";
-      ctx.fillRect(x, y, size, size);
-  
+      ctx.fillRect(x, y, slotSize, slotSize);
       ctx.strokeStyle = "white";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
-    };
-
-    // Draw inventory header
-    ctx.drawImage(items.image, container.spritePosition.x, container.spritePosition.y, 64, 64, header.x + 64 + 16, header.y, 32, 32);
-
-    // Draw inventory slots and contents
-    for (let row = 0; row < numOfRows * rowLength; row++) {
-      const x = slots.x + (row % rowLength) * size;
-      const y = slots.y + Math.floor(row / rowLength) * size;
-
-      if (position < container.stats.slots) {
-        drawInventorySlot(x, y);
-        const item = container.contents[position];
-
-        if (typeof item === 'object') {
-          item.drawPosition = { x: x, y: y };
-          updateItemsArray(item);
-          ctx.drawImage(items.image, item.spritePosition.x, item.spritePosition.y, 64, 64, x, y, size, size);
-        };
+      ctx.strokeRect(x + 0.5, y + 0.5, slotSize - 1, slotSize - 1);
+      
+      const item = inventory.item.contents[index];
+      if (item) {
+        item.drawPosition = { x, y };
+        updateItemsArray(item);
+        ctx.drawImage(
+          items.image,
+          item.spritePosition.x, item.spritePosition.y,
+          64, 64,
+          x, y, slotSize, slotSize
+        );
       };
-
-      position++;
     };
   };
 
+  // draw inventories
   if (ui.state.activeToggle === 'inventory') {
-    if (inventory.one.open && !inventory.two.open) {
-      drawInventorySection(inventory.one.item, 1, inventory.one.scroll, true);
-    } else if (inventory.two.open) {     
-      drawInventorySection(inventory.one.item, 1, inventory.one.scroll, false);
-      drawInventorySection(inventory.two.item, 2, inventory.two.scroll, false);
-    };
+    if (inventory.one.open) {
+      drawHeader(inventory.one, inventory.one.scroll);
+      drawSection(inventory.one, inventory.one.scroll);
+    }
+    if (inventory.two.open) {
+      drawHeader(inventory.two, inventory.two.scroll);
+      drawSection(inventory.two, inventory.two.scroll);
+    }
   };
 };
 

@@ -1,7 +1,7 @@
 import { canvas, ctx, game, movement } from './CONST.js';
 import { login } from './components/login.js';
 import { ui } from './classes/UserInterface.js';
-import { handleMouseMove, handleMouseDown, handleMouseUp, handleRightClick } from './MouseEvents.js';
+import { handleMouseMove, handleMouseDown, handleMouseUp, handleInventoryArrowClick, handleRightClick } from './MouseEvents.js';
 import { drawAll, drawCenterMessage } from './utils/utils.js';
 import { getNpcList } from './classes/NPCManager.js';
 import { conversate } from './components/chatbox.js';
@@ -21,6 +21,13 @@ addEventListener("DOMContentLoaded", e => {
   canvas.addEventListener("mousedown", e => {
     handleMouseDown(e);
     ui.handleUiStates(e);
+
+    const { offsetX, offsetY } = e;
+
+    if (ui.state.activeToggle === 'inventory') {
+      const clickedArrow = handleInventoryArrowClick(offsetX, offsetY);
+      if (clickedArrow) return; // Stop further click handling if arrow was clicked
+    }
   });
 
   canvas.addEventListener("mousemove", e => {
@@ -71,3 +78,19 @@ gameLoop();
   // addEventListener('beforeunload', async (e) => {
   //   await updateAndPostGameData();
   // });
+
+
+
+  
+  /*
+  
+  KNOWN CURRENT BUGS
+
+  equipping a two hander while mainhand and offhand equipped, and inventory open.
+
+  proper management of modifiers, particularly with stacks.
+
+  throwing items through walls... talking to npcs through walls.
+
+  
+  */

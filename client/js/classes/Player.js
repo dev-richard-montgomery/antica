@@ -17,7 +17,6 @@ class Player {
     this.currentDirection = 0;
     this.worldPosition = { x: 155, y: 189 };
     this.cooldown = false;
-    this.currentModifiers = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
     this.baseStats = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
     this.state = { health: 0, magic: 0, capacity: 0, offense: 0, defense: 0, speed: 0 };
     this.speed = 0.5;
@@ -164,48 +163,106 @@ class Player {
       addMessage("Magic","Insufficient.");
     };
   };
+
+  getBagCapacity = (backpack = this.equipped.back) => {
+    let total = 0;
+  
+    // Base case: if it's not a valid container, return 0
+    if (!backpack || !backpack.contents) return total;
+  
+    for (const item of backpack.contents) {
+      if (item?.stats?.capacity) {
+        total += item.stats.capacity;
+      }
+  
+      // Recurse if item has contents (i.e., it's a nested bag)
+      if (item?.contents?.length) {
+        total += getBagCapacity(item);
+      }
+    }
+  
+    return total;
+  };
+  
+  updateStats = (oldItem = null, newItem = null) => {
+    // removes stats from equipped
+    if (oldItem) {
+      for (const stat in oldItem.stats) {
+        if (this.state.hasOwnProperty(stat)) {
+          this.state[stat] -= oldItem.stats[stat];
+        };
+      };
+    };
+  
+    // add stats when equipped
+    if (newItem) {
+      for (const stat in newItem.stats) {
+        if (this.state.hasOwnProperty(stat)) {
+          if (stat === 'capacity' && this.state.capacity + newItem.stats.capacity > this.baseStats.capacity) {
+            addMessage("Capacity","Insufficient.");
+            return;
+          } else {
+            this.state[stat] += newItem.stats[stat]
+          };
+        };
+      };
+    };
+  };
   
   // stat management
-  manageModifiers() {
-    // Initialize modifiers
-    const updatedModifiers = {
-      health: 0,
-      magic: 0,
-      capacity: 0,
-      offense: 0,
-      defense: 0,
-      speed: 0
-    };
-  
-    // Loop through equipped items and sum up their modifiers
-    for (const slot in this.equipped) {
-      const item = this.equipped[slot];
-      if (!item || !item.stats) continue;
-  
-      for (const stat in item.stats) {
-        if (updatedModifiers.hasOwnProperty(stat)) {
-          updatedModifiers[stat] += item.stats[stat];
-        };
-      };
-    };
+  // manageModifiers() {
+  //   // first need to check the sum weight of inventory
+  //   const capacity = getBagCapacity(this.equipped.back);
+  //   if (this.state.capacity + capacity > this.baseStats.capacity) {
+  //     addMessage("Capacity", "Insuffificent.")
+  //     return;
+  //   } else {
+  //     this.state.capacity += capacity;
+  //   };
 
-    // Apply difference to player.state
-    for (const stat in updatedModifiers) {
-      const prev = this.currentModifiers[stat] || 0;
-      const next = updatedModifiers[stat] || 0;
-      const delta = next - prev;
+  //   // Initialize modifiers
+  //   const updatedModifiers = {
+  //     health: 0,
+  //     magic: 0,
+  //     capacity: 0,
+  //     offense: 0,
+  //     defense: 0,
+  //     speed: 0
+  //   };
+  
+  //   // first remove current modifiers from state
+  //   for (const stat in this.state) {
+  //     this.state[stat] -= this.currentModifiers[stat];
+  //   };
 
-      if (this.state.hasOwnProperty(stat)) {
-        if (stat === "capacity" && this.state[stat] + delta > this.baseStats[stat]) {
-          addMessage("Capacity", "Insufficient.");
-        } else {
-          this.state[stat] += delta;
-        };
-      };
-    };
-    
-    this.currentModifiers = updatedModifiers;
-  };
+  //   // Loop through equipped items and sum up their modifiers
+  //   for (const slot in this.equipped) {
+  //     const item = this.equipped[slot];
+  //     if (!item || !item.stats) continue;
+  
+  //     for (const stat in item.stats) {
+  //       if (updatedModifiers.hasOwnProperty(stat)) {
+  //         updatedModifiers[stat] += item.stats[stat];
+  //       };
+  //     };
+  //   };
+
+  //   if (this.state.capacity + updatedModifiers.capacity > this.baseStats.capacity) {
+  //     // return to previous stats and respond
+  //     for (const stat in this.state) {
+  //       this.state[stat] += this.currentModifiers[stat];
+  //     };
+  //     addMessage("Capacity","Insufficient.");
+  //     return;
+  //   };
+
+  //   // apply new stats to state
+  //   for (const stat in updatedModifiers) {
+  //     this.state[stat] += updatedModifiers;
+  //   };
+
+  //   this.currentModifiers = updatedModifiers;
+  // };
 };
 
 export const player = new Player();
