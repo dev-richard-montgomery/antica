@@ -476,30 +476,43 @@ const equipSlotHighlight = () => {
 };
 
 export const containerOutOfRange = () => {
-  const closeIfOutOfRange = (slot) => {
-    if (inventory[slot].open && 
-      !isInEquipArea(inventory[slot].item) && 
-      !isInRangeOfPlayer(inventory[slot].item)) {
-      inventory[slot].open = false;
-      inventory[slot].item = null;
+  const closeIfAnyInStackIsOutOfRange = (slot) => {
+    const inv = inventory[slot];
+    if (!inv.open || !inv.stack.length) return false;
+
+    const outOfRange = inv.stack.some(
+      (item) => !isInRangeOfPlayer(item) && !isInEquipArea(item)
+    );
+
+    if (outOfRange) {
+      inv.open = false;
+      inv.item = null;
+      inv.stack = [];
       return true;
-    };
+    }
+
     return false;
   };
 
-  // Close second slot if item is out of range
-  closeIfOutOfRange("two");
+  // Step 1: Check and close inventory.one if needed
+  const oneClosed = closeIfAnyInStackIsOutOfRange("one");
 
-  // Close first slot if item is out of range
-  if (closeIfOutOfRange("one") && inventory.two.open) {
-    // Move second slot item to first slot if it's valid
-    if (isInRangeOfPlayer(inventory.two.item) || isInEquipArea(inventory.two.item)) {
-      inventory.one.open = true;
-      inventory.one.item = inventory.two.item;
-      inventory.two.open = false;
-      inventory.two.item = null;
-    };
-  };
+  // Step 2: If inventory.one closed and inventory.two is still open, promote two to one
+  if (oneClosed && inventory.two.open) {
+    inventory.one.open = true;
+    inventory.one.item = inventory.two.item;
+    inventory.one.stack = [...inventory.two.stack];
+
+    inventory.two.open = false;
+    inventory.two.item = null;
+    inventory.two.stack = [];
+
+    // Step 3: Check the newly promoted inventory.one for range validity
+    closeIfAnyInStackIsOutOfRange("one");
+  }
+
+  // Step 4: Always check two again last in case it's still open and invalid
+  closeIfAnyInStackIsOutOfRange("two");
 };
 
 export const handleInventory = (item) => {
@@ -507,27 +520,43 @@ export const handleInventory = (item) => {
     if (!inventory.one.item) { // opens in first inventory
       inventory.one.item = item;
       inventory.one.open = true;
+      inventory.one.stack.push(item);
     } else if (item !== inventory.one.item && !inventory.two.item) { // opens in second inventory
       inventory.two.item = item;
       inventory.two.open = true;
+      inventory.two.stack.push(item);
     } else if (inventory.one.item === item) { // closes first inventory
       inventory.one.item = null;
       inventory.one.open = false;
+      inventory.one.stack.pop();
       if (inventory.two.item) { // because first inventory closed, if second inventory is open, set the second to the first, and close the second
         inventory.one.item = inventory.two.item;
         inventory.one.open = inventory.two.open;
+        inventory.one.stack = [];
+        inventory.one.stack.push(...inventory.two.stack);
         inventory.two.item = null;
         inventory.two.open = false;
+        inventory.two.stack = [];
       }
     } else if (inventory.two.item === item) { // else close the second inventory
       inventory.two.item = null;
       inventory.two.open = false;
+      inventory.two.stack.pop();
     } else if (inventory.one.item.contents.includes(item) && item.hasOwnProperty("contents") && inventory.two.open) { // opens bags in bags, first inventory
       inventory.one.item = item;
+      inventory.one.stack.push(item);
     } else if (inventory.two.item.contents.includes(item) && item.hasOwnProperty("contents")) { // opens bags in bags, second inventory
       inventory.two.item = item;
+      inventory.two.stack.push(item)
+    } else if (inventory.one.open && inventory.two.open) {
+      inventory.two.item = item;
+      inventory.two.stack = [];
+      inventory.two.stack.push(item);
     }
   };
+
+  if (!inventory.one.open) inventory.one.stack = [];
+  if (!inventory.two.open) inventory.two.stack = [];
 };
 
 export const drawInventory = () => {
