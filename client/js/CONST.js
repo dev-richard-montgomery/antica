@@ -101,7 +101,7 @@ const equipSlotsHighlightSpriteLocations = {
 
 // inventory variables
 const inventory = {
-  one: { item: null, open: false, start: null, size: null, scroll: 0, stack: [], backBtn: {x: null, y: null, size: 32} },
+  one: { item: null, open: false, start: null, size: null, scroll: 0, stack: [], backBtn: {x: null, y: null, size: 32}, parentContainer: false },
   two: { item: null, open: false, start: null, size: null, scroll: 0, stack: [], backBtn: {x: null, y: null, size: 32} }
 };
 

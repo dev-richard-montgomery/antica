@@ -476,87 +476,141 @@ const equipSlotHighlight = () => {
 };
 
 export const containerOutOfRange = () => {
-  const closeIfAnyInStackIsOutOfRange = (slot) => {
-    const inv = inventory[slot];
-    if (!inv.open || !inv.stack.length) return false;
+  if (inventory.two.open) {
+    const parent = inventory.one.parentContainer
+      ? inventory.one.stack[0]
+      : inventory.two.stack[0];
 
-    const outOfRange = inv.stack.some(
-      (item) => !isInRangeOfPlayer(item) && !isInEquipArea(item)
-    );
+    const outOfRange =
+      !isInRangeOfPlayer(parent) && !isInEquipArea(parent);
 
     if (outOfRange) {
-      inv.open = false;
-      inv.item = null;
-      inv.stack = [];
-      return true;
+      inventory.two.open = false;
+      inventory.two.item = null;
+      inventory.two.stack = [];
+
+      if (inventory.one.parentContainer) {
+        inventory.one.parentContainer = false;
+      }
     }
-
-    return false;
-  };
-
-  // Step 1: Check and close inventory.one if needed
-  const oneClosed = closeIfAnyInStackIsOutOfRange("one");
-
-  // Step 2: If inventory.one closed and inventory.two is still open, promote two to one
-  if (oneClosed && inventory.two.open) {
-    inventory.one.open = true;
-    inventory.one.item = inventory.two.item;
-    inventory.one.stack = [...inventory.two.stack];
-
-    inventory.two.open = false;
-    inventory.two.item = null;
-    inventory.two.stack = [];
-
-    // Step 3: Check the newly promoted inventory.one for range validity
-    closeIfAnyInStackIsOutOfRange("one");
   }
 
-  // Step 4: Always check two again last in case it's still open and invalid
-  closeIfAnyInStackIsOutOfRange("two");
+  if (inventory.one.open) {
+    const parent = inventory.one.stack[0];
+    const outOfRange =
+      !isInRangeOfPlayer(parent) && !isInEquipArea(parent);
+
+    if (outOfRange) {
+      inventory.one.open = false;
+      inventory.one.item = null;
+      inventory.one.stack = [];
+
+      if (inventory.two.open) {
+        inventory.one.open = true;
+        inventory.one.item = inventory.two.item;
+        inventory.one.stack = [...inventory.two.stack];
+
+        inventory.two.open = false;
+        inventory.two.item = null;
+        inventory.two.stack = [];
+      }
+    }
+  }
 };
 
 export const handleInventory = (item) => {
-  if (isInRangeOfPlayer(item) || player.equipped.back === item) {
-    if (!inventory.one.item) { // opens in first inventory
-      inventory.one.item = item;
-      inventory.one.open = true;
-      inventory.one.stack.push(item);
-    } else if (item !== inventory.one.item && !inventory.two.item) { // opens in second inventory
-      inventory.two.item = item;
-      inventory.two.open = true;
-      inventory.two.stack.push(item);
-    } else if (inventory.one.item === item) { // closes first inventory
-      inventory.one.item = null;
-      inventory.one.open = false;
-      inventory.one.stack.pop();
-      if (inventory.two.item) { // because first inventory closed, if second inventory is open, set the second to the first, and close the second
-        inventory.one.item = inventory.two.item;
-        inventory.one.open = inventory.two.open;
-        inventory.one.stack = [];
-        inventory.one.stack.push(...inventory.two.stack);
-        inventory.two.item = null;
-        inventory.two.open = false;
-        inventory.two.stack = [];
-      }
-    } else if (inventory.two.item === item) { // else close the second inventory
-      inventory.two.item = null;
-      inventory.two.open = false;
-      inventory.two.stack.pop();
-    } else if (inventory.one.item.contents.includes(item) && item.hasOwnProperty("contents") && inventory.two.open) { // opens bags in bags, first inventory
-      inventory.one.item = item;
-      inventory.one.stack.push(item);
-    } else if (inventory.two.item.contents.includes(item) && item.hasOwnProperty("contents")) { // opens bags in bags, second inventory
-      inventory.two.item = item;
-      inventory.two.stack.push(item)
-    } else if (inventory.one.open && inventory.two.open) {
-      inventory.two.item = item;
-      inventory.two.stack = [];
-      inventory.two.stack.push(item);
-    }
-  };
+  const inRange = isInRangeOfPlayer(item) || player.equipped.back === item;
+  if (!inRange) return;
 
-  if (!inventory.one.open) inventory.one.stack = [];
-  if (!inventory.two.open) inventory.two.stack = [];
+  const isBag = item.hasOwnProperty("contents");
+
+  // Open first inventory
+  if (!inventory.one.item) {
+    inventory.one.open = true;
+    inventory.one.item = item;
+    inventory.one.stack = [item];
+    return;
+  }
+
+  const itemInOne = inventory.one.stack.includes(item);
+  const itemInTwo = inventory.two.stack.includes(item);
+
+  // Open nested container from inventory.one into inventory.two
+  if (inventory.one.item.contents?.includes(item) && isBag && !inventory.two.open) {
+    inventory.two.open = true;
+    inventory.two.item = item;
+    inventory.two.stack = [item];
+    inventory.one.parentContainer = true;
+    return;
+  }
+
+  // Open second inventory if it's not related to first
+  if (!itemInOne && !inventory.two.item) {
+    inventory.two.open = true;
+    inventory.two.item = item;
+    inventory.two.stack = [item];
+    return;
+  }
+
+  // Close inventory.one
+  if (inventory.one.item === item) {
+    inventory.one.stack.pop();
+    inventory.one.item = inventory.one.stack.at(-1) || null;
+    inventory.one.open = inventory.one.item !== null;
+
+    if (!inventory.one.open && inventory.two.item) {
+      inventory.one.open = true;
+      inventory.one.item = inventory.two.item;
+      inventory.one.stack = [...inventory.two.stack];
+
+      inventory.two.open = false;
+      inventory.two.item = null;
+      inventory.two.stack = [];
+    }
+
+    return;
+  }
+
+  // Close inventory.two
+  if (inventory.two.item === item) {
+    inventory.two.stack.pop();
+    inventory.two.item = inventory.two.stack.at(-1) || null;
+    inventory.two.open = inventory.two.item !== null;
+    return;
+  }
+
+  // Open nested bag in inventory.one
+  if (inventory.one.item.contents?.includes(item) && isBag && inventory.two.open) {
+    inventory.one.item = item;
+    inventory.one.stack.push(item);
+    return;
+  }
+
+  // Open nested bag in inventory.two
+  if (inventory.two.item?.contents?.includes(item) && isBag) {
+    inventory.two.item = item;
+    inventory.two.stack.push(item);
+    return;
+  }
+
+  // Replace inventory.two when both inventories are open
+  if (inventory.one.open && inventory.two.open) {
+    inventory.two.item = item;
+    inventory.two.stack = [item];
+    return;
+  }
+
+  // Final cleanup
+  if (!inventory.one.open) {
+    inventory.one.item = null;
+    inventory.one.stack = [];
+    inventory.one.parentContainer = false;
+  }
+
+  if (!inventory.two.open) {
+    inventory.two.item = null;
+    inventory.two.stack = [];
+  }
 };
 
 export const drawInventory = () => {
