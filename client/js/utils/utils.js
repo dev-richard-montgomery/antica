@@ -316,29 +316,45 @@ export const ensureValidItemPlacement = (item) => {
   }
 };
 
-// export const handleInventoryBackButtonClick = (mouseX, mouseY) => {
-//   const checkClick = (inventory) => {
-//     const x = inventory.backBtn.x;
-//     const y = inventory.backBtn.y;
-//     const size = inventory.backBtn.size;
-//     return mouseX >= x && mouseX <= x + size &&
-//            mouseY >= y && mouseY <= y + size;
-//   };
+export const handleInventoryBackButtonClick = (mouseX, mouseY) => {
+  const wasClicked = (inv) => {
+    const { x, y, size } = inv.backBtn;
+    return mouseX >= x && mouseX <= x + size &&
+           mouseY >= y && mouseY <= y + size;
+  };
 
-//   if (inventory.one.open && inventory.one.stack.length > 0 && checkClick(inventory.one)) {
-//     inventory.one.stack.pop();
-//     inventory.one.item = inventory.one.stack[inventory.one.stack.length - 1];
-//     return true;
-//   };
+  const closeTopItem = (inv) => {
+    inv.stack.pop();
+    inv.item = inv.stack.at(-1) || null;
+    inv.open = !!inv.item;
+  };
 
-//   if (inventory.two.open && inventory.two.stack.length > 0 && checkClick(inventory.two)) {
-//     inventory.two.stack.pop();
-//     inventory.two.item = inventory.two.stack[inventory.two.stack.length - 1];
-//     return true;
-//   }
+  // Handle back click in first inventory
+  if (inventory.one.open && wasClicked(inventory.one)) {
+    closeTopItem(inventory.one);
 
-//   return false;
-// };
+    // Promote second inventory if first is now empty
+    if (!inventory.one.open && inventory.two.open) {
+      inventory.one.item = inventory.two.item;
+      inventory.one.stack = [...inventory.two.stack];
+      inventory.one.open = true;
+
+      inventory.two.item = null;
+      inventory.two.stack = [];
+      inventory.two.open = false;
+    }
+
+    return true;
+  }
+
+  // Handle back click in second inventory
+  if (inventory.two.open && wasClicked(inventory.two)) {
+    closeTopItem(inventory.two);
+    return true;
+  }
+
+  return false;
+};
 
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
