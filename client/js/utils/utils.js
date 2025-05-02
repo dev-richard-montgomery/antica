@@ -316,20 +316,44 @@ export const ensureValidItemPlacement = (item) => {
   }
 };
 
+// export const handleInventoryBackButtonClick = (mouseX, mouseY) => {
+//   const checkClick = (inventory) => {
+//     const x = inventory.backBtn.x;
+//     const y = inventory.backBtn.y;
+//     const size = inventory.backBtn.size;
+//     return mouseX >= x && mouseX <= x + size &&
+//            mouseY >= y && mouseY <= y + size;
+//   };
+
+//   if (inventory.one.open && inventory.one.stack.length > 0 && checkClick(inventory.one)) {
+//     inventory.one.stack.pop();
+//     inventory.one.item = inventory.one.stack[inventory.one.stack.length - 1];
+//     return true;
+//   };
+
+//   if (inventory.two.open && inventory.two.stack.length > 0 && checkClick(inventory.two)) {
+//     inventory.two.stack.pop();
+//     inventory.two.item = inventory.two.stack[inventory.two.stack.length - 1];
+//     return true;
+//   }
+
+//   return false;
+// };
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return;
 
-  // 🧹 Remove from equipment or inventory
+  // Remove from equipment or inventory
   items.removeItemFromAnywhere(item);
 
-  // 🌍 Update world positioning
+  // Update world positioning
   item.category = 'world';
   item.worldPosition = { x: newFrameX, y: newFrameY };
   item.held = false;
   item.hover = false;
 
-  // 📦 Try stacking with a topmost item
+  // Try stacking with a topmost item
   const topmost = findTopMostStackableItemAtPosition(item);
   if (topmost && topmost.id !== item.id) {
     items.combineItems(topmost, item);
@@ -452,60 +476,141 @@ const equipSlotHighlight = () => {
 };
 
 export const containerOutOfRange = () => {
-  const closeIfOutOfRange = (slot) => {
-    if (inventory[slot].open && 
-      !isInEquipArea(inventory[slot].item) && 
-      !isInRangeOfPlayer(inventory[slot].item)) {
-      inventory[slot].open = false;
-      inventory[slot].item = null;
-      return true;
-    };
-    return false;
-  };
+  if (inventory.two.open) {
+    const parent = inventory.one.parentContainer
+      ? inventory.one.stack[0]
+      : inventory.two.stack[0];
 
-  // Close second slot if item is out of range
-  closeIfOutOfRange("two");
+    const outOfRange =
+      !isInRangeOfPlayer(parent) && !isInEquipArea(parent);
 
-  // Close first slot if item is out of range
-  if (closeIfOutOfRange("one") && inventory.two.open) {
-    // Move second slot item to first slot if it's valid
-    if (isInRangeOfPlayer(inventory.two.item) || isInEquipArea(inventory.two.item)) {
-      inventory.one.open = true;
-      inventory.one.item = inventory.two.item;
+    if (outOfRange) {
       inventory.two.open = false;
       inventory.two.item = null;
-    };
-  };
+      inventory.two.stack = [];
+
+      if (inventory.one.parentContainer) {
+        inventory.one.parentContainer = false;
+      }
+    }
+  }
+
+  if (inventory.one.open) {
+    const parent = inventory.one.stack[0];
+    const outOfRange =
+      !isInRangeOfPlayer(parent) && !isInEquipArea(parent);
+
+    if (outOfRange) {
+      inventory.one.open = false;
+      inventory.one.item = null;
+      inventory.one.stack = [];
+
+      if (inventory.two.open) {
+        inventory.one.open = true;
+        inventory.one.item = inventory.two.item;
+        inventory.one.stack = [...inventory.two.stack];
+
+        inventory.two.open = false;
+        inventory.two.item = null;
+        inventory.two.stack = [];
+      }
+    }
+  }
 };
 
 export const handleInventory = (item) => {
-  if (isInRangeOfPlayer(item) || player.equipped.back === item) {
-    if (!inventory.one.item) { // opens in first inventory
-      inventory.one.item = item;
+  const inRange = isInRangeOfPlayer(item) || player.equipped.back === item;
+  if (!inRange) return;
+
+  const isBag = item.hasOwnProperty("contents");
+
+  // Open first inventory
+  if (!inventory.one.item) {
+    inventory.one.open = true;
+    inventory.one.item = item;
+    inventory.one.stack = [item];
+    return;
+  }
+
+  const itemInOne = inventory.one.stack.includes(item);
+  const itemInTwo = inventory.two.stack.includes(item);
+
+  // Open nested container from inventory.one into inventory.two
+  if (inventory.one.item.contents?.includes(item) && isBag && !inventory.two.open) {
+    inventory.two.open = true;
+    inventory.two.item = item;
+    inventory.two.stack = [item];
+    inventory.one.parentContainer = true;
+    return;
+  }
+
+  // Open second inventory if it's not related to first
+  if (!itemInOne && !inventory.two.item) {
+    inventory.two.open = true;
+    inventory.two.item = item;
+    inventory.two.stack = [item];
+    return;
+  }
+
+  // Close inventory.one
+  if (inventory.one.item === item) {
+    inventory.one.stack.pop();
+    inventory.one.item = inventory.one.stack.at(-1) || null;
+    inventory.one.open = inventory.one.item !== null;
+
+    if (!inventory.one.open && inventory.two.item) {
       inventory.one.open = true;
-      inventory.expanded = true;
-    } else if (item !== inventory.one.item && !inventory.two.item) { // opens in second inventory
-      inventory.two.item = item;
-      inventory.two.open = true;
-      inventory.expanded = false;
-    } else if (inventory.one.item === item) { // closes first inventory
-      inventory.one.item = null;
-      inventory.one.open = false;
-      inventory.expanded = false;
-      
-      if (inventory.two.item) { // because first inventory closed, if second inventory is open, set the second to the first, and close the second
-        inventory.one.item = inventory.two.item;
-        inventory.one.open = inventory.two.open;
-        inventory.two.item = null;
-        inventory.two.open = false;
-        inventory.expanded = true;
-      }
-    } else if (inventory.two.item === item) { // else close the second inventory
-      inventory.two.item = null;
+      inventory.one.item = inventory.two.item;
+      inventory.one.stack = [...inventory.two.stack];
+
       inventory.two.open = false;
-      inventory.expanded = true;
-    };
-  };
+      inventory.two.item = null;
+      inventory.two.stack = [];
+    }
+
+    return;
+  }
+
+  // Close inventory.two
+  if (inventory.two.item === item) {
+    inventory.two.stack.pop();
+    inventory.two.item = inventory.two.stack.at(-1) || null;
+    inventory.two.open = inventory.two.item !== null;
+    return;
+  }
+
+  // Open nested bag in inventory.one
+  if (inventory.one.item.contents?.includes(item) && isBag && inventory.two.open) {
+    inventory.one.item = item;
+    inventory.one.stack.push(item);
+    return;
+  }
+
+  // Open nested bag in inventory.two
+  if (inventory.two.item?.contents?.includes(item) && isBag) {
+    inventory.two.item = item;
+    inventory.two.stack.push(item);
+    return;
+  }
+
+  // Replace inventory.two when both inventories are open
+  if (inventory.one.open && inventory.two.open) {
+    inventory.two.item = item;
+    inventory.two.stack = [item];
+    return;
+  }
+
+  // Final cleanup
+  if (!inventory.one.open) {
+    inventory.one.item = null;
+    inventory.one.stack = [];
+    inventory.one.parentContainer = false;
+  }
+
+  if (!inventory.two.open) {
+    inventory.two.item = null;
+    inventory.two.stack = [];
+  }
 };
 
 export const drawInventory = () => {
@@ -526,13 +631,15 @@ export const drawInventory = () => {
     // then a backpack with 20 items should only let you scroll up or down once. If a backpack has 40, you should be able to scroll 6 times. I'll just hardcode it.
 
     // draw left arrow
-    ctx.drawImage(items.image, left.x, left.y, 64, 32, visibleArea.width + 16, inventory.start, 64, 32);
-
+    ctx.drawImage(ui.image, left.x, left.y, 64, 32, visibleArea.width, inventory.start, 64, 32);
+    
     // draws inventory container in middle
     ctx.drawImage(items.image, inventory.item.spritePosition.x, inventory.item.spritePosition.y, 64, 64, visibleArea.width + 64 + 16, inventory.start, 32, 32);
+    inventory.backBtn.x = visibleArea.width + 64 + 16;
+    inventory.backBtn.y = inventory.start;
 
     // draw right arrow
-    ctx.drawImage(items.image, right.x, right.y, 64, 32, visibleArea.width + 64 + 64 + 16, inventory.start, 64, 32);
+    ctx.drawImage(ui.image, right.x, right.y, 64, 32, visibleArea.width + 128, inventory.start, 64, 32);
   };
 
   const drawSection = (inventory, scroll) => {  
