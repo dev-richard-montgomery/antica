@@ -8,6 +8,7 @@ import {
   attemptFishing, 
   clearHoverStates,
   handleInventory,
+  handleInventoryBackButtonClick,
   isCursorOverItem,
   isStackableItemInInventory,
   moveToEquip, 
@@ -92,7 +93,12 @@ export const handleMouseDown = (e) => {
     player.isFishing = false;
     canvas.style.cursor = 'pointer';
   };
+  
+  if (ui.state.activeToggle === 'inventory') {
+    handleInventoryBackButtonClick(offsetX, offsetY);
+  };
 };
+
 
 export const handleMouseUp = (e) => {
   if (!state.heldItem) return;
