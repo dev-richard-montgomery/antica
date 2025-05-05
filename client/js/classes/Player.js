@@ -164,7 +164,20 @@ class Player {
     };
   };
 
-  getBagCapacity = (backpack = this.equipped.back) => {
+  getEquippedCapacity() {
+    let total = 0;
+  
+    for (const slot in this.equipped) {
+      const item = this.equipped[slot];
+      if (item?.stats?.capacity) {
+        total += item.stats.capacity;
+      }
+    }
+  
+    return total;
+  }  
+
+  getBagCapacity(backpack = this.equipped.back) {
     let total = 0;
   
     // Base case: if it's not a valid container, return 0
@@ -184,7 +197,7 @@ class Player {
     return total;
   };
   
-  updateStats = (oldItem = null, newItem = null) => {
+  updateStats(oldItem = null, newItem = null) {
     // removes stats from equipped
     if (oldItem) {
       for (const stat in oldItem.stats) {
