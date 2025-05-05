@@ -150,7 +150,7 @@ const centerMessage = {
   text: '',
   startTime: null,
   duration: 2000,
-  fadeDuration: 500,
+  fadeDuration: 500
 };
 
 const npcData = {

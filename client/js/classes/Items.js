@@ -1,9 +1,17 @@
-import { findTopMostStackableItemAtPosition, generateHexId, isInEquipArea, isInInventoryArea, isInRenderArea } from '../utils/utils.js';
+import { 
+  findItemContainer, 
+  findTopMostStackableItemAtPosition, 
+  generateHexId, 
+  isInEquipArea, 
+  isInInventoryArea, 
+  isInRenderArea, 
+  showCustomPrompt,
+  updatePlayerCapacity 
+} from '../utils/utils.js';
 import { resources } from '../utils/resources.js';
 import { player } from './Player.js';
 import { ui } from './UserInterface.js';
 import { ctx, inventory, state } from '../CONST.js';
-import { findItemContainer, showCustomPrompt } from '../utils/utils.js';
 
 class Items {
   constructor() {
@@ -137,6 +145,7 @@ class Items {
         console.log(`Removed ${item.name} from container.`);
       }
     }
+    updatePlayerCapacity();
   };
 
   updateItemDrawPosition(item) {

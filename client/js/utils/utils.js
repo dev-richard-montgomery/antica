@@ -69,6 +69,10 @@ export const updateItemHoverState = (offsetX, offsetY, array = items.allItems) =
   return hoverDetected;
 };
 
+export const updatePlayerCapacity = () => {
+  player.state.capacity = player.getEquippedCapacity() + player.getBagCapacity();
+};
+
 // messages
 export const showCustomPrompt = (question, callback) => {
   const promptBox = document.getElementById("customPrompt");
@@ -136,7 +140,7 @@ export const drawCenterMessage = () => {
   ctx.fillStyle = "white";
   ctx.strokeStyle = "gold";
   ctx.lineWidth = 3;
-  ctx.font = "bold 36px serif";
+  ctx.font = "28px serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -163,8 +167,8 @@ export const currentAnimation = () => {
   };
 };
 
-// check valid areas
-export const isInRenderArea = (item) => {
+// validators
+export const isInRenderArea = item => {
   // Ensure worldPosition exists and has valid numbers for x and y
   if (
     !item.worldPosition || 
@@ -188,7 +192,7 @@ export const isInRenderArea = (item) => {
   return x >= startX && x <= endX && y >= startY && y <= endY;
 };
 
-export const isInEquipArea = (item) => {
+export const isInEquipArea = item => {
   const { x, y } = item.drawPosition;
   
   return Object.values(equipSlots).some(slot =>
@@ -196,7 +200,7 @@ export const isInEquipArea = (item) => {
   );
 };
 
-export const isInInventoryArea = (item) => {
+export const isInInventoryArea = item => {
   const slotSize = 48; // Assuming each inventory slot is 32x32 pixels
   const slotsPerRow = 4;
 
@@ -230,7 +234,7 @@ export const isInInventoryArea = (item) => {
          isInSlot(secondStartX, secondStartY, secondSlots, item.x, item.y);
 };
 
-export const isInRangeOfPlayer = (item) => {
+export const isInRangeOfPlayer = item => {
   const playerFrameX = player.worldPosition.x;
   const playerFrameY = player.worldPosition.y;
 
@@ -249,7 +253,7 @@ export const isCursorOverItem = (item, offsetX, offsetY, size = 64) => {
   );
 };
 
-export const findTopMostStackableItemAtPosition = (currItem) => {
+export const findTopMostStackableItemAtPosition = currItem => {
   let topAtPosition = null;
 
   for (let i = items.allItems.length - 1; i >= 0; i--) {
@@ -309,7 +313,7 @@ export const isStackableItemInInventory = (item1, item2, offsetX, offsetY, pixel
   );
 };
 
-export const ensureValidItemPlacement = (item) => {
+export const ensureValidItemPlacement = item => {
   if (!item.category || (item.category === 'inventory' && !findItemContainer(item, items.allItems))) {
     console.warn(`Item "${item.name}" had no valid category or container. Moving to visible area.`);
     moveToVisibleArea(item, player.worldPosition.x, player.worldPosition.y);
@@ -356,6 +360,15 @@ export const handleInventoryBackButtonClick = (mouseX, mouseY) => {
   return false;
 };
 
+export const weightCheck = (item, remove1 = 0, remove2 = 0) => {
+  const equippedWeight = player.getEquippedCapacity();
+  const inventoryWeight = player.getBagCapacity();
+  const itemWeight = item?.stats?.capacity || 0;
+
+  const totalWeight = equippedWeight + inventoryWeight + itemWeight - remove1 - remove2;
+  return totalWeight <= player.baseStats.capacity;
+};
+
 // move destinations :: equip area, inventory, on visible map, out of range
 export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   if (!item) return;
@@ -386,10 +399,9 @@ export const moveToEquip = (item, slot) => {
   if (!item || item.type !== slot) return;
 
   if (player.equipped[slot]?.id === item.id) {
-    showCenterMessage("No room in inventory! Dropped items at your feet.");
     return;
   }
-  
+
   const mainhandItem = player.equipped.mainhand;
   const offhandItem = player.equipped.offhand;
   const currentlyEquipped = player.equipped[slot];
@@ -397,20 +409,23 @@ export const moveToEquip = (item, slot) => {
   const hasInventory = inventory.one.open && backpack;
   const inventoryHasSpace = hasInventory && backpack.contents.length < backpack.stats.slots;
 
-  // 🧹 Remove item from wherever it's coming from
+  if (!weightCheck(item, currentlyEquipped?.stats?.capacity || 0)) {
+    showCenterMessage(`Not enough available capacity to equip ${item.name}`)
+    return;
+  }
+
   items.removeItemFromAnywhere(item);
 
-  // 🔁 Helper: try to store item in inventory, or drop it
   const tryStoreOrDrop = (equipItem) => {
     if (!equipItem) return;
-    if (inventoryHasSpace) {
+
+    if (inventoryHasSpace && weightCheck(equipItem)) {
       moveToInventory(equipItem, backpack);
     } else {
       moveToVisibleArea(equipItem, player.worldPosition.x, player.worldPosition.y);
     }
   };
 
-  // ⚔️ Twohander logic: unequip offhand if equipping twohander
   if (item.type === "mainhand" && item.stats?.twohander) {
     if (offhandItem) {
       tryStoreOrDrop(offhandItem);
@@ -422,18 +437,15 @@ export const moveToEquip = (item, slot) => {
     }
   }
 
-  // 🛡 If equipping offhand and mainhand is twohander, unequip mainhand
   if (item.type === "offhand" && mainhandItem?.stats?.twohander) {
     tryStoreOrDrop(mainhandItem);
     player.equipped.mainhand = null;
   }
 
-  // 🔁 Handle standard slot swap (different item in same slot)
   if (currentlyEquipped && currentlyEquipped.id !== item.id) {
     tryStoreOrDrop(currentlyEquipped);
   }
 
-  // ✅ Equip item
   item.category = 'equipped';
   item.worldPosition = null;
   item.drawPosition = { x: equipSlots[slot].x, y: equipSlots[slot].y };
@@ -443,6 +455,7 @@ export const moveToEquip = (item, slot) => {
   player.equipped[slot] = item;
   updateItemsArray(item);
   ensureValidItemPlacement(item);
+  updatePlayerCapacity();
   console.log(`Equipped ${item.name} in ${slot}`);
 };
 
@@ -452,16 +465,18 @@ export const moveToInventory = (item, container) => {
   const inventoryFull = container.contents.length >= container.stats.slots;
   if (inventoryFull) return;
 
-  // Prevent re-adding an item already inside
+  if (!weightCheck(item)) {
+    showCenterMessage(`Not enough available capacity to carry ${item.name}`);
+    return;
+  }
+
   if (container.contents.includes(item)) {
     updateItemsArray(item, container.contents);
     return;
   }
 
-  // 🧹 Remove the item from wherever it is currently
   items.removeItemFromAnywhere(item);
 
-  // ✅ Set item state and add to container
   item.category = 'inventory';
   item.worldPosition = null;
   item.held = false;
@@ -470,6 +485,7 @@ export const moveToInventory = (item, container) => {
   container.contents.push(item);
   updateItemsArray(item);
   ensureValidItemPlacement(item);
+  updatePlayerCapacity();
   console.log(`Moved ${item.name} to inventory`);
 };
 
@@ -534,7 +550,7 @@ export const containerOutOfRange = () => {
   }
 };
 
-export const handleInventory = (item) => {
+export const handleInventory = item => {
   const inRange = isInRangeOfPlayer(item) || player.equipped.back === item;
   if (!inRange) return;
 
@@ -763,3 +779,7 @@ export const attemptFishing = () => {
 
   player.isFishing = false;
 };
+
+// fix capacity switching items between equip and inventory
+// inventory arrow behavior
+// modifiers
