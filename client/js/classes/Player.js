@@ -190,7 +190,7 @@ class Player {
   
       // Recurse if item has contents (i.e., it's a nested bag)
       if (item?.contents?.length) {
-        total += getBagCapacity(item);
+        total += this.getBagCapacity(item);
       }
     }
   

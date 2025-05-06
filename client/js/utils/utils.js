@@ -360,12 +360,12 @@ export const handleInventoryBackButtonClick = (mouseX, mouseY) => {
   return false;
 };
 
-export const weightCheck = (item, remove1 = 0, remove2 = 0) => {
+export const weightCheck = (item, remove = 0) => {
   const equippedWeight = player.getEquippedCapacity();
   const inventoryWeight = player.getBagCapacity();
-  const itemWeight = item?.stats?.capacity || 0;
+  const itemWeight = item.category === 'world' ? item?.stats?.capacity : 0; // this makes sure the weight is not already accounted for, equipped or already in the inventory
 
-  const totalWeight = equippedWeight + inventoryWeight + itemWeight - remove1 - remove2;
+  const totalWeight = equippedWeight + inventoryWeight + itemWeight - remove;
   return totalWeight <= player.baseStats.capacity;
 };
 
@@ -780,6 +780,6 @@ export const attemptFishing = () => {
   player.isFishing = false;
 };
 
-// fix capacity switching items between equip and inventory
+// fix equipping backpack on backpack
 // inventory arrow behavior
 // modifiers
