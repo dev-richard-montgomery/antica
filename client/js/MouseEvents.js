@@ -139,7 +139,6 @@ export const handleMouseUp = (e) => {
     moveToEquip(state.heldItem, inEquipSlot);
 
   // Handle first inventory slot
-  
   } else if (inFirstInventory && inventory.one.open) {
     const stackableItem = items.allItems.find(item =>
       item !== state.heldItem &&
@@ -170,7 +169,7 @@ export const handleMouseUp = (e) => {
     if (isWaterTile) {
       console.log(`Dropped ${state.heldItem.name} in water.`);
       splash.start(drawX, drawY);
-      items.deleteItem(state.heldItem);
+      items.deleteItemFromAllItems(state.heldItem);
     } else if (isBoundaryTile) {
       items.resetItemPosition(state.heldItem, state.lastValidPosition);
     } else {

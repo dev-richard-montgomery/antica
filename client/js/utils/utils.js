@@ -393,6 +393,7 @@ export const moveToVisibleArea = (item, newFrameX, newFrameY) => {
   }
   ensureValidItemPlacement(item);
   containerOutOfRange(movement.lastMouseX, movement.lastMouseY);
+  updatePlayerCapacity();
 };
 
 export const moveToEquip = (item, slot) => {
@@ -401,7 +402,7 @@ export const moveToEquip = (item, slot) => {
   if (player.equipped[slot]?.id === item.id) {
     return;
   }
-
+  
   const mainhandItem = player.equipped.mainhand;
   const offhandItem = player.equipped.offhand;
   const currentlyEquipped = player.equipped[slot];
@@ -410,8 +411,17 @@ export const moveToEquip = (item, slot) => {
   const inventoryHasSpace = hasInventory && backpack.contents.length < backpack.stats.slots;
 
   if (!weightCheck(item, currentlyEquipped?.stats?.capacity || 0)) {
-    showCenterMessage(`Not enough available capacity to equip ${item.name}`)
+    showCenterMessage(`Not enough capacity to equip ${item.name}.`)
     return;
+  }
+
+  if (currentlyEquipped && currentlyEquipped.id !== item.id) {
+    if (slot === 'back' && item.hasOwnProperty('contents')) {    
+      if (item.category === 'inventory') {
+        showCenterMessage(`Unequip current back item first.`)
+        return;
+      }
+    }
   }
 
   items.removeItemFromAnywhere(item);
@@ -422,11 +432,11 @@ export const moveToEquip = (item, slot) => {
     if (inventoryHasSpace && weightCheck(equipItem)) {
       moveToInventory(equipItem, backpack);
     } else {
-      moveToVisibleArea(equipItem, player.worldPosition.x, player.worldPosition.y);
+      moveToVisibleArea(equipItem, item.worldPosition.x, item.worldPosition.y);
     }
   };
 
-  if (item.type === "mainhand" && item.stats?.twohander) {
+  if (item.type === 'mainhand' && item.stats?.twohander) {
     if (offhandItem) {
       tryStoreOrDrop(offhandItem);
       player.equipped.offhand = null;
@@ -437,13 +447,17 @@ export const moveToEquip = (item, slot) => {
     }
   }
 
-  if (item.type === "offhand" && mainhandItem?.stats?.twohander) {
+  if (item.type === 'offhand' && mainhandItem?.stats?.twohander) {
     tryStoreOrDrop(mainhandItem);
     player.equipped.mainhand = null;
   }
 
   if (currentlyEquipped && currentlyEquipped.id !== item.id) {
-    tryStoreOrDrop(currentlyEquipped);
+    if (slot === 'back' && item.hasOwnProperty('contents')) {
+      if (item.category === 'world') {
+        moveToVisibleArea(currentlyEquipped, item.worldPosition.x, item.worldPosition.y);
+      }
+    }
   }
 
   item.category = 'equipped';
@@ -456,7 +470,6 @@ export const moveToEquip = (item, slot) => {
   updateItemsArray(item);
   ensureValidItemPlacement(item);
   updatePlayerCapacity();
-  console.log(`Equipped ${item.name} in ${slot}`);
 };
 
 export const moveToInventory = (item, container) => {
@@ -466,7 +479,7 @@ export const moveToInventory = (item, container) => {
   if (inventoryFull) return;
 
   if (!weightCheck(item)) {
-    showCenterMessage(`Not enough available capacity to carry ${item.name}`);
+    showCenterMessage(`Not enough capacity to carry ${item.name}.`);
     return;
   }
 

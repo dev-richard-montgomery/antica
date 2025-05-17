@@ -89,6 +89,7 @@ class Items {
     };
 
     this.deleteItemFromAllItems(item2);
+    updatePlayerCapacity();
     return true;
   };
 
@@ -111,6 +112,7 @@ class Items {
       newItem.stats.size = amount;
       newItem.stats.weight = weightPerUnit * amount;
       state.heldItem = newItem;
+      updatePlayerCapacity();
       return true;
     });  
   };
