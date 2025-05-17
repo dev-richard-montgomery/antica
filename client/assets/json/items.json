@@ -271,7 +271,7 @@
       "spritePosition": { "x": 0, "y": 384 }
     },
     {
-      "name": "wooden buckler",
+      "name": "wooden shield",
       "type": "offhand",
       "skill": "defense",
       "stats": {
