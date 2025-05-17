@@ -402,7 +402,12 @@ export const moveToEquip = (item, slot) => {
   if (player.equipped[slot]?.id === item.id) {
     return;
   }
-  
+
+  if (slot === 'back' && item.category === 'inventory') {
+    showCenterMessage('Unequip current backpack first.');
+    return;
+  }
+
   const mainhandItem = player.equipped.mainhand;
   const offhandItem = player.equipped.offhand;
   const currentlyEquipped = player.equipped[slot];
@@ -413,15 +418,6 @@ export const moveToEquip = (item, slot) => {
   if (!weightCheck(item, currentlyEquipped?.stats?.capacity || 0)) {
     showCenterMessage(`Not enough capacity to equip ${item.name}.`)
     return;
-  }
-
-  if (currentlyEquipped && currentlyEquipped.id !== item.id) {
-    if (slot === 'back' && item.hasOwnProperty('contents')) {    
-      if (item.category === 'inventory') {
-        showCenterMessage(`Unequip current back item first.`)
-        return;
-      }
-    }
   }
 
   items.removeItemFromAnywhere(item);
@@ -436,7 +432,7 @@ export const moveToEquip = (item, slot) => {
     }
   };
 
-  if (item.type === 'mainhand' && item.stats?.twohander) {
+  if (item.type === "mainhand" && item.stats?.twohander) {
     if (offhandItem) {
       tryStoreOrDrop(offhandItem);
       player.equipped.offhand = null;
@@ -447,16 +443,16 @@ export const moveToEquip = (item, slot) => {
     }
   }
 
-  if (item.type === 'offhand' && mainhandItem?.stats?.twohander) {
+  if (item.type === "offhand" && mainhandItem?.stats?.twohander) {
     tryStoreOrDrop(mainhandItem);
     player.equipped.mainhand = null;
   }
 
   if (currentlyEquipped && currentlyEquipped.id !== item.id) {
-    if (slot === 'back' && item.hasOwnProperty('contents')) {
-      if (item.category === 'world') {
-        moveToVisibleArea(currentlyEquipped, item.worldPosition.x, item.worldPosition.y);
-      }
+    if (slot === 'back' && item.category === 'world') {
+      moveToVisibleArea(currentlyEquipped, item.worldPosition.x, item.worldPosition.y);
+    } else {
+      tryStoreOrDrop(currentlyEquipped);
     }
   }
 
@@ -470,6 +466,7 @@ export const moveToEquip = (item, slot) => {
   updateItemsArray(item);
   ensureValidItemPlacement(item);
   updatePlayerCapacity();
+  console.log(`Equipped ${item.name} in ${slot}`);
 };
 
 export const moveToInventory = (item, container) => {
